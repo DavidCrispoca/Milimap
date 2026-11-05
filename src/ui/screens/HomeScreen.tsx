@@ -9,11 +9,12 @@
 
 const PHASE_STEPS = [
   { label: 'Fase 0 · Cimientos y tooling', state: 'done' as const },
-  { label: 'Fase 1 · Motor de ruteo', state: 'next' as const },
-  { label: 'Fase 2 · Admin: contenido', state: 'todo' as const },
+  { label: 'Fase 1 · Motor de ruteo', state: 'done' as const },
+  { label: 'Fase 2 · Admin: contenido', state: 'next' as const },
   { label: 'Fase 3 · Admin: editor de mapa', state: 'todo' as const },
-  { label: 'Fase 4 · App: mapa y navegación', state: 'todo' as const },
+  { label: 'Fase 4 · App: mapa real con MapLibre', state: 'todo' as const },
   { label: 'Fases 5-6 · QR, eventos y horario', state: 'todo' as const },
+  { label: 'Fase 7 · Digitalización de planos', state: 'todo' as const },
 ]
 
 const DOT: Record<'done' | 'next' | 'todo', { className: string; glyph: string }> = {

@@ -9,6 +9,7 @@
 import { useState } from 'react'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { PlaceholderScreen } from './ui/screens/PlaceholderScreen'
+import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
 
 type View = 'home' | 'map' | 'scan' | 'schedule'
 
@@ -22,20 +23,12 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Inicio', icon: '🏠', readyIn: null },
-  { id: 'map', label: 'Mapa', icon: '🗺️', readyIn: 4 },
+  { id: 'map', label: 'Mapa', icon: '🗺️', readyIn: null },
   { id: 'scan', label: 'Escanear', icon: '📷', readyIn: 5 },
   { id: 'schedule', label: 'Horario', icon: '🗓️', readyIn: 6 },
 ]
 
-const PLACEHOLDERS: Record<
-  Exclude<View, 'home'>,
-  { title: string; phase: number; body: string }
-> = {
-  map: {
-    title: 'Mapa del campus',
-    phase: 4,
-    body: 'Vista 2D cenital con selector de piso, ruta resaltada e instrucciones paso a paso. Se construye sobre MapLibre GL JS con una fuente GeoJSON por piso.',
-  },
+const PLACEHOLDERS: Record<'scan' | 'schedule', { title: string; phase: number; body: string }> = {
   scan: {
     title: 'Escanear código QR',
     phase: 5,
@@ -51,7 +44,7 @@ const PLACEHOLDERS: Record<
 export function App() {
   const [view, setView] = useState<View>('home')
 
-  const placeholder = view === 'home' ? null : PLACEHOLDERS[view]
+  const placeholder = view === 'scan' || view === 'schedule' ? PLACEHOLDERS[view] : null
 
   return (
     <div className="app">
@@ -63,12 +56,14 @@ export function App() {
           <span className="app__brand-name">Milimap</span>
           <span className="app__brand-sub">UMNG · Sede Calle 100</span>
         </div>
-        <span className="app__phase">Fase 0</span>
+        <span className="app__phase">Fase 1</span>
       </header>
 
       <main className="app__main">
         {view === 'home' ? (
           <HomeScreen />
+        ) : view === 'map' ? (
+          <RouteDemoScreen />
         ) : placeholder ? (
           <PlaceholderScreen
             title={placeholder.title}
