@@ -1284,9 +1284,19 @@ repo para que quede versionado junto al código y su actualización sea parte de
 
 #### Pendiente al cerrar la fase
 
-- Crear el commit inicial y pushear a `origin/main`.
-- Configurar branch protection en GitHub (acción manual, ver arriba).
-- Configurar el deploy (Vercel o GitHub Pages) — Fase 9.
+- [x] Crear los commits iniciales y pushear a `origin/main` (5 commits atómicos).
+- [ ] **Configurar branch protection en `main`** — acción manual en GitHub:
+      Settings → Branches → Add branch protection rule para `main`, exigiendo el check
+      `CI / verify`.
+- [ ] **Habilitar PRs automáticos de GitHub Actions** — acción manual, necesaria para
+      que Release Please funcione: Settings → Actions → General → Workflow permissions →
+      marcar _Allow GitHub Actions to create and approve pull requests_. Sin esto, el
+      workflow `Release Please` corre pero falla al abrir el PR de versión.
+- [ ] Configurar el deploy (Vercel o GitHub Pages) — Fase 9.
+
+> **Nota para el equipo:** los dos primeros puntos son ajustes de GitHub, no cambios de
+> código. Sin ellos el CI igual protege por convención, pero no bloquea el merge
+> técnicamente.
 
 ---
 
