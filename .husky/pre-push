@@ -1,0 +1,6 @@
+#
+# Pre-push: full verification before code leaves the machine.
+# Keep this fast enough to run on every push. CI runs the same checks.
+#
+npx tsc -b --noEmit
+npm run test

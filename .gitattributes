@@ -1,0 +1,26 @@
+# Normalize all text files to LF in the repository and in the working tree.
+# Critical for .husky/ hooks: a CRLF hook script fails on Linux (and in CI).
+* text=auto eol=lf
+
+# Shell scripts and hooks must stay LF.
+*.sh text eol=lf
+.husky/* text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files: never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+
+# Lockfiles are huge and generated: collapse them in diffs and reviews.
+package-lock.json -diff linguist-generated=true
