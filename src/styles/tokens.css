@@ -1,62 +1,84 @@
 /**
- * Design tokens for Milimap.
+ * Design tokens — Universidad Militar Nueva Granada.
  *
- * Single source of truth for colour, spacing, radius, typography and z-index.
- * Components must consume these variables, never hard-code hex values, so a
- * rebrand to UMNG institutional colours is a one-file change.
+ * PALETTE SOURCE: sampled from the official logo (LogoUMNGHorizontalLight.svg)
+ * and the institutional website. The identity is navy + gold, with the crimson
+ * of the coat of arms used sparingly.
  *
- * Mobile-first: every size is tuned for a 360px-wide viewport first.
+ * Reading the logo SVG gave: navy #07082D / #112358 / #0F1F51 and gold
+ * #FCC400 / #FBB03B, plus crimson #9C1006 / #BD0B0C from the escudo.
+ *
+ * CONTRAST RULE (non-negotiable): gold #FCC400 on white is ~1.9:1 and fails WCAG
+ * AA. Gold is therefore a FILL colour, never body text. Text on gold must be
+ * navy. Gold is for emphasis: active indicators, the primary button, focus
+ * rings, and small accents. Navy carries the structure.
  */
 
 :root {
-  /* --- Brand ------------------------------------------------------- */
-  --color-brand-900: #0d2b20;
-  --color-brand-700: #14513a;
-  --color-brand-600: #1a6b4a;
-  --color-brand-500: #218a5f;
-  --color-brand-100: #e3f2ea;
-  --color-brand-50: #f1f8f4;
+  /* --- Institutional navy ------------------------------------------ */
+  --color-brand-950: #050b22;
+  --color-brand-900: #070f2e;
+  --color-brand-800: #0b1740;
+  --color-brand-700: #0f1f51;
+  --color-brand-600: #112358;
+  --color-brand-500: #1a3a7a;
+  --color-brand-400: #2c549b;
+  --color-brand-300: #5c7fbf;
+  --color-brand-200: #a9bfdf;
+  --color-brand-100: #e4ebf6;
+  --color-brand-50: #f3f6fc;
 
-  --color-accent-600: #b8791a;
-  --color-accent-400: #d99b34;
-  --color-accent-100: #fbf0dc;
+  /* --- Institutional gold ------------------------------------------ */
+  --color-accent-700: #a67c00;
+  --color-accent-600: #c99a00;
+  --color-accent-500: #fcc400;
+  --color-accent-400: #fbb03b;
+  --color-accent-200: #ffe89a;
+  --color-accent-100: #fef3d0;
+  --color-accent-50: #fff9e8;
 
-  /* --- Neutrals ---------------------------------------------------- */
-  --color-ink-900: #12181c;
-  --color-ink-700: #33414a;
-  --color-ink-500: #5b6b76;
-  --color-ink-300: #9aa8b1;
-  --color-ink-100: #e2e8ec;
-  --color-ink-50: #f4f7f9;
+  /* --- Crimson (coat of arms) -------------------------------------- */
+  --color-crimson-700: #9c1006;
+  --color-crimson-600: #bd0b0c;
+  --color-crimson-100: #fbe4e2;
+
+  /* --- Neutrals (cool, to sit next to navy) ------------------------- */
+  --color-ink-900: #101521;
+  --color-ink-700: #2d3648;
+  --color-ink-500: #5a6478;
+  --color-ink-300: #98a2b3;
+  --color-ink-200: #cfd6e4;
+  --color-ink-100: #e4e9f2;
+  --color-ink-50: #f4f7fb;
   --color-surface: #ffffff;
-  --color-surface-sunken: #eef2f5;
+  --color-surface-sunken: #eef2f9;
 
   /* --- Semantic ---------------------------------------------------- */
-  --color-danger-600: #b3261e;
-  --color-danger-100: #fce8e6;
-  --color-warning-600: #9a6700;
+  --color-danger-600: #bd0b0c;
+  --color-danger-100: #fbe4e2;
+  --color-warning-600: #8a6100;
   --color-warning-100: #fff4d6;
-  --color-info-600: #0b5cad;
-  --color-info-100: #e3f0fb;
-  --color-success-600: #1e7a4b;
-  --color-success-100: #e2f6ea;
+  --color-info-600: #1a3a7a;
+  --color-info-100: #e4ebf6;
+  --color-success-600: #0e6b45;
+  --color-success-100: #e0f2e9;
 
   /* --- Map rendering ----------------------------------------------- */
-  --map-space-classroom: #cfe3f7;
-  --map-space-laboratory: #d6ece1;
-  --map-space-office: #efe5f7;
-  --map-space-bathroom: #e6eef2;
-  --map-space-common: #fdf1d8;
-  --map-space-auditorium: #f8dfe4;
-  --map-space-gym: #e0f0d9;
-  --map-space-kitchen: #fbe7d4;
-  --map-space-service: #e4e7ea;
-  --map-walkway: #f7f9fa;
-  --map-route: #1a6b4a;
-  --map-origin: #1e7a4b;
-  --map-destination: #b3261e;
+  --map-space-classroom: #dbe6f7;
+  --map-space-laboratory: #d8ece4;
+  --map-space-office: #e8e2f2;
+  --map-space-bathroom: #e5ecf2;
+  --map-space-common: #fdf1d4;
+  --map-space-auditorium: #f8e1e0;
+  --map-space-gym: #dff0da;
+  --map-space-kitchen: #fbe8d6;
+  --map-space-service: #e6e9ee;
+  --map-walkway: #f8fafd;
+  --map-route: #112358;
+  --map-origin: #0e6b45;
+  --map-destination: #bd0b0c;
 
-  /* --- Spacing (4px base) ------------------------------------------ */
+  /* --- Spacing (4px base, 8px rhythm for layout) -------------------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -66,6 +88,7 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-16: 64px;
 
   /* --- Radius ------------------------------------------------------ */
   --radius-sm: 6px;
@@ -74,12 +97,15 @@
   --radius-full: 999px;
 
   /* --- Elevation --------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(18, 24, 28, 0.08);
-  --shadow-md: 0 4px 12px rgba(18, 24, 28, 0.1);
-  --shadow-lg: 0 12px 28px rgba(18, 24, 28, 0.16);
+  --shadow-sm: 0 1px 2px rgba(7, 15, 46, 0.08);
+  --shadow-md: 0 4px 12px rgba(7, 15, 46, 0.1);
+  --shadow-lg: 0 12px 28px rgba(7, 15, 46, 0.18);
+  --shadow-focus: 0 0 0 3px rgba(252, 196, 0, 0.45);
 
   /* --- Typography -------------------------------------------------- */
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:
+    'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Poppins', var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -87,6 +113,7 @@
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
   --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
   --leading-tight: 1.25;
   --leading-normal: 1.5;
 
@@ -94,6 +121,7 @@
   --app-max-width: 560px;
   --header-height: 56px;
   --bottom-nav-height: 64px;
+  --admin-sidebar-width: 248px;
 
   /* --- Z-index scale ----------------------------------------------- */
   --z-map: 0;
