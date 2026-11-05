@@ -91,6 +91,11 @@ export interface GraphNode {
   id: NodeId
   point: LocalPoint
   kind: NodeKind
+  /**
+   * Stable short identifier printed inside QR codes (e.g. `N12`). Node ids are
+   * internal and may change with refactors; a sticker on a wall cannot.
+   */
+  qrKey?: string
 }
 
 /** A traversable connection between two nodes on the same floor. */
@@ -198,6 +203,18 @@ export interface Route {
   levelsVisited: number[]
   hasStairs: boolean
   hasElevators: boolean
+}
+
+/**
+ * One traversed edge of a computed path. The router returns edges (not only
+ * node ids) because the instruction builder needs to know *how* two consecutive
+ * nodes are connected: a stair ride reads differently from a corridor walk.
+ */
+export interface PathEdge {
+  from: NodeId
+  to: NodeId
+  kind: EdgeKind
+  transitionId?: TransitionId
 }
 
 /** Typed failure instead of throwing: callers must handle "no route". */
