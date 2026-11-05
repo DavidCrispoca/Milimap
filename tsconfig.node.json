@@ -6,9 +6,9 @@
     "types": ["node"],
     "skipLibCheck": true,
 
-    /* Bundler mode */
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    /* Bundler mode: tools run through tsx, which resolves like a bundler. */
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

@@ -16,6 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "validate:plans": "tsx tools/validate-plans.ts",
+    "inspect:geojson": "tsx tools/inspect-geojson.ts",
     "prepare": "husky"
   },
   "dependencies": {
