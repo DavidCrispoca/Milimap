@@ -42,3 +42,7 @@ tsconfig*.tsbuildinfo
 # Generated QR output (regenerate with `npm run gen:qr`)
 public/qrs/*.png
 public/qrs/*.zip
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
