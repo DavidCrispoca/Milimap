@@ -1,8 +1,12 @@
 # Manual del panel de administración
 
-> **Estado: pendiente.** El panel se construye en las **Fases 2 y 3**. Este documento
-> describe qué va a poder hacer y cómo, para que el equipo de la universidad pueda
-> planificar el trabajo de carga de contenido desde ahora.
+> **Estado: Fase 2 implementada** (contenido: eventos, anuncios, espacios, horarios,
+> analítica básica). El editor de mapa llega en la **Fase 3**. Para abrirlo:
+> `npm run dev` y entrar a `http://localhost:5173/admin`.
+>
+> **Limitaciones actuales:** el acceso es simulado por rol (sin contraseña) y los datos
+> se guardan en el navegador donde se trabaja. La autenticación institucional y la base
+> compartida llegan con el backend. Ver [`ARCHITECTURE.md`](ARCHITECTURE.md), ADR-011 y ADR-012.
 
 ---
 

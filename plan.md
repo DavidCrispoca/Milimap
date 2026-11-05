@@ -1381,40 +1381,100 @@ este) y se corrigió la convención en `describeTurn`. Se agregó
 
 ---
 
-### Fase 2 — Panel de administración: contenido (sin mapa aún)
+### Fase 2 — Panel de administración: contenido — ✅ COMPLETADA (2026-11-05)
 
-**Objetivo:** la vía por la cual la universidad va a cargar todo el contenido. Empezar por lo que no depende de la geometría.
+**Objetivo:** que la universidad pueda cargar contenido sin tocar código: eventos, anuncios,
+espacios y horarios, con roles, y que lo publicado llegue a la app de estudiantes.
 
-**Tareas:**
+#### Diseño
 
-- [ ] Supabase: proyecto, tablas, RLS, roles
-- [ ] Supabase Auth: login institucional, roles `admin`/`editor`/`viewer`
-- [ ] Layout del panel (sidebar, header, routing interno)
-- [ ] CRUD de espacios (tabla + formulario + validación Zod)
-- [ ] CRUD de eventos con imagen y publicación
-- [ ] CRUD de anuncios
-- [ ] Importador de horarios desde CSV (con validación de conflictos de aula)
-- [ ] Analítica: eventos y métricas agregadas
-- [ ] Layout responsive (mínimo 1280 px, usable en 1366×768)
+Identidad institucional tomada del logo oficial (`LogoUMNGHorizontalLight.svg`): azul marino
+`#112358` / `#0F1F51` y dorado `#FCC400`, con el rojo del escudo `#BD0B0C` solo para
+peligro. El dorado se usa como **relleno** (indicadores, acción principal, foco), nunca como
+texto sobre blanco porque su contraste es ~1.9:1 y no cumple WCAG AA. El panel es de
+escritorio con barra lateral azul; por debajo de 1024 px la navegación pasa arriba.
 
-**Criterios de aceptación:**
+#### Tareas ejecutadas
 
-- [ ] Un admin puede crear un evento y verlo en la app
-- [ ] Un editor puede crear un espacio pero no publicar eventos
-- [ ] Un viewer no puede escribir
-- [ ] Importar un CSV de horarios detecta y reporta aula ocupada en conflicto
-- [ ] Todas las mutaciones pasan por validación Zod en cliente y RLS en servidor
+| Tarea                                                        | Archivo                              |
+| ------------------------------------------------------------ | ------------------------------------ |
+| Tokens de marca UMNG (azul, dorado, rojo del escudo)         | `src/styles/tokens.css`              |
+| Modelo de contenido (eventos, anuncios, horarios, términos)  | `src/content/types.ts`               |
+| Matriz de permisos por rol                                   | `src/content/permissions.ts`         |
+| Validación Zod de eventos y anuncios                         | `src/content/validation.ts`          |
+| Store con permisos aplicados en cada mutación                | `src/content/store.ts`               |
+| Vista del catálogo con ediciones de admin aplicadas          | `src/content/catalog.ts`             |
+| Vigencia, orden de carrusel y anuncios activos               | `src/content/selectors.ts`           |
+| Parser CSV de horarios y detección de conflictos de salón    | `src/schedule/csv.ts`                |
+| Acceso por rol (simulado)                                    | `src/admin/LoginScreen.tsx`          |
+| Shell del panel: barra lateral, navegación, enrutado         | `src/admin/AdminApp.tsx`             |
+| Resumen, eventos, anuncios, espacios, horarios, analítica    | `src/admin/pages/*`                  |
+| Carga diferida del panel: estudiantes no descargan su código | `src/Root.tsx`, `src/main.tsx`       |
+| Inicio conectado al contenido publicado                      | `src/ui/screens/HomeScreen.tsx`      |
+| "Cómo llegar" desde un evento abre la ruta al lugar          | `src/App.tsx`, `RouteDemoScreen.tsx` |
 
-**Commits:**
+#### Verificación ejecutada
 
-```
-feat(admin): scaffold admin panel layout and navigation
-feat(auth): add supabase auth with role based access control
-feat(admin): add space catalog CRUD with validation
-feat(admin): add events and announcements management
-feat(admin): add schedule CSV importer with conflict detection
-feat(admin): add analytics dashboard for scan and destination metrics
-```
+| Comando             | Resultado                                                      |
+| ------------------- | -------------------------------------------------------------- |
+| `npm run typecheck` | ✅ 0 errores                                                   |
+| `npm run lint`      | ✅ 0 advertencias                                              |
+| `npm test`          | ✅ **155 tests** en 11 archivos (60 nuevos en esta fase)       |
+| `npm run build`     | ✅ inicio 341 kB (105 kB gzip); panel aparte 34 kB (9 kB gzip) |
+
+#### Prueba manual en navegador
+
+Verificado en `localhost` con Playwright:
+
+- **Administrador** crea un evento, lo publica y el mensaje de confirmación dice que ya aparece
+  en la app. Al entrar a la app de estudiantes, el evento figura en "Eventos especiales", y
+  "Cómo llegar" abre la ruta a _Recepción_ con la distancia calculada.
+- **Editor** crea eventos pero no ve ningún botón de publicar ni de despublicar.
+- **Importación de horario** con dos clases superpuestas en A101 muestra el conflicto con
+  horas y materias, y el botón _Publicar horario_ queda deshabilitado.
+- Capturas de escritorio (1280 px) revisadas: barra lateral, resumen con indicadores y
+  listas, sin desbordes.
+
+#### Decisiones y desvíos
+
+**D6 — Sin Supabase todavía.** El único proyecto de Supabase accesible pertenece a otro
+producto (`marketinghub`). Crear tablas allí no es una decisión que tome sin consultar. El
+contenido se guarda en `localStorage` detrás de un store con forma de repositorio. ADR-011.
+
+**D7 — Acceso simulado por rol, sin contraseña.** Suficiente para separar responsabilidades
+en el equipo; no es seguridad frente a quien tenga acceso al navegador. La autenticación
+institucional llega con el backend. ADR-012.
+
+**D8 — Los permisos se verifican dos veces.** La interfaz oculta controles y el store vuelve a
+comprobar cada mutación. Hoy el store vive en el cliente, así que la segunda verificación
+protege de errores de interfaz, no de un usuario malicioso. Cuando haya backend, la misma
+matriz se traduce a RLS.
+
+**D9 — El rol no se persiste.** Guardarlo en `localStorage` dejaría al administrador con
+permisos después de cerrar el navegador.
+
+**D10 — Carga diferida del panel.** El código del panel no llega a los estudiantes. El inicio
+ahora depende del store, así que el bundle de estudiantes creció a 105 kB gzip (Zod y Zustand).
+Sigue dentro del objetivo de 200 kB del plan; se revisa en la Fase 8.
+
+#### Criterios de aceptación
+
+- [x] Un administrador crea un evento y lo ve en la app
+- [x] Un viewer no puede escribir (la interfaz y el store lo impiden)
+- [x] Importar un CSV de horarios detecta y reporta aula ocupada en conflicto
+- [x] Las mutaciones pasan validación Zod (en el formulario y en el store)
+- [~] Un editor "puede crear un espacio pero no publicar eventos". **Parcial:** el editor
+  puede no publicar eventos (cumplido) y editar espacios existentes (nombre, alias,
+  estado). **Crear un espacio nuevo requiere geometría**, así que queda para la Fase 3.
+- [~] Políticas RLS en servidor. **Pendiente**: requiere backend (ver D6).
+- [~] Layout para 1280 px o más. Verificado a 1280 px; el rango de 1366 × 768 no se probó
+  de forma específica.
+
+#### Pendiente de la fase
+
+- Espacios nuevos con geometría (Fase 3, con el editor).
+- Backend compartido, autenticación institucional y RLS (decisión pendiente con el equipo).
+- Analítica de uso real (escaneos y destinos buscados): Fase 5.
 
 ---
 
@@ -1726,6 +1786,39 @@ docs: add qr installation plan and campus rollout checklist
 ## 11. Registro de cambios
 
 > **Este documento se actualiza en cada PR que altere el plan.** La última sección es siempre el estado vigente.
+
+### 2026-11-05 — v1.4 — Fase 2 completada (panel de administración)
+
+**Contexto:** ejecución de la Fase 2 con identidad visual de la UMNG Bogotá. Se pidió diseño
+serio y moderno con los colores institucionales.
+
+**Estado:** Fase 2 cerrada con dos criterios parciales (espacios nuevos con geometría y RLS,
+ambos dependen de la Fase 3 o del backend). 155 tests, typecheck y lint limpios.
+
+**Cambios:**
+
+- Paleta institucional extraída del logo oficial de la UMNG (azul marino y dorado).
+- Panel `/admin` con barra lateral, roles (administrador, editor, consulta), eventos,
+  anuncios, espacios, horarios por CSV con detección de conflictos, y analítica básica.
+- Inicio de estudiantes conectado al contenido publicado; "Cómo llegar" desde un evento.
+- Panel cargado de forma diferida: los estudiantes no descargan su código.
+
+**Desvíos registrados:** sin Supabase (proyecto ajeno, D6), acceso simulado por rol (D7),
+permisos verificados en interfaz y store (D8), rol no persistido (D9), bundle de estudiantes
+a 105 kB gzip (D10). Ver sección Fase 2 y ADR-011 y ADR-012.
+
+**Decisiones pendientes:**
+
+- Backend compartido y autenticación institucional (¿Supabase en un proyecto propio?).
+- Escala métrica real por piso.
+- Dominio de despliegue.
+
+**Próximos pasos:**
+
+1. Fase 3 — editor de mapa + `import-handdrawn` (habilita crear espacios con geometría).
+2. Fase 4 — reemplazar el SVG por MapLibre con coordenadas reales.
+
+---
 
 ### 2026-11-05 — v1.3 — Fase 1 completada
 

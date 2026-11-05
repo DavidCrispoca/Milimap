@@ -5,10 +5,10 @@ Navegación indoor para la **Universidad Militar Nueva Granada — Sede Calle 10
 El usuario escanea un código QR que está pegado en la pared, la app deduce dónde está,
 y le muestra cómo llegar a un salón o zona de interés sobre un mapa 2D cenital.
 
-> **Estado: Fase 1 completada.** El motor de ruteo funciona: calcula rutas entre pisos,
-> genera instrucciones paso a paso y busca destinos tolerando tildes y errores de tipeo.
-> La pestaña **Mapa** tiene una demo navegable con un edificio de prueba.
-> Las pantallas de escaneo QR y horario siguen reservadas. Ver [`plan.md`](plan.md).
+> **Estado: Fase 2 completada.** Motor de ruteo (Fase 1) y panel de administración en
+> `/admin` con eventos, anuncios, espacios, horarios por CSV y analítica básica. Los
+> eventos publicados aparecen en el inicio y "Cómo llegar" abre la ruta. Ver
+> [`plan.md`](plan.md).
 
 |                 |                                                                               |
 | --------------- | ----------------------------------------------------------------------------- |
@@ -54,6 +54,23 @@ obligatorio**: el producto es móvil y el emulador miente sobre el tamaño del p
 | `npm run test:coverage`                | Cobertura (solo `src/domain`, `src/schedule`, `src/qr`) |
 | `npm run validate:plans`               | Valida que el grafo del campus sea coherente            |
 | `npm run inspect:geojson -- <archivo>` | Revisa un GeoJSON antes de entregarlo                   |
+
+---
+
+## Panel de administración
+
+Se abre en `http://localhost:5173/admin`. Es una herramienta de escritorio pensada
+para pantallas de 1280 px o más.
+
+| Rol               | Qué puede hacer                                                                |
+| ----------------- | ------------------------------------------------------------------------------ |
+| **Administrador** | Todo, incluido publicar eventos y anuncios.                                    |
+| **Editor**        | Redactar eventos y anuncios como borrador, editar espacios, importar horarios. |
+| **Consulta**      | Solo ver.                                                                      |
+
+El acceso es simulado por rol y los datos se guardan en el navegador. Ver
+[`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md) y los ADR-011 y ADR-012 de
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 

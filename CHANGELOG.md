@@ -13,6 +13,14 @@ archivo a mano salvo en la sección `Unreleased`.
 
 ### Added
 
+- Panel de administración en `/admin` con roles (administrador, editor, consulta).
+- Gestión de eventos y anuncios con borrador, publicación y vigencia; validación Zod.
+- Edición de nombres, alias y estado de espacios sin tocar la geometría.
+- Importador CSV de horarios con validación por fila y detección de conflictos de salón.
+- Analítica básica del contenido publicado.
+- Inicio de estudiantes con eventos y anuncios publicados; "Cómo llegar" desde un evento.
+- Paleta de marca tomada del logo oficial de la UMNG.
+
 - Motor de ruteo multipiso (Dijkstra con heap binario) sobre un grafo en metros locales.
 - Generador de instrucciones paso a paso en español e inglés, con colapso de tramos
   rectos y aviso de cambios de piso por escalera o ascensor.
