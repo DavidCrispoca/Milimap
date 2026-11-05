@@ -1,7 +1,7 @@
 {
   "name": "milimap",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Indoor wayfinding web app for Universidad Militar Nueva Granada, Sede Calle 100 (Bogota)",
   "scripts": {
