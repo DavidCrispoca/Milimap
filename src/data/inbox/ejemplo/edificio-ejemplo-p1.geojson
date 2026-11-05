@@ -1,0 +1,83 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "layer": "espacios",
+        "id": "EJ-101",
+        "name": "Ejemplo Aula 101",
+        "kind": "classroom",
+        "capacity": 30,
+        "floor": "P1"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [0, 0],
+            [10, 0],
+            [10, 8],
+            [0, 8],
+            [0, 0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "layer": "espacios",
+        "id": "EJ-102",
+        "name": "Ejemplo Aula 102",
+        "kind": "classroom",
+        "capacity": 35,
+        "floor": "P1"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [10, 0],
+            [20, 0],
+            [20, 8],
+            [10, 8],
+            [10, 0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "layer": "pasillos",
+        "id": "EJ-PASILLO-1"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [0, 8],
+            [20, 8],
+            [20, 12],
+            [0, 12],
+            [0, 8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "layer": "verticales",
+        "id": "ESC-A",
+        "code": "ESC-A",
+        "type": "stairs"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [18, 10]
+      }
+    }
+  ]
+}
