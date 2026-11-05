@@ -113,14 +113,22 @@ chicos, y hace el código más difícil de verificar.
 
 **Penalizaciones** (para que la ruta sea la que un humano tomaría):
 
-| Tipo                      | Peso                             |
-| ------------------------- | -------------------------------- |
-| `walkway`, `door`, `ramp` | distancia real                   |
-| `stair`                   | distancia × 1.4                  |
-| `elevator`                | distancia × 1.2 + 15 s de espera |
+| Tipo                      | Peso                                      |
+| ------------------------- | ----------------------------------------- |
+| `walkway`, `door`, `ramp` | distancia real                            |
+| `stair`                   | distancia × 1.4                           |
+| `elevator`                | distancia × 1.2 + 15 s de espera (≈ 21 m) |
 
-El multiplicador >1 hace que el ascensor gane sobre la escalera cuando ambos conectan
-los mismos pisos, que es lo que espera alguien con una mochila o una lesión.
+**Comportamiento real, verificado en la demo:** para un cambio de un solo piso gana la
+**escalera**, porque la espera del ascensor pesa más que el esfuerzo de subir. Eso es lo
+que hace la gente.
+
+La ruta accesible se pide explícitamente con `avoidStairs: true`; no es una preferencia
+silenciosa del algoritmo. Un ruteo que siempre manda al ascensor sería peor experiencia
+y además más lento.
+
+Los valores viven en `src/domain/profile.ts` y son tuneables. La calibración definitiva
+se hace después de caminar el campus real con cronómetro.
 
 ### ADR-005 — El QR apunta a un nodo, no a una coordenada
 

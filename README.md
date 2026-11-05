@@ -5,9 +5,10 @@ Navegación indoor para la **Universidad Militar Nueva Granada — Sede Calle 10
 El usuario escanea un código QR que está pegado en la pared, la app deduce dónde está,
 y le muestra cómo llegar a un salón o zona de interés sobre un mapa 2D cenital.
 
-> **Estado: Fase 0 completada.** El repositorio, el tooling y el esqueleto de la app
-> funcionan. Las pantallas de mapa, escaneo y horario están reservadas en la navegación
-> pero todavía no implementadas. Ver [`plan.md`](plan.md) para el plan completo.
+> **Estado: Fase 1 completada.** El motor de ruteo funciona: calcula rutas entre pisos,
+> genera instrucciones paso a paso y busca destinos tolerando tildes y errores de tipeo.
+> La pestaña **Mapa** tiene una demo navegable con un edificio de prueba.
+> Las pantallas de escaneo QR y horario siguen reservadas. Ver [`plan.md`](plan.md).
 
 |                 |                                                                               |
 | --------------- | ----------------------------------------------------------------------------- |
@@ -38,26 +39,111 @@ obligatorio**: el producto es móvil y el emulador miente sobre el tamaño del p
 
 ## Scripts
 
-| Comando                 | Qué hace                                                |
-| ----------------------- | ------------------------------------------------------- |
-| `npm run dev`           | Servidor de desarrollo con HMR                          |
-| `npm run build`         | Typecheck + build de producción a `dist/`               |
-| `npm run preview`       | Sirve el build de producción localmente                 |
-| `npm run typecheck`     | `tsc -b --noEmit` sobre app y tools                     |
-| `npm run lint`          | oxlint sobre `src/` y `tools/`                          |
-| `npm run lint:fix`      | oxlint con autofix                                      |
-| `npm run format`        | Prettier sobre todo el repo                             |
-| `npm run format:check`  | Verifica formato sin escribir (lo usa el CI)            |
-| `npm test`              | Vitest, una pasada                                      |
-| `npm run test:watch`    | Vitest en modo watch                                    |
-| `npm run test:coverage` | Cobertura (solo `src/domain`, `src/schedule`, `src/qr`) |
+| Comando                                | Qué hace                                                |
+| -------------------------------------- | ------------------------------------------------------- |
+| `npm run dev`                          | Servidor de desarrollo con HMR                          |
+| `npm run build`                        | Typecheck + build de producción a `dist/`               |
+| `npm run preview`                      | Sirve el build de producción localmente                 |
+| `npm run typecheck`                    | `tsc -b --noEmit` sobre app y tools                     |
+| `npm run lint`                         | oxlint sobre `src/` y `tools/`                          |
+| `npm run lint:fix`                     | oxlint con autofix                                      |
+| `npm run format`                       | Prettier sobre todo el repo                             |
+| `npm run format:check`                 | Verifica formato sin escribir (lo usa el CI)            |
+| `npm test`                             | Vitest, una pasada                                      |
+| `npm run test:watch`                   | Vitest en modo watch                                    |
+| `npm run test:coverage`                | Cobertura (solo `src/domain`, `src/schedule`, `src/qr`) |
+| `npm run validate:plans`               | Valida que el grafo del campus sea coherente            |
+| `npm run inspect:geojson -- <archivo>` | Revisa un GeoJSON antes de entregarlo                   |
+
+---
+
+## Digitalizar un plano dibujado a mano
+
+Esta es la ruta completa, desde una hoja dibujada hasta datos que la app entiende.
+Está pensada para que la pueda seguir alguien que **no programa**.
+
+> **Regla de oro:** digitalizar no es dibujar el plano otra vez, es extraer **dónde
+> están los espacios y cómo se conectan**. Muebles, texturas y anotaciones no sirven.
+
+### Paso 1 — Escanear (sin computadora)
+
+1. Escanear el plano a **300 DPI mínimo**, en PNG o TIFF (no JPG: mete artefactos).
+2. Si es una foto, corregir la perspectiva hasta que los muros queden paralelos a los
+   bordes de la imagen.
+3. **Medir una distancia real en el edificio** con cinta métrica: un pasillo, o el
+   ancho de una puerta (~0.90 m). Anotarla. Sin este dato, todas las distancias que
+   muestra la app son mentiras.
+4. Armar el inventario de espacios en una hoja de cálculo: código, nombre, tipo,
+   capacidad, piso.
+
+### Paso 2 — Convertir a GeoJSON
+
+Hay dos caminos. Elegí uno:
+
+| Herramienta                   | Cuándo                                                                                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **QGIS** (gratis, escritorio) | Recomendado. Tiene _snapping_, que evita el error más común: polígonos que casi se tocan y dejan un aula inalcanzable. |
+| **geojson.io** (navegador)    | Más rápido de aprender, sin instalar nada.                                                                             |
+
+Se dibujan **tres capas**:
+
+| Capa         | Geometría | Qué es                                    |
+| ------------ | --------- | ----------------------------------------- |
+| `espacios`   | Polygon   | Aulas, laboratorios, oficinas, baños      |
+| `pasillos`   | Polygon   | El área por donde se camina (no el muro)  |
+| `verticales` | Point     | Escaleras y ascensores, con un **código** |
+
+El código de escalera (`ESC-A`, `ASC-A`) es lo que une un piso con el siguiente:
+**el mismo código en todos los pisos**. Si dos personas digitalizan pisos distintos y
+usan códigos diferentes para la misma escalera, los pisos no se conectan.
+
+### Paso 3 — Dejar los archivos en el repositorio
+
+```
+src/data/inbox/<edificio>/p1.geojson
+src/data/inbox/<edificio>/p2.geojson
+```
+
+Un archivo por piso.
+
+### Paso 4 — Revisar antes de entregar
+
+```bash
+npm run inspect:geojson -- src/data/inbox/edificio-a/p1.geojson
+```
+
+El inspector dice cuántos espacios encontró, el área de cada uno, si falta `id`, `name`
+o `code`, y si la escala parece correcta. Si reporta errores, hay que corregir el
+archivo. Hay un ejemplo válido para copiar en
+[`src/data/inbox/ejemplo/`](src/data/inbox/ejemplo/edificio-ejemplo-p1.geojson).
+
+### Paso 5 — Importar (Fase 3)
+
+El comando `npm run import:plans` convierte el GeoJSON al formato interno, **genera el
+grafo automáticamente** y valida el resultado. Todavía no está implementado: llega con
+el editor de mapas. Mientras tanto, la carpeta `inbox/` funciona como buzón de entrega.
+
+### Paso 6 — Verificar en el campus
+
+Recorrer 8–10 rutas con cronómetro y comparar con lo que calcula la app.
+Tolerancia objetivo: **±15 % en distancia**. Los números que no cierran son datos mal
+digitalizados, no un problema del motor.
+
+La guía completa, con el detalle de QGIS y los errores típicos, está en
+[`docs/PLAN-DATA.md`](docs/PLAN-DATA.md).
+
+---
 
 ## Estructura
 
 ```
 src/
-├── domain/        Lógica pura: tipos, geometría, ruteo. SIN React, SIN MapLibre.
-├── data/          JSON versionados: planos, catálogo, eventos, horarios. (Fase 1+)
+├── domain/        Lógica pura: tipos, geometría, ruteo, búsqueda, QR, validación.
+│                  SIN React, SIN MapLibre.
+├── data/          Datos del campus y catálogo.
+│   ├── demo.ts    Edificio de prueba con medidas genéricas (40 × 24 m).
+│   ├── index.ts   Punto único de acceso a los datos.
+│   └── inbox/     Buzón donde el equipo deja los GeoJSON digitalizados.
 ├── map/           Render con MapLibre: fuentes, capas, cámara. (Fase 4)
 ├── scanner/       Lectura de QR. (Fase 5)
 ├── schedule/      Horario del semestre. (Fase 6)
@@ -66,7 +152,7 @@ src/
 ├── styles/        Design tokens.
 └── test/          Setup de Vitest.
 
-tools/             Scripts de Node: validación, importación, generación de QR.
+tools/             Scripts de Node: validate-plans, inspect-geojson, import-handdrawn, gen-qr.
 docs/              Guías del equipo.
 ```
 

@@ -1300,46 +1300,84 @@ repo para que quede versionado junto al código y su actualización sea parte de
 
 ---
 
-### Fase 1 — Dominio: motor de ruteo
+### Fase 1 — Dominio: motor de ruteo — ✅ COMPLETADA (2026-11-05)
 
 **Objetivo:** el cerebro del producto funcionando y testeado, sin depender de la UI.
 
-**Tareas:**
+#### Tareas ejecutadas
 
-- [ ] `src/domain/types.ts` — todos los tipos del modelo de datos
-- [ ] `src/domain/geo.ts` — geometría local ↔ WGS84, distancias, ángulos
-- [ ] `src/domain/graph.ts` — construcción del grafo multi-nivel, Dijkstra
-- [ [ ] `src/domain/steps.ts` — generación de instrucciones en español e inglés
-- [ ] `src/domain/search.ts` — búsqueda y scoring de destinos
-- [ ] `src/domain/validate.ts` — validador de coherencia de la grafo
-- [ ] `src/domain/qr.ts` — parse/serialize de payload QR
-- [ ] `src/data/floors/` — **2 pisos de ejemplo con datos ficticios** (Edificio Demo A)
-- [ ] `src/data/space-catalog.json` — catálogo ficticio
-- [ ] `tools/validate-plans.ts` — CLI que valida todos los pisos
-- [ ] Tests unitarios completos del dominio
+| Tarea                                                                        | Archivo                              |
+| ---------------------------------------------------------------------------- | ------------------------------------ |
+| Tipos del dominio (edificio, piso, espacio, grafo, ruta, QR)                 | `src/domain/types.ts`                |
+| Geometría pura en metros (distancias, áreas, ángulos, proyección a segmento) | `src/domain/geometry.ts`             |
+| Perfil de costos aislado para evitar imports circulares                      | `src/domain/profile.ts`              |
+| Grafo multipiso + Dijkstra con heap binario                                  | `src/domain/routing.ts`              |
+| Generador de instrucciones ES/EN a partir de la secuencia de nodos           | `src/domain/steps.ts`                |
+| Búsqueda de destinos tolerante a tildes y errores de tipeo                   | `src/domain/search.ts`               |
+| Parser y serializador de payload QR + resolución a nodo                      | `src/domain/qr.ts`                   |
+| Validador de coherencia de planos (compartido por CLI, admin y tests)        | `src/domain/validate.ts`             |
+| Edificio demo de 2 pisos con medidas genéricas (40 × 24 m, 16 espacios)      | `src/data/demo.ts`                   |
+| Punto único de acceso a datos del campus                                     | `src/data/index.ts`                  |
+| CLI de validación de planos                                                  | `tools/validate-plans.ts`            |
+| Inspector de GeoJSON para el equipo de digitalización                        | `tools/inspect-geojson.ts`           |
+| Pantalla demo de ruteo con plano SVG                                         | `src/ui/screens/RouteDemoScreen.tsx` |
+| Renderizador SVG del plano                                                   | `src/ui/FloorPlanSvg.tsx`            |
 
-**Criterios de aceptación:**
+#### Verificación ejecutada
 
-- [ ] Tests cubren: ruta simple, multi-piso, ascensor preferido sobre escalera, `avoidStairs`, origen==destino, destino inalcanzable, nodo inexistente
-- [ ] Las instrucciones en español no tienen errores de concordancia
-- [ ] `validate-plans.ts` detecta los 5 tipos de error del §5.3
-- [ ] Cobertura de tests del dominio > 85%
-- [ ] Cero imports de React/MapLibre/Supabase en `src/domain/`
+| Comando                                                 | Resultado                                                                        |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `npm run typecheck`                                     | ✅ 0 errores                                                                     |
+| `npm run lint`                                          | ✅ 0 problemas                                                                   |
+| `npm test`                                              | ✅ **95 tests** en 7 archivos                                                    |
+| `npm run build`                                         | ✅ 249 kB (78 kB gzip)                                                           |
+| `npm run validate:plans`                                | ✅ 2 pisos, 16 espacios, 39 nodos, 37 aristas, 4 transiciones, sin observaciones |
+| `npm run inspect:geojson -- src/data/inbox/ejemplo/...` | ✅ detecta metros locales, 20 × 12 m, 0 errores                                  |
 
-**Commits:**
+#### Prueba manual en navegador
 
-```
-feat(domain): add core type definitions for floors spaces and routing
-feat(domain): implement local meter-based geometry utilities
-feat(domain): implement multi-level dijkstra router with transitions
-feat(domain): generate turn-by-turn instructions from node sequences
-feat(domain): add fuzzy destination search with accent normalization
-feat(domain): add graph validation for unreachable spaces and orphan nodes
-feat(qr): add milimap qr payload parser and serializer
-feat(data): add demo building with two levels and sample spaces
-feat(tools): add cli validator for floor plan graph consistency
-test(domain): add routing and search test coverage
-```
+Se ejecutó la app en un viewport de 390 × 844 (teléfono) y se verificó:
+
+- Ruta **Entrada → Aula 104**: 37 m, 27 s, 5 pasos, sin desnivel.
+  Instrucciones: «Avance 9 m → Siga ligeramente a la derecha y avance 2 m → Gire a la
+  derecha y avance 24 m → Siga ligeramente a la izquierda y avance 3 m → Ha llegado a
+  Aula 104».
+- Ruta **Aula 205 → Biblioteca**: 60 m, 43 s, 8 pasos, baja por escaleras al Piso 1.
+  La ruta cruza pisos correctamente y las instrucciones nombran el desnivel.
+
+#### Bug encontrado y corregido durante la prueba
+
+**La orientación de los giros estaba invertida.** El plano usa +y hacia el norte, así
+que un ángulo positivo es antihorario, o sea **izquierda**; el código lo trataba como
+derecha. Se detectó mirando la ruta en pantalla (decía «izquierda» al doblar hacia el
+este) y se corrigió la convención en `describeTurn`. Se agregó
+`src/domain/steps.test.ts` con cuatro casos cardinales como regresión.
+
+#### Decisiones de diseño tomadas
+
+- **Dijkstra, no A\***: con ~100 nodos por piso la heurística no aporta y sí complica la
+  verificación.
+- **Grafo aplanado entre pisos**: las transiciones son aristas normales, así el
+  algoritmo no necesita saber de niveles. Los niveles solo importan al redactar.
+- **Fallos tipados**: `computeRoute` devuelve `{ ok: false, code }`, nunca lanza. Un
+  grafo roto debe ser un estado manejable, no una excepción.
+- **Costo del ascensor con espera**: la espera (15 s) se convierte a metros equivalentes
+  (21 m). Consecuencia: para un solo piso gana la escalera; `avoidStairs` fuerza la ruta
+  accesible. El texto del ADR-004 se corrigió para reflejar el comportamiento real.
+- **El generador de instrucciones colapsa tramos colineales**: un pasillo modelado con
+  12 nodos debe leerse «avance 24 m», no como 12 pasos.
+- **SVG en la Fase 1, MapLibre en la Fase 4**: para verificar que una ruta es
+  geométricamente sana, un SVG sobre metros locales no tiene proyección, ni tiles, ni
+  asincronía. Es la herramienta correcta para depurar.
+- **`github` en QR resuelto por `qrKey`, no por id interno**: el sticker de la pared no
+  puede cambiar cuando se refactoriza un id.
+
+#### Pendiente de la fase
+
+- `tools/import-handdrawn.ts` (conversión GeoJSON → datos internos) se movió a la Fase 3
+  porque depende del editor para resolver adyacencias cómodamente. Mientras tanto,
+  `tools/inspect-geojson.ts` valida la entrega del equipo.
+- Los horarios y los eventos siguen sin modelo de datos implementado (Fases 2 y 6).
 
 ---
 
@@ -1688,6 +1726,46 @@ docs: add qr installation plan and campus rollout checklist
 ## 11. Registro de cambios
 
 > **Este documento se actualiza en cada PR que altere el plan.** La última sección es siempre el estado vigente.
+
+### 2026-11-05 — v1.3 — Fase 1 completada
+
+**Contexto:** ejecución de la Fase 1. Se pidió continuar con el desarrollo usando
+medidas genéricas, dejar en el README los pasos para digitalizar los planos dibujados a
+mano, y ejecutar la herramienta localmente para evaluar la sensación de uso.
+
+**Estado:** Fase 1 cerrada. 95 tests, typecheck y lint limpios, build de 78 kB gzip.
+Prueba manual en viewport de teléfono verificada con capturas.
+
+**Cambios:**
+
+- Motor de ruteo completo en `src/domain/`: Dijkstra multipiso con heap binario,
+  perfil de costos, generador de instrucciones ES/EN, búsqueda difusa, parser de QR y
+  validador de coherencia.
+- Edificio demo de 2 pisos y 16 espacios con medidas genéricas (40 × 24 m).
+- CLI `validate-plans` y CLI `inspect-geojson` (este último cierra el ciclo de entrega
+  del equipo de digitalización).
+- Pantalla demo de ruteo en la pestaña **Mapa**, con plano SVG, selector de piso,
+  búsqueda de destino y pasos navegables.
+- README: nueva sección "Digitalizar un plano dibujado a mano" con los 6 pasos del flujo
+  y los comandos concretos por paso.
+
+**Bug corregido:** la orientación de los giros estaba invertida (positivo antihorario se
+reportaba como derecha). Detectado durante la prueba visual y cubierto ahora por
+`src/domain/steps.test.ts`.
+
+**Decisiones pendientes:**
+
+- Herramienta definitiva de vectorización (QGIS vs. web-geojson.io vs. panel admin).
+- Escala métrica real por piso.
+- Dominio de despliegue.
+
+**Próximos pasos:**
+
+1. Fase 2 — panel de administración: contenido (Supabase, CRUD, eventos, horarios).
+2. Fase 3 — editor de mapa + `import-handdrawn`.
+3. Fase 4 — reemplazar el SVG de la demo por MapLibre con coordenadas reales.
+
+---
 
 ### 2026-11-05 — v1.2 — Fase 0 completada
 

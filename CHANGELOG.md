@@ -13,9 +13,20 @@ archivo a mano salvo en la sección `Unreleased`.
 
 ### Added
 
+- Motor de ruteo multipiso (Dijkstra con heap binario) sobre un grafo en metros locales.
+- Generador de instrucciones paso a paso en español e inglés, con colapso de tramos
+  rectos y aviso de cambios de piso por escalera o ascensor.
+- Búsqueda de destinos tolerante a tildes, mayúsculas y errores de tipeo.
+- Parser y serializador de payload QR (`MILIMAP:v1:...`) con resolución a nodo por
+  `qrKey`, para que corregir el mapa no invalide stickers ya impresos.
+- Validador de coherencia de planos, compartido entre CLI, editor y tests.
+- Edificio de demostración de 2 pisos y 16 espacios con medidas genéricas.
+- Pantalla demo de ruteo con plano SVG, selector de piso y pasos navegables.
+- CLI `validate-plans` y CLI `inspect-geojson` para validar entregas del equipo.
+- README: flujo completo de digitalización de planos dibujados a mano.
 - Estructura base del repositorio con Vite, React 19 y TypeScript estricto.
 - Tipos del dominio (`src/domain/types.ts`) para edificios, pisos, espacios y rutas.
-- Utilidades de geometría en metros locales con 21 tests.
+- Utilidades de geometría en metros locales.
 - Hook de shell de la app móvil con navegación inferior de 4 pestañas.
 - Design tokens en CSS (`src/styles/tokens.css`).
 - Tooling de calidad: oxlint, Prettier, commitlint, husky y lint-staged.
@@ -23,3 +34,8 @@ archivo a mano salvo en la sección `Unreleased`.
 - Release Please para versionado automático.
 - Documentación para el equipo: contribución, arquitectura, digitalización de planos
   y manual del panel de administración.
+
+### Fixed
+
+- Dirección de los giros invertida: un giro hacia el este se anunciaba como izquierda.
+  Cubierto ahora por tests con los cuatro puntos cardinales.
