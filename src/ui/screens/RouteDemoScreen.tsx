@@ -15,6 +15,8 @@ import { buildGraphIndex, computeRoute } from '@/domain/routing'
 import { searchDestinations } from '@/domain/search'
 import type { Floor, LocalPoint, NodeId, Route, SpaceId } from '@/domain/types'
 import { FloorPlanSvg } from '@/ui/FloorPlanSvg'
+import { useContentStore } from '@/content/store'
+import { mergedCatalog } from '@/content/catalog'
 
 const graphIndex = buildGraphIndex(demoCampus)
 const floors = sortedFloors(demoCampus)
@@ -92,16 +94,24 @@ function findPointForNode(nodeId: NodeId): { level: number; point: LocalPoint } 
   return null
 }
 
-export function RouteDemoScreen() {
+export function RouteDemoScreen({ initialDestination }: { initialDestination?: SpaceId }) {
   const [originNodeId, setOriginNodeId] = useState<NodeId>('p1.ent')
-  const [destinationSpaceId, setDestinationSpaceId] = useState<SpaceId | null>('A104')
+  const [destinationSpaceId, setDestinationSpaceId] = useState<SpaceId | null>(
+    initialDestination ?? 'A104',
+  )
   const [query, setQuery] = useState('')
   const [level, setLevel] = useState<number>(1)
+  const spaceEdits = useContentStore((state) => state.spaceEdits)
   const routeRef = useRef<HTMLElement | null>(null)
 
   // These are cheap, pure computations over a 16-space catalog, so they run on
   // every render instead of being memoized. Simpler and no stale-closure risk.
-  const hits = searchDestinations(demoCatalog, query, { buildingId: demoBuilding.id, limit: 6 })
+  // Search the catalog with admin edits applied: a renamed or hidden room must
+  // behave the same here as in the admin panel.
+  const hits = searchDestinations(mergedCatalog(demoCatalog, spaceEdits), query, {
+    buildingId: demoBuilding.id,
+    limit: 6,
+  })
 
   const destinationSpace = destinationSpaceId ? findSpace(destinationSpaceId) : null
 

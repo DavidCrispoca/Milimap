@@ -1,15 +1,15 @@
 /**
  * Application shell.
  *
- * Phase 0 keeps navigation in local state instead of a router: there is only a
- * handful of screens and none of them need deep links yet. Deep links
- * (`/destino/:spaceId`) arrive in Phase 6, together with a real router.
+ * Navigation stays in local state (no router until Phase 6). The only cross-screen
+ * action is "Cómo llegar", which opens the map with a destination preselected.
  */
 
 import { useState } from 'react'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { PlaceholderScreen } from './ui/screens/PlaceholderScreen'
 import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
+import type { SpaceId } from './domain/types'
 
 type View = 'home' | 'map' | 'scan' | 'schedule'
 
@@ -17,15 +17,13 @@ interface NavItem {
   id: View
   label: string
   icon: string
-  /** Phase that makes this tab functional. `null` means it already works. */
-  readyIn: number | null
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'home', label: 'Inicio', icon: '🏠', readyIn: null },
-  { id: 'map', label: 'Mapa', icon: '🗺️', readyIn: null },
-  { id: 'scan', label: 'Escanear', icon: '📷', readyIn: 5 },
-  { id: 'schedule', label: 'Horario', icon: '🗓️', readyIn: 6 },
+  { id: 'home', label: 'Inicio', icon: '🏠' },
+  { id: 'map', label: 'Mapa', icon: '🗺️' },
+  { id: 'scan', label: 'Escanear', icon: '📷' },
+  { id: 'schedule', label: 'Horario', icon: '🗓️' },
 ]
 
 const PLACEHOLDERS: Record<'scan' | 'schedule', { title: string; phase: number; body: string }> = {
@@ -43,6 +41,12 @@ const PLACEHOLDERS: Record<'scan' | 'schedule', { title: string; phase: number; 
 
 export function App() {
   const [view, setView] = useState<View>('home')
+  const [routeTarget, setRouteTarget] = useState<SpaceId | undefined>(undefined)
+
+  const openRoute = (spaceId: SpaceId) => {
+    setRouteTarget(spaceId)
+    setView('map')
+  }
 
   const placeholder = view === 'scan' || view === 'schedule' ? PLACEHOLDERS[view] : null
 
@@ -56,14 +60,14 @@ export function App() {
           <span className="app__brand-name">Milimap</span>
           <span className="app__brand-sub">UMNG · Sede Calle 100</span>
         </div>
-        <span className="app__phase">Fase 1</span>
+        <span className="app__phase">Fase 2</span>
       </header>
 
       <main className="app__main">
         {view === 'home' ? (
-          <HomeScreen />
+          <HomeScreen onOpenRoute={openRoute} />
         ) : view === 'map' ? (
-          <RouteDemoScreen />
+          <RouteDemoScreen initialDestination={routeTarget} />
         ) : placeholder ? (
           <PlaceholderScreen
             title={placeholder.title}

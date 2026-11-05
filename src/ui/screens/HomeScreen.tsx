@@ -1,18 +1,25 @@
 /**
  * Home screen.
  *
- * Phase 0 renders the real information architecture (announcements, "my
- * schedule", quick actions) with placeholder content, so the layout can be
- * reviewed before the data layer exists. Each block names the phase that fills
- * it in, which keeps the skeleton honest instead of pretending to work.
+ * Phase 2: announcements and events come from the content store, so anything an
+ * administrator publishes appears here. "Cómo llegar" opens the map tab with the
+ * event's place as destination.
  */
+
+import { useContentStore } from '@/content/store'
+import { useNow } from '@/ui/useNow'
+import { mergedCatalog } from '@/content/catalog'
+import { activeAnnouncements, sortForCarousel, upcomingEvents } from '@/content/selectors'
+import { EVENT_CATEGORY_LABEL, ANNOUNCEMENT_KIND_LABEL } from '@/content/types'
+import { demoCatalog } from '@/data'
+import type { SpaceId } from '@/domain/types'
 
 const PHASE_STEPS = [
   { label: 'Fase 0 · Cimientos y tooling', state: 'done' as const },
   { label: 'Fase 1 · Motor de ruteo', state: 'done' as const },
-  { label: 'Fase 2 · Admin: contenido', state: 'next' as const },
-  { label: 'Fase 3 · Admin: editor de mapa', state: 'todo' as const },
-  { label: 'Fase 4 · App: mapa real con MapLibre', state: 'todo' as const },
+  { label: 'Fase 2 · Panel de administración', state: 'done' as const },
+  { label: 'Fase 3 · Editor de mapa', state: 'next' as const },
+  { label: 'Fase 4 · Mapa real con MapLibre', state: 'todo' as const },
   { label: 'Fases 5-6 · QR, eventos y horario', state: 'todo' as const },
   { label: 'Fase 7 · Digitalización de planos', state: 'todo' as const },
 ]
@@ -23,9 +30,44 @@ const DOT: Record<'done' | 'next' | 'todo', { className: string; glyph: string }
   todo: { className: 'status-list__dot status-list__dot--todo', glyph: '·' },
 }
 
-export function HomeScreen() {
+const DATE_FORMAT = new Intl.DateTimeFormat('es-CO', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+const ANNOUNCEMENT_CLASS = {
+  info: 'alert alert--info',
+  warning: 'alert alert--warning',
+  emergency: 'alert alert--danger',
+} as const
+
+export function HomeScreen({ onOpenRoute }: { onOpenRoute: (spaceId: SpaceId) => void }) {
+  const events = useContentStore((state) => state.events)
+  const announcements = useContentStore((state) => state.announcements)
+  const spaceEdits = useContentStore((state) => state.spaceEdits)
+
+  const now = useNow()
+  const catalog = mergedCatalog(demoCatalog, spaceEdits)
+  const roomName = (id: string | null): string =>
+    id ? (catalog.find((entry) => entry.id === id)?.name ?? id) : 'Lugar por confirmar'
+
+  const live = activeAnnouncements(announcements, now)
+  const featured = sortForCarousel(upcomingEvents(events, now)).slice(0, 4)
+
   return (
     <>
+      {live.map((item) => (
+        <section key={item.id} className={ANNOUNCEMENT_CLASS[item.kind]} role="status">
+          <div>
+            <strong>{ANNOUNCEMENT_KIND_LABEL[item.kind]}</strong>
+            <p style={{ margin: 0 }}>{item.message}</p>
+          </div>
+        </section>
+      ))}
+
       <section className="card card--brand">
         <p className="card__eyebrow">Campus activo</p>
         <h1 className="card__title">Sede Calle 100</h1>
@@ -40,27 +82,50 @@ export function HomeScreen() {
       </section>
 
       <section className="card">
-        <h2 className="card__title">Cartelera de eventos</h2>
-        <p className="card__body">
-          Próximamente: eventos especiales con fecha, lugar y acceso directo a la ruta.
-        </p>
-        <ul className="status-list">
-          <li className="status-list__item">
-            <span className={`${DOT.todo.className}`}>·</span>
-            <span>Los anuncios se cargan desde el panel de administración (Fase 2).</span>
-          </li>
-        </ul>
+        <p className="card__eyebrow">Eventos especiales</p>
+        <h2 className="card__title">Próximamente en la universidad</h2>
+        {featured.length === 0 ? (
+          <p className="card__body">No hay eventos programados por ahora.</p>
+        ) : (
+          <ul className="event-list">
+            {featured.map((event) => (
+              <li key={event.id} className="event">
+                <div className="event__date" aria-hidden="true">
+                  {DATE_FORMAT.format(new Date(event.startsAt))}
+                </div>
+                <div className="event__body">
+                  <span className="event__title">{event.title}</span>
+                  <span className="event__meta">
+                    {EVENT_CATEGORY_LABEL[event.category]} · {roomName(event.spaceId)}
+                  </span>
+                  <span className="event__desc">{event.description}</span>
+                  {event.spaceId ? (
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--sm"
+                      onClick={() => onOpenRoute(event.spaceId as SpaceId)}
+                    >
+                      Cómo llegar
+                    </button>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="card">
         <h2 className="card__title">Mi horario</h2>
         <p className="card__body">
-          Selecciona tus clases del semestre y entra con un toque al salón donde toca ahora. Se
+          Seleccioná tus clases del semestre y entrá con un toque al salón donde toca ahora. Se
           guarda en tu dispositivo, sin cuenta.
         </p>
         <ul className="status-list">
           <li className="status-list__item">
-            <span className={`${DOT.todo.className}`}>·</span>
+            <span className={DOT.todo.className} aria-hidden="true">
+              ·
+            </span>
             <span>Disponible en la Fase 6.</span>
           </li>
         </ul>
@@ -76,12 +141,12 @@ export function HomeScreen() {
             <span className="feature__label">Escanear QR</span>
             <span className="feature__hint">Fase 5</span>
           </button>
-          <button type="button" className="feature" disabled>
+          <button type="button" className="feature" onClick={() => onOpenRoute('A104')}>
             <span className="feature__icon" aria-hidden="true">
               🔍
             </span>
             <span className="feature__label">Buscar lugar</span>
-            <span className="feature__hint">Fase 4</span>
+            <span className="feature__hint">Probar ruta</span>
           </button>
         </div>
       </section>
