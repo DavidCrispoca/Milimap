@@ -15,12 +15,18 @@
 Es una herramienta de **escritorio** (pensada para pantalla de PC, no para teléfono)
 donde una persona de la universidad puede:
 
-1. Editar el mapa: dibujar aulas, pasillos, escaleras.
-2. Generar e imprimir los códigos QR.
-3. Cargar eventos y anuncios.
-4. Administrar el catálogo de espacios.
-5. Importar los horarios del semestre.
-6. Ver estadísticas de uso.
+| #   | Qué se hace                                        | Estado                                                                       |
+| --- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | Editar el mapa: dibujar aulas, pasillos, escaleras | Pendiente — Fase 3                                                           |
+| 2   | Generar e imprimir los códigos QR                  | Pendiente — Fase 5                                                           |
+| 3   | Cargar eventos y anuncios                          | **Implementado** — Fase 2                                                    |
+| 4   | Administrar el catálogo de espacios                | **Parcial** — Fase 2 (nombre, alias y estado); geometría en Fase 3           |
+| 5   | Importar los horarios del semestre                 | **Implementado** — Fase 2 (CSV); la selección del estudiante llega en Fase 6 |
+| 6   | Ver estadísticas de uso                            | **Parcial** — Fase 2 (contenido publicado); uso real en Fase 5               |
+
+Las secciones de este manual que todavía no existen en pantalla están escritas como
+especificación para que el equipo sepa qué va a encontrar. Cada una lo indica en su
+título o en la tabla de arriba.
 
 **El panel no es la app.** Es una herramienta interna. Corre en la misma URL, en una
 ruta separada (`/admin`).
@@ -40,7 +46,7 @@ Se entra con **correo institucional**. No hay registro abierto: las cuentas las 
 
 ---
 
-## 1. Editor de mapa
+## 1. Editor de mapa (Fase 3)
 
 ### Flujo para agregar un aula
 
@@ -89,7 +95,7 @@ Un piso con errores **no se puede publicar**.
 
 ---
 
-## 2. Códigos QR
+## 2. Códigos QR (Fase 5)
 
 ### Generar
 
@@ -206,7 +212,12 @@ está mal, y es la forma más rápida de encontrar errores sin recorrer el campu
 
 ## 7. Publicar cambios
 
-Todos los cambios del mapa pasan por el mismo flujo:
+**Hoy (Fase 2), el contenido no se publica así.** Eventos, anuncios, espacios y horarios
+se guardan en el navegador donde se trabaja: "Publicar" significa "visible en este
+navegador". No hay PR ni deploy de por medio, y no hay sincronización entre personas.
+Ver ADR-011 en [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+Cuando exista backend (Fase 8 en adelante), los cambios del **mapa** seguirán este flujo:
 
 ```
 Editar → Validar → Publicar → PR automático → CI valida → Merge → Deploy
@@ -220,6 +231,14 @@ Editar → Validar → Publicar → PR automático → CI valida → Merge → D
 ---
 
 ## 8. Preguntas frecuentes
+
+Las respuestas sobre mapa, Git y QGIS describen el panel completo (Fases 2 y 3). Hoy solo
+está implementada la parte de contenido; el editor de mapa llega en la Fase 3.
+
+**¿Los cambios que hago hoy se comparten con el resto?**
+No. En la Fase 2 el contenido se guarda en el navegador donde trabajás. Otra persona, en
+otro equipo, no ve tus eventos ni tus anuncios. Mientras no haya backend, el contenido que
+deba ver todo el mundo se carga en el equipo que se use para la demostración.
 
 **¿Puedo editar desde el celular?**
 El panel está diseñado para PC. Dibujar polígonos con el dedo es impracticable.

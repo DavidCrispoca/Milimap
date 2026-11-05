@@ -161,10 +161,11 @@ src/
 │   ├── demo.ts    Edificio de prueba con medidas genéricas (40 × 24 m).
 │   ├── index.ts   Punto único de acceso a los datos.
 │   └── inbox/     Buzón donde el equipo deja los GeoJSON digitalizados.
+├── content/       Contenido administrable: eventos, anuncios, horarios, permisos. (Fase 2)
 ├── map/           Render con MapLibre: fuentes, capas, cámara. (Fase 4)
 ├── scanner/       Lectura de QR. (Fase 5)
-├── schedule/      Horario del semestre. (Fase 6)
-├── admin/         Panel de administración para PC. (Fases 2-3)
+├── schedule/      Parser CSV de horarios (Fase 2) y horario del semestre (Fase 6).
+├── admin/         Panel de administración para PC. (Fase 2; editor en Fase 3).
 ├── ui/            Componentes y pantallas React.
 ├── styles/        Design tokens.
 └── test/          Setup de Vitest.

@@ -196,6 +196,53 @@ ahora es una dependencia sin consumidor.
 **Cuándo cambia:** Fase 6, cuando aparecen `/destino/:spaceId` y `/ruta/:origen/:destino`,
 que son requisito para compartir un destino por WhatsApp.
 
+**Nota (Fase 2):** `/admin` se resuelve con un chequeo de `window.location.pathname`
+en `Root.tsx`, sin router. Es una excepción deliberada y mínima: una sola ruta, sin
+parámetros. El router sigue entrando en la Fase 6.
+
+### ADR-011 — Persistencia de contenido en el navegador (Fase 2)
+
+**Decisión:** el contenido administrable (eventos, anuncios, horarios, ediciones de
+espacios) se guarda en `localStorage` mediante un store de Zustand con `persist`.
+
+**Por qué:**
+
+- El único proyecto de Supabase disponible en la cuenta pertenece a otro producto
+  (`marketinghub`). Crear tablas ahí sería tomar una decisión sobre una base ajena.
+- Un MVP académico necesita demostrar el flujo completo sin infraestructura.
+- El store se diseña como un repositorio: toda mutación pasa por una acción, y la UI no
+  lee `localStorage` directamente. Cambiar a Supabase implica reimplementar las acciones,
+  no reescribir las pantallas.
+
+**Costo asumido:** no hay edición concurrente entre personas, ni auditoría, ni
+sincronización entre dispositivos. "Publicado" significa "publicado en este navegador".
+Esto se advierte en la interfaz.
+
+### ADR-012 — Roles y permisos aplicados en dos capas (Fase 2)
+
+**Decisión:** tres roles (`admin`, `editor`, `viewer`) definidos en una matriz única
+(`src/content/permissions.ts`). La interfaz oculta o deshabilita controles con `can()`,
+y el store vuelve a verificar el permiso antes de mutar.
+
+| Acción                                       | admin | editor | viewer |
+| -------------------------------------------- | ----- | ------ | ------ |
+| Crear y editar eventos y anuncios (borrador) | ✅    | ✅     | ❌     |
+| Publicar eventos y anuncios                  | ✅    | ❌     | ❌     |
+| Editar nombre, alias y estado de espacios    | ✅    | ✅     | ❌     |
+| Importar horarios                            | ✅    | ✅     | ❌     |
+| Restablecer contenido de demostración        | ✅    | ❌     | ❌     |
+
+**Por qué dos capas:** la verificación solo en la UI se puede saltear desde la consola
+del navegador. La verificación en el store es la que protege los datos, aunque hoy esté
+en el cliente. Cuando exista backend, la misma matriz se traduce a políticas RLS.
+
+**Rol no persistido:** el rol vive solo en la sesión. Si se guardara en `localStorage`,
+un navegador cerrado conservaría los permisos de administrador.
+
+**Limitación explícita:** el acceso por rol no tiene contraseña. Es suficiente para
+demostrar el flujo y para separar responsabilidades dentro del equipo; no es seguridad
+frente a alguien con acceso al navegador.
+
 ---
 
 ## 3. Flujo de datos
@@ -264,48 +311,3 @@ Para evitar expectativas equivocadas:
 - **No es un sistema de reservas de salones.**
 - **No sincroniza entre dispositivos** en el MVP: el horario vive en `localStorage`.
 - **No cubre otras sedes.** Solo Calle 100.
-
----
-
-## ADR-011 — Persistencia de contenido en el navegador (Fase 2)
-
-**Decisión:** el contenido administrable (eventos, anuncios, horarios, ediciones de
-espacios) se guarda en `localStorage` mediante un store de Zustand con `persist`.
-
-**Por qué:**
-
-- El único proyecto de Supabase disponible en la cuenta pertenece a otro producto
-  (`marketinghub`). Crear tablas ahí sería tomar una decisión sobre una base ajena.
-- Un MVP académico necesita demostrar el flujo completo sin infraestructura.
-- El store se diseña como un repositorio: toda mutación pasa por una acción, y la UI no
-  lee `localStorage` directamente. Cambiar a Supabase implica reimplementar las acciones,
-  no reescribir las pantallas.
-
-**Costo asumido:** no hay edición concurrente entre personas, ni auditoría, ni
-sincronización entre dispositivos. "Publicado" significa "publicado en este navegador".
-Esto se advierte en la interfaz.
-
-## ADR-012 — Roles y permisos aplicados en dos capas (Fase 2)
-
-**Decisión:** tres roles (`admin`, `editor`, `viewer`) definidos en una matriz única
-(`src/content/permissions.ts`). La interfaz oculta o deshabilita controles con `can()`,
-y el store vuelve a verificar el permiso antes de mutar.
-
-| Acción                                       | admin | editor | viewer |
-| -------------------------------------------- | ----- | ------ | ------ |
-| Crear y editar eventos y anuncios (borrador) | ✅    | ✅     | ❌     |
-| Publicar eventos y anuncios                  | ✅    | ❌     | ❌     |
-| Editar nombre, alias y estado de espacios    | ✅    | ✅     | ❌     |
-| Importar horarios                            | ✅    | ✅     | ❌     |
-| Restablecer contenido de demostración        | ✅    | ❌     | ❌     |
-
-**Por qué dos capas:** la verificación solo en la UI se puede saltear desde la consola
-del navegador. La verificación en el store es la que protege los datos, aunque hoy esté
-en el cliente. Cuando exista backend, la misma matriz se traduce a políticas RLS.
-
-**Rol no persistido:** el rol vive solo en la sesión. Si se guardara en `localStorage`,
-un navegador cerrado conservaría los permisos de administrador.
-
-**Limitación explícita:** el acceso por rol no tiene contraseña. Es suficiente para
-demostrar el flujo y para separar responsabilidades dentro del equipo; no es seguridad
-frente a alguien con acceso al navegador.
