@@ -1,0 +1,48 @@
+/* Bar lists for analytics. Kept in its own file so the admin shell stays readable. */
+
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bar-list__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr) 40px;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.bar-list__label {
+  color: var(--color-ink-700);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-list__track {
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-ink-100);
+  overflow: hidden;
+}
+
+.bar-list__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-brand-600), var(--color-brand-400));
+}
+
+.bar-list__row:first-child .bar-list__fill {
+  background: linear-gradient(90deg, var(--color-accent-600), var(--color-accent-500));
+}
+
+.bar-list__value {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
+}
