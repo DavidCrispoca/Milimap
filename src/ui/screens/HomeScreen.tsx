@@ -34,12 +34,12 @@ const DOT: Record<'done' | 'next' | 'todo', { className: string; glyph: string }
   todo: { className: 'status-list__dot status-list__dot--todo', glyph: '·' },
 }
 
-const DATE_FORMAT = new Intl.DateTimeFormat('es-CO', {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
+const DAY_NUM = new Intl.DateTimeFormat('es-CO', { day: '2-digit' })
+const MONTH_SHORT = new Intl.DateTimeFormat('es-CO', { month: 'short' })
+const TIME_SHORT = new Intl.DateTimeFormat('es-CO', {
   hour: '2-digit',
   minute: '2-digit',
+  hour12: true,
 })
 
 const ANNOUNCEMENT_CLASS = {
@@ -112,29 +112,36 @@ export function HomeScreen({
           <p className="card__body">No hay eventos programados por ahora.</p>
         ) : (
           <ul className="event-list">
-            {featured.map((event) => (
-              <li key={event.id} className="event">
-                <div className="event__date" aria-hidden="true">
-                  {DATE_FORMAT.format(new Date(event.startsAt))}
-                </div>
-                <div className="event__body">
-                  <span className="event__title">{event.title}</span>
-                  <span className="event__meta">
-                    {EVENT_CATEGORY_LABEL[event.category]} · {roomName(event.spaceId)}
-                  </span>
-                  <span className="event__desc">{event.description}</span>
-                  {event.spaceId ? (
-                    <button
-                      type="button"
-                      className="btn-secondary btn--sm"
-                      onClick={() => onOpenRoute(event.spaceId as SpaceId)}
-                    >
-                      Cómo llegar
-                    </button>
-                  ) : null}
-                </div>
-              </li>
-            ))}
+            {featured.map((event) => {
+              const date = new Date(event.startsAt)
+              return (
+                <li key={event.id} className="event">
+                  <div className="event__date" aria-hidden="true">
+                    <span className="event__date-day">{DAY_NUM.format(date)}</span>
+                    <span className="event__date-month">{MONTH_SHORT.format(date)}</span>
+                  </div>
+                  <div className="event__body">
+                    <span className="event__title">{event.title}</span>
+                    <span className="event__meta">
+                      {EVENT_CATEGORY_LABEL[event.category]} · {roomName(event.spaceId)}
+                    </span>
+                    <span className="event__desc">{event.description}</span>
+                    <div className="event__actions">
+                      <span className="event__time">{TIME_SHORT.format(date)}</span>
+                      {event.spaceId ? (
+                        <button
+                          type="button"
+                          className="btn-secondary btn--sm"
+                          onClick={() => onOpenRoute(event.spaceId as SpaceId)}
+                        >
+                          Cómo llegar
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
