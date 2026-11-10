@@ -18,6 +18,7 @@
     "test:coverage": "vitest run --coverage",
     "validate:plans": "tsx tools/validate-plans.ts",
     "inspect:geojson": "tsx tools/inspect-geojson.ts",
+    "gen:icons": "tsx tools/gen-icons.ts",
     "prepare": "husky"
   },
   "dependencies": {
