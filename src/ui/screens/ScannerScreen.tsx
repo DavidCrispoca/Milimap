@@ -30,12 +30,27 @@ const READER_ID = 'milimap-qr-reader'
 interface ScannerScreenProps {
   /** Invoked once a scan confirms the student's location. */
   onUseOrigin: (nodeId: NodeId) => void
+  /** A payload arriving from a deep link (#/qr/...), auto-analyzed on mount. */
+  initialPayload?: string
 }
 
-export function ScannerScreen({ onUseOrigin }: ScannerScreenProps) {
-  const [phase, setPhase] = useState<Phase>({ name: 'idle' })
-  const [manualCode, setManualCode] = useState('')
+export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProps) {
+  const [phase, setPhase] = useState<Phase>(() =>
+    initialPayload
+      ? { name: 'result', result: analyzeScan(initialPayload, demoCampus) }
+      : { name: 'idle' },
+  )
+  const [manualCode, setManualCode] = useState(initialPayload ?? '')
   const scannerRef = useRef<Html5Qrcode | null>(null)
+
+  // A deep-linked payload is a scan too: record it once on entry.
+  useEffect(() => {
+    if (initialPayload) {
+      const result = analyzeScan(initialPayload, demoCampus)
+      recordScan({ ok: result.status === 'confirmed', status: result.status, source: 'deeplink' })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const stopScanner = async (): Promise<void> => {
     const scanner = scannerRef.current
