@@ -19,6 +19,7 @@
     "validate:plans": "tsx tools/validate-plans.ts",
     "inspect:geojson": "tsx tools/inspect-geojson.ts",
     "gen:icons": "tsx tools/gen-icons.ts",
+    "tunnel": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/tunnel.ps1",
     "prepare": "husky"
   },
   "dependencies": {
