@@ -15,14 +15,14 @@
 Es una herramienta de **escritorio** (pensada para pantalla de PC, no para teléfono)
 donde una persona de la universidad puede:
 
-| #   | Qué se hace                                        | Estado                                                                       |
-| --- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 1   | Editar el mapa: dibujar aulas, pasillos, escaleras | Pendiente — Fase 3                                                           |
-| 2   | Generar e imprimir los códigos QR                  | Pendiente — Fase 5                                                           |
-| 3   | Cargar eventos y anuncios                          | **Implementado** — Fase 2                                                    |
-| 4   | Administrar el catálogo de espacios                | **Parcial** — Fase 2 (nombre, alias y estado); geometría en Fase 3           |
-| 5   | Importar los horarios del semestre                 | **Implementado** — Fase 2 (CSV); la selección del estudiante llega en Fase 6 |
-| 6   | Ver estadísticas de uso                            | **Parcial** — Fase 2 (contenido publicado); uso real en Fase 5               |
+| #   | Qué se hace                                        | Estado                                                                        |
+| --- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1   | Editar el mapa: dibujar aulas, pasillos, escaleras | Pendiente — Fase 3                                                            |
+| 2   | Generar e imprimir los códigos QR                  | Pendiente — la app ya escanea QRs (Fase 5); falta el generador por lotes      |
+| 3   | Cargar eventos y anuncios                          | **Implementado** — Fase 2                                                     |
+| 4   | Administrar el catálogo de espacios                | **Parcial** — Fase 2 (nombre, alias y estado); geometría en Fase 3            |
+| 5   | Importar los horarios del semestre                 | **Implementado** — CSV (Fase 2); selección del estudiante en la app (Fase 6)  |
+| 6   | Ver estadísticas de uso                            | **Parcial** — eventos reales en Supabase (Fases 5–6); el panel aún no los lee |
 
 Las secciones de este manual que todavía no existen en pantalla están escritas como
 especificación para que el equipo sepa qué va a encontrar. Cada una lo indica en su
@@ -96,6 +96,10 @@ Un piso con errores **no se puede publicar**.
 ---
 
 ## 2. Códigos QR (Fase 5)
+
+> **Estado (2026-11-10):** el lado de lectura ya existe en la app — escáner con
+> cámara, entrada manual y deep link `#/qr/<payload>`. Lo que sigue aquí (generador
+> por lotes, inventario, plantilla A4) todavía no está implementado.
 
 ### Generar
 
@@ -207,6 +211,11 @@ seleccionadas mantienen su horario.
 
 **Las rutas fallidas son la métrica más valiosa.** Cada fallo es un pedazo de mapa que
 está mal, y es la forma más rápida de encontrar errores sin recorrer el campus.
+
+> **Estado (2026-11-10):** la app ya registra eventos de uso reales en Supabase
+> (`milimap_analytics_events`: escaneos, búsquedas, rutas, aperturas, horario — ver
+> ADR-014 en `ARCHITECTURE.md`). Esta página del panel todavía muestra el contenido
+> guardado en el navegador; leer los eventos reales está pendiente.
 
 ---
 
