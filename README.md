@@ -5,9 +5,11 @@ Navegación indoor para la **Universidad Militar Nueva Granada — Sede Calle 10
 El usuario escanea un código QR que está pegado en la pared, la app deduce dónde está,
 y le muestra cómo llegar a un salón o zona de interés sobre un mapa 2D cenital.
 
-> **Estado: Fase 2 completada.** Motor de ruteo (Fase 1) y panel de administración en
-> `/admin` con eventos, anuncios, espacios, horarios por CSV y analítica básica. Los
-> eventos publicados aparecen en el inicio y "Cómo llegar" abre la ruta. Ver
+> **Estado: núcleo de las fases sin mapa cerrado (2026-11-10).** Motor de ruteo
+> (Fase 1), panel de administración (Fase 2), escáner QR (Fase 5), horario del
+> semestre con deep links (Fase 6) y PWA instalable (Fase 8), con eventos de uso en
+> Supabase (ADR-014). Las fases de mapa (3, 4 y 7) esperan los planos reales que se
+> digitalizan por fuera. Todo lo pendiente está detallado en el registro v1.5 de
 > [`plan.md`](plan.md).
 
 |                 |                                                                               |
@@ -54,6 +56,8 @@ obligatorio**: el producto es móvil y el emulador miente sobre el tamaño del p
 | `npm run test:coverage`                | Cobertura (solo `src/domain`, `src/schedule`, `src/qr`) |
 | `npm run validate:plans`               | Valida que el grafo del campus sea coherente            |
 | `npm run inspect:geojson -- <archivo>` | Revisa un GeoJSON antes de entregarlo                   |
+| `npm run gen:icons`                    | Regenera los íconos PNG del manifest de la PWA          |
+| `npm run tunnel`                       | Demo temporal con HTTPS público de Cloudflare           |
 
 ---
 
@@ -162,15 +166,18 @@ src/
 │   ├── index.ts   Punto único de acceso a los datos.
 │   └── inbox/     Buzón donde el equipo deja los GeoJSON digitalizados.
 ├── content/       Contenido administrable: eventos, anuncios, horarios, permisos. (Fase 2)
-├── map/           Render con MapLibre: fuentes, capas, cámara. (Fase 4)
-├── scanner/       Lectura de QR. (Fase 5)
-├── schedule/      Parser CSV de horarios (Fase 2) y horario del semestre (Fase 6).
+├── backend/       Cliente PostgREST propio: analítica en Supabase, fire-and-forget. (ADR-014)
+├── map/           Render con MapLibre: fuentes, capas, cámara. (Fase 4, pendiente)
+├── scanner/       Lectura de QR: cámara, entrada manual, confirmación. (Fase 5)
+├── schedule/      Parser CSV (Fase 2) y horario del semestre: clase actual, próxima. (Fase 6)
 ├── admin/         Panel de administración para PC. (Fase 2; editor en Fase 3).
 ├── ui/            Componentes y pantallas React.
 ├── styles/        Design tokens.
+├── router.ts      Router de hash: deep links y URLs compartibles. (ADR-013)
 └── test/          Setup de Vitest.
 
-tools/             Scripts de Node: validate-plans, inspect-geojson, import-handdrawn, gen-qr.
+tools/             Scripts: validate-plans, inspect-geojson, gen-icons, tunnel (demo HTTPS).
+                   Pendientes: import-handdrawn (Fase 3) y gen-qr (Fase 5).
 docs/              Guías del equipo.
 ```
 
