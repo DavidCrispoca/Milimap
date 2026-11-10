@@ -46,3 +46,7 @@ public/qrs/*.zip
 # Playwright MCP artifacts
 .playwright-mcp/
 
+
+# OpenCode / agent skill registry cache
+.atl/
+
