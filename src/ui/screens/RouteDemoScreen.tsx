@@ -95,31 +95,20 @@ function findPointForNode(nodeId: NodeId): { level: number; point: LocalPoint } 
 }
 
 export function RouteDemoScreen({
-  initialDestination,
-  initialOrigin,
+  originNodeId,
+  destinationSpaceId,
+  onOriginChange,
+  onDestinationChange,
 }: {
-  initialDestination?: SpaceId
-  initialOrigin?: NodeId
+  originNodeId: NodeId
+  destinationSpaceId: SpaceId | null
+  onOriginChange: (nodeId: NodeId) => void
+  onDestinationChange: (spaceId: SpaceId | null) => void
 }) {
-  const [originNodeId, setOriginNodeId] = useState<NodeId>(initialOrigin ?? 'p1.ent')
-  const [destinationSpaceId, setDestinationSpaceId] = useState<SpaceId | null>(
-    initialDestination ?? 'A104',
-  )
   const [query, setQuery] = useState('')
   const [level, setLevel] = useState<number>(1)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
   const routeRef = useRef<HTMLElement | null>(null)
-
-  // The parent (App) owns the origin: a QR scan changes it after mount. Sync it
-  // during render (the documented "derive state from props" pattern) instead of
-  // an effect, so there is no extra cascade and no lint-bait.
-  const [prevInitialOrigin, setPrevInitialOrigin] = useState<NodeId | undefined>(initialOrigin)
-  if (initialOrigin !== prevInitialOrigin) {
-    setPrevInitialOrigin(initialOrigin)
-    setOriginNodeId(initialOrigin ?? 'p1.ent')
-    const point = QR_POINTS.find((candidate) => candidate.nodeId === initialOrigin)
-    if (point) setLevel(point.level)
-  }
 
   // These are cheap, pure computations over a 16-space catalog, so they run on
   // every render instead of being memoized. Simpler and no stale-closure risk.
@@ -159,8 +148,8 @@ export function RouteDemoScreen({
   }
 
   const applyPreset = (preset: Preset): void => {
-    setOriginNodeId(preset.origin)
-    setDestinationSpaceId(preset.destination)
+    onOriginChange(preset.origin)
+    onDestinationChange(preset.destination)
     setQuery('')
     const origin = QR_POINTS.find((point) => point.nodeId === preset.origin)
     if (origin) setLevel(origin.level)
@@ -168,7 +157,7 @@ export function RouteDemoScreen({
   }
 
   const chooseDestination = (spaceId: SpaceId, spaceLevel: number): void => {
-    setDestinationSpaceId(spaceId)
+    onDestinationChange(spaceId)
     setQuery('')
     // Follow the route: show the floor where the destination lives.
     setLevel(spaceLevel)
@@ -215,7 +204,7 @@ export function RouteDemoScreen({
             value={originNodeId}
             onChange={(event) => {
               const nextId = event.target.value
-              setOriginNodeId(nextId)
+              onOriginChange(nextId)
               const point = QR_POINTS.find((candidate) => candidate.nodeId === nextId)
               if (point) setLevel(point.level)
             }}

@@ -12,16 +12,20 @@ import { mergedCatalog } from '@/content/catalog'
 import { activeAnnouncements, sortForCarousel, upcomingEvents } from '@/content/selectors'
 import { EVENT_CATEGORY_LABEL, ANNOUNCEMENT_KIND_LABEL } from '@/content/types'
 import { demoCatalog } from '@/data'
+import { defaultStorage, loadStudentSchedule } from '@/schedule/student'
+import { demoProgram, scheduleFor } from '@/schedule/demo'
+import { findCurrentClass, findNextClass } from '@/schedule/current'
+import { useState } from 'react'
 import type { SpaceId } from '@/domain/types'
 
 const PHASE_STEPS = [
   { label: 'Fase 0 · Cimientos y tooling', state: 'done' as const },
   { label: 'Fase 1 · Motor de ruteo', state: 'done' as const },
   { label: 'Fase 2 · Panel de administración', state: 'done' as const },
-  { label: 'Fase 3 · Editor de mapa', state: 'next' as const },
-  { label: 'Fase 4 · Mapa real con MapLibre', state: 'todo' as const },
-  { label: 'Fases 5-6 · QR, eventos y horario', state: 'todo' as const },
-  { label: 'Fase 7 · Digitalización de planos', state: 'todo' as const },
+  { label: 'Fase 5 · Escáner QR', state: 'done' as const },
+  { label: 'Fase 6 · Mi horario', state: 'done' as const },
+  { label: 'Fase 8 · PWA y offline', state: 'next' as const },
+  { label: 'Fases 3-4-7 · Mapa y digitalización', state: 'todo' as const },
 ]
 
 const DOT: Record<'done' | 'next' | 'todo', { className: string; glyph: string }> = {
@@ -47,14 +51,17 @@ const ANNOUNCEMENT_CLASS = {
 export function HomeScreen({
   onOpenRoute,
   onOpenScanner,
+  onOpenSchedule,
 }: {
   onOpenRoute: (spaceId: SpaceId) => void
   onOpenScanner: () => void
+  onOpenSchedule: () => void
 }) {
   const events = useContentStore((state) => state.events)
   const announcements = useContentStore((state) => state.announcements)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
 
+  const [schedule] = useState(() => loadStudentSchedule(defaultStorage()))
   const now = useNow()
   const catalog = mergedCatalog(demoCatalog, spaceEdits)
   const roomName = (id: string | null): string =>
@@ -62,6 +69,17 @@ export function HomeScreen({
 
   const live = activeAnnouncements(announcements, now)
   const featured = sortForCarousel(upcomingEvents(events, now)).slice(0, 4)
+
+  const myClasses = schedule
+    ? scheduleFor(schedule.programId, schedule.groupId).filter((item) =>
+        schedule.selectedClassIds.includes(item.id),
+      )
+    : []
+  const currentClass = findCurrentClass(myClasses, now)
+  const nextClass = findNextClass(myClasses, now)
+  const programName = schedule
+    ? (demoProgram(schedule.programId)?.name ?? schedule.programId)
+    : null
 
   return (
     <>
@@ -108,7 +126,7 @@ export function HomeScreen({
                   {event.spaceId ? (
                     <button
                       type="button"
-                      className="btn btn--primary btn--sm"
+                      className="btn-secondary btn--sm"
                       onClick={() => onOpenRoute(event.spaceId as SpaceId)}
                     >
                       Cómo llegar
@@ -123,18 +141,83 @@ export function HomeScreen({
 
       <section className="card">
         <h2 className="card__title">Mi horario</h2>
-        <p className="card__body">
-          Seleccioná tus clases del semestre y entrá con un toque al salón donde toca ahora. Se
-          guarda en tu dispositivo, sin cuenta.
-        </p>
-        <ul className="status-list">
-          <li className="status-list__item">
-            <span className={DOT.todo.className} aria-hidden="true">
-              ·
+        {!schedule ? (
+          <>
+            <p className="card__body">
+              Configurá tu horario del semestre y entrá con un toque al salón donde toca ahora. Se
+              guarda en tu dispositivo, sin cuenta.
+            </p>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ marginTop: 'var(--space-3)' }}
+              onClick={onOpenSchedule}
+            >
+              Configurar mi horario
+            </button>
+          </>
+        ) : currentClass ? (
+          <div className="class-card">
+            <div className="class-card__head">
+              <span className="class-card__kind">En curso</span>
+              <span className="class-card__time">
+                {currentClass.startsAt}–{currentClass.endsAt}
+              </span>
+            </div>
+            <span className="class-card__subject">{currentClass.subject}</span>
+            <span className="class-card__meta">{currentClass.code}</span>
+            <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
+              <button
+                type="button"
+                className="btn-secondary btn--sm"
+                onClick={() => onOpenRoute(currentClass.spaceId)}
+              >
+                Cómo llegar
+              </button>
+              <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
+                Ver horario
+              </button>
+            </div>
+          </div>
+        ) : nextClass ? (
+          <div className="class-card">
+            <div className="class-card__head">
+              <span className="class-card__kind">Próxima</span>
+              <span className="class-card__time">
+                {nextClass.startsAt}–{nextClass.endsAt}
+              </span>
+            </div>
+            <span className="class-card__subject">{nextClass.subject}</span>
+            <span className="class-card__meta">
+              {nextClass.code}
+              {programName ? ` · ${programName}` : ''}
             </span>
-            <span>Disponible en la Fase 6.</span>
-          </li>
-        </ul>
+            <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
+              <button
+                type="button"
+                className="btn-secondary btn--sm"
+                onClick={() => onOpenRoute(nextClass.spaceId)}
+              >
+                Cómo llegar
+              </button>
+              <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
+                Ver horario
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="card__body">No tenés clases en tu horario por ahora.</p>
+            <button
+              type="button"
+              className="btn-secondary btn--sm"
+              style={{ marginTop: 'var(--space-3)' }}
+              onClick={onOpenSchedule}
+            >
+              Ver horario
+            </button>
+          </>
+        )}
       </section>
 
       <section>

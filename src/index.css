@@ -352,6 +352,13 @@ a {
   font-size: var(--text-sm);
 }
 
+/* Compact modifier for inline actions ("cómo llegar", etc.). */
+.btn--sm {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+}
+
 /* ------------------------------------------------------------------ */
 /* Bottom navigation                                                   */
 /* ------------------------------------------------------------------ */
@@ -431,6 +438,119 @@ a {
   color: var(--color-brand-600);
   font-weight: 600;
   text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Schedule (Phase 6)                                                  */
+/* ------------------------------------------------------------------ */
+
+.class-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.class-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.class-card__kind {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-brand-600);
+}
+
+.class-card__time {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
+}
+
+.class-card__subject {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.class-card__meta {
+  font-size: var(--text-sm);
+  color: var(--color-ink-700);
+}
+
+.class-card__eta {
+  font-size: var(--text-xs);
+  color: var(--color-accent-700);
+  font-weight: 600;
+}
+
+.class-card .btn-secondary {
+  align-self: flex-start;
+}
+
+.schedule-day {
+  margin-top: var(--space-3);
+}
+
+.schedule-day__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-500);
+  margin-bottom: var(--space-2);
+}
+
+.schedule-day__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-ink-100);
+  border-radius: var(--radius-sm);
+}
+
+.schedule-row__main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.schedule-row__main input {
+  margin-top: 4px;
+}
+
+.schedule-row__main span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.schedule-row__subject {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink-900);
+}
+
+.schedule-row__meta {
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
 }
 
 /* ------------------------------------------------------------------ */

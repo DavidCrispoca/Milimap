@@ -1,58 +1,119 @@
 /**
  * Application shell.
  *
- * Navigation stays in local state (no router until Phase 6). The only cross-screen
- * action is "Cómo llegar", which opens the map with a destination preselected.
+ * Navigation is a hash router (see `../router`), so tabs, deep links and QR
+ * payloads all have shareable URLs and survive a reload. The map screen is
+ * fully controlled from here: a QR scan sets the origin, "cómo llegar" sets the
+ * destination.
  */
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { HomeScreen } from './ui/screens/HomeScreen'
-import { PlaceholderScreen } from './ui/screens/PlaceholderScreen'
 import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
 import { ScannerScreen } from './ui/screens/ScannerScreen'
+import { ScheduleScreen } from './ui/screens/ScheduleScreen'
+import { hashFor, parseHash, type AppRoute } from './router'
 import type { NodeId, SpaceId } from './domain/types'
 
 type View = 'home' | 'map' | 'scan' | 'schedule'
 
 interface NavItem {
   id: View
+  route: AppRoute
   label: string
   icon: string
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'home', label: 'Inicio', icon: '🏠' },
-  { id: 'map', label: 'Mapa', icon: '🗺️' },
-  { id: 'scan', label: 'Escanear', icon: '📷' },
-  { id: 'schedule', label: 'Horario', icon: '🗓️' },
+  { id: 'home', route: { name: 'home' }, label: 'Inicio', icon: '🏠' },
+  { id: 'map', route: { name: 'map' }, label: 'Mapa', icon: '🗺️' },
+  { id: 'scan', route: { name: 'scan' }, label: 'Escanear', icon: '📷' },
+  { id: 'schedule', route: { name: 'schedule' }, label: 'Horario', icon: '🗓️' },
 ]
 
-const PLACEHOLDERS: Record<'schedule', { title: string; phase: number; body: string }> = {
-  schedule: {
-    title: 'Mi horario',
-    phase: 6,
-    body: 'Selección de clases del semestre y acceso directo a "cómo llegar" al salón de la clase en curso. Se guarda en el dispositivo, sin necesidad de cuenta.',
-  },
+/** The route the app booted on (deep link, QR URL, or plain root). */
+const INITIAL_ROUTE: AppRoute = parseHash(window.location.hash)
+
+function initialOrigin(route: AppRoute): NodeId {
+  return route.name === 'route' ? route.origin : 'p1.ent'
+}
+
+function initialDestination(route: AppRoute): SpaceId | null {
+  if (route.name === 'destination') return route.spaceId
+  if (route.name === 'route') return route.destination
+  return null
 }
 
 export function App() {
-  const [view, setView] = useState<View>('home')
-  const [routeTarget, setRouteTarget] = useState<SpaceId | undefined>(undefined)
-  const [originNodeId, setOriginNodeId] = useState<NodeId>('p1.ent')
+  const [view, setView] = useState<View>(() => {
+    if (INITIAL_ROUTE.name === 'map') return 'map'
+    if (INITIAL_ROUTE.name === 'scan' || INITIAL_ROUTE.name === 'qr') return 'scan'
+    if (INITIAL_ROUTE.name === 'schedule') return 'schedule'
+    if (INITIAL_ROUTE.name === 'destination' || INITIAL_ROUTE.name === 'route') return 'map'
+    return 'home'
+  })
+  const [originNodeId, setOriginNodeId] = useState<NodeId>(() => initialOrigin(INITIAL_ROUTE))
+  const [destinationSpaceId, setDestinationSpaceId] = useState<SpaceId | null>(() =>
+    initialDestination(INITIAL_ROUTE),
+  )
+  const [scanPayload, setScanPayload] = useState<string | undefined>(() =>
+    INITIAL_ROUTE.name === 'qr' ? INITIAL_ROUTE.payload : undefined,
+  )
 
-  const openRoute = (spaceId: SpaceId) => {
-    setRouteTarget(spaceId)
-    setView('map')
+  // Route -> state, one way. The URL is an external system; this maps it onto
+  // component state without extra cascades (runs on init via initializers and on
+  // every hashchange via the listener below).
+  const applyRoute = useCallback((route: AppRoute): void => {
+    switch (route.name) {
+      case 'home':
+        setView('home')
+        break
+      case 'map':
+        setView('map')
+        break
+      case 'scan':
+        setScanPayload(undefined)
+        setView('scan')
+        break
+      case 'schedule':
+        setView('schedule')
+        break
+      case 'destination':
+        setDestinationSpaceId(route.spaceId)
+        setView('map')
+        break
+      case 'route':
+        setOriginNodeId(route.origin)
+        setDestinationSpaceId(route.destination)
+        setView('map')
+        break
+      case 'qr':
+        setScanPayload(route.payload)
+        setView('scan')
+        break
+    }
+  }, [])
+
+  useEffect(() => {
+    const onHashChange = (): void => applyRoute(parseHash(window.location.hash))
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [applyRoute])
+
+  // Navigate: update the URL (so it is shareable and back-button friendly) and
+  // apply the state immediately.
+  const navigate = (route: AppRoute): void => {
+    window.location.hash = hashFor(route)
+    applyRoute(route)
   }
 
-  // A scanned QR sets the student's origin, then they pick a destination on the map.
-  const useScannedOrigin = (nodeId: NodeId) => {
+  const openRoute = (spaceId: SpaceId): void => navigate({ name: 'destination', spaceId })
+
+  const useScannedOrigin = (nodeId: NodeId): void => {
     setOriginNodeId(nodeId)
-    setRouteTarget(undefined)
-    setView('map')
+    setDestinationSpaceId(null)
+    navigate({ name: 'map' })
   }
-
-  const placeholder = view === 'schedule' ? PLACEHOLDERS.schedule : null
 
   return (
     <div className="app">
@@ -64,22 +125,27 @@ export function App() {
           <span className="app__brand-name">Milimap</span>
           <span className="app__brand-sub">UMNG · Sede Calle 100</span>
         </div>
-        <span className="app__phase">Fase 5</span>
+        <span className="app__phase">Fase 6</span>
       </header>
 
       <main className="app__main">
         {view === 'home' ? (
-          <HomeScreen onOpenRoute={openRoute} onOpenScanner={() => setView('scan')} />
-        ) : view === 'map' ? (
-          <RouteDemoScreen initialDestination={routeTarget} initialOrigin={originNodeId} />
-        ) : view === 'scan' ? (
-          <ScannerScreen onUseOrigin={useScannedOrigin} />
-        ) : placeholder ? (
-          <PlaceholderScreen
-            title={placeholder.title}
-            phase={placeholder.phase}
-            body={placeholder.body}
+          <HomeScreen
+            onOpenRoute={openRoute}
+            onOpenScanner={() => navigate({ name: 'scan' })}
+            onOpenSchedule={() => navigate({ name: 'schedule' })}
           />
+        ) : view === 'map' ? (
+          <RouteDemoScreen
+            originNodeId={originNodeId}
+            destinationSpaceId={destinationSpaceId}
+            onOriginChange={setOriginNodeId}
+            onDestinationChange={setDestinationSpaceId}
+          />
+        ) : view === 'scan' ? (
+          <ScannerScreen onUseOrigin={useScannedOrigin} initialPayload={scanPayload} />
+        ) : view === 'schedule' ? (
+          <ScheduleScreen onOpenRoute={openRoute} />
         ) : null}
       </main>
 
@@ -92,7 +158,7 @@ export function App() {
               type="button"
               className="bottom-nav__item"
               aria-current={isActive ? 'page' : undefined}
-              onClick={() => setView(item.id)}
+              onClick={() => navigate(item.route)}
             >
               <span className="bottom-nav__icon" aria-hidden="true">
                 {item.icon}
