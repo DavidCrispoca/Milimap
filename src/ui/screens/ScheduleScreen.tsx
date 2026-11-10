@@ -9,7 +9,7 @@
 
 import { useRef, useState } from 'react'
 import { demoProgram, demoPrograms, scheduleFor } from '@/schedule/demo'
-import { findCurrentClass, findNextClass, minutesUntil } from '@/schedule/current'
+import { bogotaClock, findCurrentClass, findNextClass, minutesUntil } from '@/schedule/current'
 import {
   clearStudentSchedule,
   defaultStorage,
@@ -111,7 +111,7 @@ export function ScheduleScreen({ onOpenRoute }: ScheduleScreenProps) {
           <ClassCard
             item={next}
             kind="next"
-            minutes={minutesUntil(next, now)}
+            eta={describeEta(next, now)}
             onOpenRoute={onOpenRoute}
           />
         ) : null}
@@ -295,12 +295,12 @@ function ProgramPicker({ onSave }: { onSave: (schedule: StudentSchedule) => void
 function ClassCard({
   item,
   kind,
-  minutes,
+  eta,
   onOpenRoute,
 }: {
   item: ScheduleClass
   kind: 'current' | 'next'
-  minutes?: number
+  eta?: string
   onOpenRoute: (spaceId: SpaceId) => void
 }) {
   return (
@@ -315,9 +315,7 @@ function ClassCard({
       <span className="class-card__meta">
         {item.code} · {roomLabel(item.spaceId)}
       </span>
-      {kind === 'next' && minutes !== undefined ? (
-        <span className="class-card__eta">empieza en {minutes} min</span>
-      ) : null}
+      {eta ? <span className="class-card__eta">{eta}</span> : null}
       <button
         type="button"
         className="btn-secondary btn--sm"
@@ -327,6 +325,19 @@ function ClassCard({
       </button>
     </div>
   )
+}
+
+/** Human ETA for the "next class" card, respecting the week boundary. */
+function describeEta(item: ScheduleClass, now: Date): string {
+  const clock = bogotaClock(now)
+  if (item.weekday !== clock.weekday) {
+    return `${WEEKDAY_LABEL[item.weekday]} · ${item.startsAt}`
+  }
+  const mins = minutesUntil(item, now)
+  if (mins < 60) return `empieza en ${mins} min`
+  const hours = Math.floor(mins / 60)
+  const rest = mins % 60
+  return rest === 0 ? `empieza en ${hours} h` : `empieza en ${hours} h ${rest} min`
 }
 
 /** Group a class list by weekday (1..6). */

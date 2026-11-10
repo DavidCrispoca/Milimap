@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { scheduleFor } from './demo'
-import { bogotaClock, findCurrentClass, findNextClass } from './current'
+import { bogotaClock, findCurrentClass, findNextClass, minutesUntil } from './current'
 
 // Fixture: Ingeniería de Sistemas, group A.
 const classes = scheduleFor('ing-sistemas', 'A')
@@ -63,5 +63,25 @@ describe('schedule/current findNextClass', () => {
 
   it('returns null for an empty schedule', () => {
     expect(findNextClass([], at('2026-11-09T08:00:00'))).toBeNull()
+  })
+})
+
+describe('schedule/current minutesUntil', () => {
+  const fisica = classes.find((c) => c.subject === 'Física I')! // Tuesday 07:00
+  const programacion = classes.find((c) => c.subject === 'Programación I')! // Monday 07:00
+
+  it('counts minutes within the same day', () => {
+    // Monday 06:30 → Programación I starts 07:00 → 30 min.
+    expect(minutesUntil(programacion, at('2026-11-09T06:30:00'))).toBe(30)
+  })
+
+  it('counts across days to a later weekday', () => {
+    // Monday 08:00 → Física I (Tuesday 07:00) is 23 hours = 1380 min away.
+    expect(minutesUntil(fisica, at('2026-11-09T08:00:00'))).toBe(23 * 60)
+  })
+
+  it('returns 0 when the class already started today', () => {
+    // Monday 08:00 → Programación I (07:00) already running.
+    expect(minutesUntil(programacion, at('2026-11-09T08:00:00'))).toBe(0)
   })
 })

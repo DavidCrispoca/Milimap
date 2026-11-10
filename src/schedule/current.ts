@@ -108,9 +108,16 @@ export function findNextClass(classes: readonly ScheduleClass[], now: Date): Sch
 /** Minutes until a class starts, from `now`. 0 when it is already running. */
 export function minutesUntil(item: ScheduleClass, now: Date): number {
   const clock = bogotaClock(now)
+  const start = minutesOf(item.startsAt)
+
+  let delta: number
   if (item.weekday === clock.weekday) {
-    const start = minutesOf(item.startsAt)
-    return Math.max(0, start - clock.minutes)
+    delta = start - clock.minutes
+  } else if (item.weekday > clock.weekday) {
+    delta = (item.weekday - clock.weekday) * 1440 + start - clock.minutes
+  } else {
+    delta = (7 - clock.weekday + item.weekday) * 1440 + start - clock.minutes
   }
-  return 0
+
+  return Math.max(0, delta)
 }
