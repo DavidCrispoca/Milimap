@@ -200,6 +200,10 @@ que son requisito para compartir un destino por WhatsApp.
 en `Root.tsx`, sin router. Es una excepción deliberada y mínima: una sola ruta, sin
 parámetros. El router sigue entrando en la Fase 6.
 
+**Cierre (Fase 6, 2026-11-10):** sustituido por ADR-013. El router de hash ya existe
+(`src/router.ts`) y cubre las rutas del estudiante, incluidos los deep links de QR.
+`/admin` sigue resolviéndose por `pathname`: una sola ruta, sin parámetros.
+
 ### ADR-011 — Persistencia de contenido en el navegador (Fase 2)
 
 **Decisión:** el contenido administrable (eventos, anuncios, horarios, ediciones de
@@ -242,6 +246,62 @@ un navegador cerrado conservaría los permisos de administrador.
 **Limitación explícita:** el acceso por rol no tiene contraseña. Es suficiente para
 demostrar el flujo y para separar responsabilidades dentro del equipo; no es seguridad
 frente a alguien con acceso al navegador.
+
+---
+
+### ADR-013 — Router de hash (Fase 6) — sustituye la parte "sin router" de ADR-010
+
+**Decisión:** navegación con un router de hash propio (`src/router.ts`, ~100 líneas):
+`#/`, `#/mapa`, `#/escanear`, `#/horario`, `#/destino/:spaceId`,
+`#/ruta/:origen/:destino`, `#/qr/:payload`. Acepta alias en inglés
+(`#/map`, `#/scan`, …).
+
+**Por qué ahora:** la Fase 6 necesita URLs compartibles (QRs impresos que apuntan a
+`#/qr/<payload>`, "compartir destino") y deep links que sobrevivan una recarga.
+
+**Por qué hash y no History API:** la app es una PWA estática que se sirve de
+cualquier host (Vercel, Cloudflare tunnel, `vite preview`). El hash funciona sin
+reglas de reescritura del servidor; `history.pushState` exigiría configurarlas en
+cada host de demo.
+
+**Por qué propio y no React Router:** 7 rutas planas sin layouts anidados ni
+parámetros de búsqueda. Un `switch` sobre el hash parseado es todo lo necesario, con
+tests de ida y vuelta (`src/router.test.ts`). Si aparecen rutas anidadas, se migra.
+
+**Estado:** adoptado en la Fase 6 (2026-11-10).
+
+---
+
+### ADR-014 — Analítica en Supabase compartido, aislada por prefijo (Fase 5/6)
+
+**Decisión:** los eventos de uso (escaneos, búsquedas, rutas, aperturas, selección de
+horario) se escriben en `public.milimap_analytics_events` del proyecto Supabase
+**existente** (`marketinghub`), no en un proyecto nuevo.
+
+**Aislamiento:** el proyecto pertenece a otro producto con 29 tablas propias en
+`public`. Milimap no toca nada de eso: su única tabla usa el prefijo `milimap_` y las
+tablas nuevas que lleguen (contenido, horarios) harán lo mismo. Nunca se crea algo sin
+prefijo.
+
+**Cliente propio, no `@supabase/supabase-js`:** la app solo hace writes append-only a
+PostgREST. Un `fetch` con la clave anónima evita ~40 kB de SDK en el bundle del
+estudiante.
+
+**Fire-and-forget:** las escrituras nunca bloquean ni rompen la UI: si no hay
+configuración (`.env.local` ausente) o falla la red, el evento se descarta en silencio
+(`console.debug`). La analítica jamás tiene prioridad sobre la navegación.
+
+**Seguridad (MVP):** RLS con `insert`/`select` para `anon`. Sin autenticación real
+todavía: cualquier visitante puede leer los eventos. Aceptado para el MVP académico y
+documentado como **no apto para producción**; cuando haya login institucional, el
+`select` se restringe a roles de administración.
+
+**Clave:** se usa la clave `anon` (JWT legacy) como Bearer; la clave
+`sb_publishable_` nueva no es un JWT y PostgREST la rechaza. Ambas son públicas por
+diseño; el alcance real lo da RLS.
+
+**Estado:** adoptado en las Fases 5–6 (2026-11-10); verificado end-to-end (HTTP 201,
+fila visible).
 
 ---
 
