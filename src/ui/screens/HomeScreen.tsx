@@ -44,7 +44,13 @@ const ANNOUNCEMENT_CLASS = {
   emergency: 'alert alert--danger',
 } as const
 
-export function HomeScreen({ onOpenRoute }: { onOpenRoute: (spaceId: SpaceId) => void }) {
+export function HomeScreen({
+  onOpenRoute,
+  onOpenScanner,
+}: {
+  onOpenRoute: (spaceId: SpaceId) => void
+  onOpenScanner: () => void
+}) {
   const events = useContentStore((state) => state.events)
   const announcements = useContentStore((state) => state.announcements)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
@@ -134,12 +140,12 @@ export function HomeScreen({ onOpenRoute }: { onOpenRoute: (spaceId: SpaceId) =>
       <section>
         <p className="card__eyebrow">Acciones rápidas</p>
         <div className="feature-grid">
-          <button type="button" className="feature" disabled>
+          <button type="button" className="feature" onClick={onOpenScanner}>
             <span className="feature__icon" aria-hidden="true">
               📷
             </span>
             <span className="feature__label">Escanear QR</span>
-            <span className="feature__hint">Fase 5</span>
+            <span className="feature__hint">Ubicarme</span>
           </button>
           <button type="button" className="feature" onClick={() => onOpenRoute('A104')}>
             <span className="feature__icon" aria-hidden="true">

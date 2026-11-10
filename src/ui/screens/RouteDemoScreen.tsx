@@ -94,8 +94,14 @@ function findPointForNode(nodeId: NodeId): { level: number; point: LocalPoint } 
   return null
 }
 
-export function RouteDemoScreen({ initialDestination }: { initialDestination?: SpaceId }) {
-  const [originNodeId, setOriginNodeId] = useState<NodeId>('p1.ent')
+export function RouteDemoScreen({
+  initialDestination,
+  initialOrigin,
+}: {
+  initialDestination?: SpaceId
+  initialOrigin?: NodeId
+}) {
+  const [originNodeId, setOriginNodeId] = useState<NodeId>(initialOrigin ?? 'p1.ent')
   const [destinationSpaceId, setDestinationSpaceId] = useState<SpaceId | null>(
     initialDestination ?? 'A104',
   )
@@ -103,6 +109,17 @@ export function RouteDemoScreen({ initialDestination }: { initialDestination?: S
   const [level, setLevel] = useState<number>(1)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
   const routeRef = useRef<HTMLElement | null>(null)
+
+  // The parent (App) owns the origin: a QR scan changes it after mount. Sync it
+  // during render (the documented "derive state from props" pattern) instead of
+  // an effect, so there is no extra cascade and no lint-bait.
+  const [prevInitialOrigin, setPrevInitialOrigin] = useState<NodeId | undefined>(initialOrigin)
+  if (initialOrigin !== prevInitialOrigin) {
+    setPrevInitialOrigin(initialOrigin)
+    setOriginNodeId(initialOrigin ?? 'p1.ent')
+    const point = QR_POINTS.find((candidate) => candidate.nodeId === initialOrigin)
+    if (point) setLevel(point.level)
+  }
 
   // These are cheap, pure computations over a 16-space catalog, so they run on
   // every render instead of being memoized. Simpler and no stale-closure risk.
