@@ -554,6 +554,40 @@ a {
 }
 
 /* ------------------------------------------------------------------ */
+/* Install banner (Phase 8)                                            */
+/* ------------------------------------------------------------------ */
+
+.install-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-accent-500);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-50);
+}
+
+.install-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.install-banner__text span {
+  font-size: var(--text-xs);
+  color: var(--color-ink-700);
+}
+
+.install-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+/* ------------------------------------------------------------------ */
 /* Utility                                                             */
 /* ------------------------------------------------------------------ */
 

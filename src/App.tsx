@@ -12,6 +12,7 @@ import { HomeScreen } from './ui/screens/HomeScreen'
 import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
 import { ScannerScreen } from './ui/screens/ScannerScreen'
 import { ScheduleScreen } from './ui/screens/ScheduleScreen'
+import { InstallBanner } from './ui/InstallBanner'
 import { hashFor, parseHash, type AppRoute } from './router'
 import type { NodeId, SpaceId } from './domain/types'
 
@@ -129,6 +130,7 @@ export function App() {
       </header>
 
       <main className="app__main">
+        <InstallBanner />
         {view === 'home' ? (
           <HomeScreen
             onOpenRoute={openRoute}
