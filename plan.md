@@ -1560,28 +1560,29 @@ perf(map): reduce initial bundle size with lazy loading
 
 ---
 
-### Fase 5 — App móvil: scanner QR
+### Fase 5 — App móvil: scanner QR — ✅ NÚCLEO COMPLETADO (2026-11-10; overlay de escaneo y pruebas en dispositivos reales pendientes)
 
 **Objetivo:** el usuario llega a su ubicación escaneando.
 
 **Tareas:**
 
-- [ ] `html5-qrcode`: integración con `facingMode: 'environment'`
-- [ ] Detección de `BarcodeDetector` nativo → usar si está disponible (más rápido)
-- [ ] Fallback a `html5-qrcode` (WASM) cuando no existe
+- [x] `html5-qrcode`: integración con `facingMode: 'environment'`
+- [x] Detección de `BarcodeDetector` nativo → usar si está disponible (más rápido)
+- [x] Fallback a `html5-qrcode` (WASM) cuando no existe
 - [ ] Overlay de escaneo con guía visual
-- [ ] Parse del payload + validación de versión
-- [ ] Manejo de permisos: concedido / denegado / no soportado
-- [ ] Entrada manual del código (fallback universal)
-- [ ] Feedback háptico + sonoro al detectar
-- [ ] Pantalla de confirmación de ubicación ("Usted está en: …")
-- [ ] QR inválido → mensaje claro + opción de buscar destino manualmente
+- [x] Parse del payload + validación de versión
+- [x] Manejo de permisos: concedido / denegado / no soportado
+- [x] Entrada manual del código (fallback universal)
+- [x] Feedback háptico al detectar (vibración; sin sonido todavía)
+- [x] Pantalla de confirmación de ubicación ("Usted está en: …")
+- [x] QR inválido → mensaje claro + opción de buscar destino manualmente
+- [x] Deep link `#/qr/<payload>` (llega por URL y se analiza al entrar)
 
 **Criterios de aceptación:**
 
-- [ ] Escanea correctamente en Chrome Android, Safari iOS y Firefox
-- [ ] El permiso denegado ofrece entrada manual sin romper la app
-- [ ] Un QR ajeno (no Milimap) muestra el mensaje correcto
+- [ ] Escanea correctamente en Chrome Android, Safari iOS y Firefox (solo probado en escritorio con entrada manual)
+- [x] El permiso denegado ofrece entrada manual sin romper la app
+- [x] Un QR ajeno (no Milimap) muestra el mensaje correcto
 - [ ] La detección ocurre en < 1.5 s con el QR a 30 cm
 
 **Commits:**
@@ -1595,30 +1596,30 @@ feat(scanner): handle invalid and outdated qr payloads
 
 ---
 
-### Fase 6 — Home, eventos y horario del semestre
+### Fase 6 — Home, eventos y horario del semestre — ✅ NÚCLEO COMPLETADO (2026-11-10; OG metadata y migración de semestre pendientes)
 
 **Objetivo:** la experiencia completa de entrada y la personalización del estudiante.
 
 **Tareas:**
 
-- [ ] Home con carrusel de eventos especiales (fecha, lugar, "cómo llegar")
-- [ ] Banner de anuncios urgentes
-- [ ] Tarjeta "Mi horario": clase actual + próxima + botón "Cómo llegar"
-- [ ] Selector de programa/grupo con precarga de clases
-- [ ] Persistencia en `localStorage` con versionado y migración
-- [ ] Export/import del horario personal (JSON)
-- [ ] Cálculo de clase actual con zona horaria `America/Bogota`
-- [ ] Vista de horario semanal completo
-- [ ] Deep links: `/destino/:spaceId`, `/ruta/:origin/:dest`
+- [x] Home con carrusel de eventos especiales (fecha, lugar, "cómo llegar")
+- [x] Banner de anuncios urgentes
+- [x] Tarjeta "Mi horario": clase actual + próxima + botón "Cómo llegar"
+- [x] Selector de programa/grupo con precarga de clases
+- [x] Persistencia en `localStorage` con versionado y migración
+- [x] Export/import del horario personal (JSON)
+- [x] Cálculo de clase actual con zona horaria `America/Bogota`
+- [x] Vista de horario semanal completo
+- [x] Deep links: `/destino/:spaceId`, `/ruta/:origin/:dest` (hash router)
 - [ ] Metadata Open Graph para compartir un destino
 
 **Criterios de aceptación:**
 
-- [ ] Un evento publicado aparece en el home con su fecha
-- [ ] "Cómo llegar" desde un evento navega al mapa con origen y destino correctos
-- [ ] El horario se mantiene tras recargar la página
-- [ ] La clase actual se calcula correctamente a las 09:45 con una clase de 08:00–09:50
-- [ ] Cambiar de semestre no rompe el horario guardado (migración)
+- [x] Un evento publicado aparece en el home con su fecha
+- [x] "Cómo llegar" desde un evento navega al mapa con origen y destino correctos
+- [x] El horario se mantiene tras recargar la página
+- [x] La clase actual se calcula correctamente a las 09:45 con una clase de 08:00–09:50
+- [ ] Cambiar de semestre no rompe el horario guardado (migración) — el campo `version` existe pero no hay lógica de migración
 
 **Commits:**
 
@@ -1671,16 +1672,16 @@ fix(data): connect aula 205 to east corridor after field verification
 
 ---
 
-### Fase 8 — PWA, offline y calidad final
+### Fase 8 — PWA, offline y calidad final — 🔶 PARCIAL (2026-11-10: manifest, íconos, service worker y banner de instalación listos; a11y, i18n, E2E y Lighthouse pendientes)
 
 **Objetivo:**app instalable y robusta.
 
 **Tareas:**
 
-- [ ] `manifest.json` + íconos (maskable, 192, 512)
-- [ ] Service worker: cache de app shell y de JSON de planos
-- [ ] Offline: la app abre y navega dentro del campus sin red
-- [ ] Banner de "instalar app"
+- [x] `manifest.json` + íconos (maskable, 192, 512, apple-touch) — generados con `npm run gen:icons`
+- [x] Service worker: cache de app shell (navegación network-first + fallback offline)
+- [ ] Offline: la app abre y navega dentro del campus sin red (verificar en modo avión en un teléfono real)
+- [x] Banner de "instalar app" (`beforeinstallprompt` capturado)
 - [ ] Accesibilidad: contraste AA, navegación por teclado, `aria-live` en la ruta, fuente grande
 - [ ] i18n: ES/EN completo
 - [ ] Modo de alto contraste
@@ -1786,6 +1787,102 @@ docs: add qr installation plan and campus rollout checklist
 ## 11. Registro de cambios
 
 > **Este documento se actualiza en cada PR que altere el plan.** La última sección es siempre el estado vigente.
+
+### 2026-11-10 — v1.5 — Fases 5, 6 y 8 (sin mapa); backend de analítica
+
+**Contexto:** se pidió continuar el desarrollo de todas las fases que no dependen del
+mapa, porque la digitalización de los planos reales (Fase 7) avanza por fuera. Se
+aceptó usar el proyecto Supabase existente (`marketinghub`) de forma aislada para una
+analítica MVP, y tener un túnel temporal de Cloudflare para demostrar la app sin
+desplegar.
+
+**Estado:** Fases 5, 6 y 8 cerradas en su núcleo (el detalle pendiente está en los
+checklists de cada fase y en la lista de pendientes de abajo). 199 tests, typecheck,
+lint y build en verde. La app funciona de punta a punta con el campus demo: escanear
+o escribir un QR → confirmar ubicación → pedir ruta; configurar horario → clase actual
+y próxima → "Cómo llegar"; instalar como PWA.
+
+**Cambios:**
+
+- **Backend de analítica (ADR-014):** tabla `public.milimap_analytics_events` en el
+  proyecto Supabase compartido, aislada por prefijo `milimap_` y con RLS que permite
+  insert/lectura anónima (aceptado para el MVP, documentado como no producción).
+  Cliente propio PostgREST (`src/backend/`, sin `@supabase/supabase-js` para no
+  engordar el bundle), fire-and-forget: la app nunca se rompe si el backend falla.
+  Eventos: `scan`, `search`, `route`, `failed_route`, `app_open`, `schedule`.
+  Configuración por `.env.local` (git-ignored), plantilla en `.env.example`.
+  Verificado de punta a punta (HTTP 201 y fila visible en la tabla).
+- **Fase 5 — Escáner QR:** lógica pura en `src/scanner/flow.ts` (clasifica el texto
+  escaneado: confirmado / ajeno / versión no soportada / malformado / no resuelto) con
+  tests; pantalla con cámara (`html5-qrcode`, `BarcodeDetector` nativo si existe,
+  import dinámico para no ensuciar el bundle inicial), entrada manual, confirmación
+  de ubicación, vibración háptica, registro en analítica. El origen escaneado alimenta
+  la pantalla de ruta.
+- **Fase 6 — Mi horario:** motor puro en `src/schedule/` (reloj `America/Bogota`,
+  clase actual, próxima, ETA entre días con cruce de semana), catálogo demo de
+  programas/grupos, persistencia del estudiante en `localStorage` con versión y
+  export/import JSON. Pantallas: selector de programa, semanal con desmarcado de
+  materias, tarjeta de clase actual/próxima en el inicio.
+- **Router hash (ADR-013):** reemplaza la navegación local por URLs compartibles:
+  `#/mapa`, `#/escanear`, `#/horario`, `#/destino/:id`, `#/ruta/:origen/:destino`,
+  `#/qr/:payload`. Sobrevive recarga y funciona en cualquier host estático.
+- **Fase 8 — PWA:** manifest + íconos generados con script propio (PNG encoder
+  mínimo, sin dependencias de imagen), service worker (navegación network-first con
+  fallback offline, assets stale-while-revalidate), banner de instalación nativo.
+- **Estética:** tipografía Poppins/Open Sans, hero navy con diamante dorado y franja
+  de acento, tarjetas con elevación y hover, animaciones de entrada escalonadas
+  (`prefers-reduced-motion` respetado), botones con micro-interacciones, bloques de
+  fecha en eventos, barra de acento dorada en tarjetas de clase.
+- **Túnel de demo:** `npm run tunnel` (`tools/tunnel.ps1`) descarga `cloudflared` si
+  falta, levanta el dev server si es necesario y abre un `https://…trycloudflare.com`
+  temporal sin cuenta de Cloudflare.
+
+**Desvíos registrados:** el escáner usa solo vibración (sin sonido); la analítica se
+escribe con la clave `anon` legacy de PostgREST porque la clave `sb_publishable_` no
+sirve como Bearer; `winget` se cuelga instalando `cloudflared` (descarga directa desde
+GitHub releases, cache en `~/.local/bin`).
+
+**Pendiente (todo lo que falta, por área):**
+
+- **Fases 3, 4 y 7 — TODO el mapa:** editor de mapa, render con MapLibre y
+  digitalización de los planos reales. En pausa por decisión del usuario (el mapa real
+  está en proceso por su parte). Es el camino crítico: la app no es útil en producción
+  sin estos datos.
+- **Fase 5 restante:** overlay visual de guía de escaneo (hay `@keyframes scan-line`
+  definido, falta aplicarlo sobre el visor), feedback sonoro, y los criterios de
+  aceptación en dispositivos reales (Chrome Android, Safari iOS, Firefox; detección
+  < 1.5 s a 30 cm).
+- **Fase 6 restante:** metadata Open Graph para compartir destinos, y migración de
+  horario entre semestres (hoy `version: 1` se valida pero no migra).
+- **Fase 8 restante:** auditoría de accesibilidad (contraste AA, teclado, `aria-live`
+  en la ruta, fuente grande), i18n ES/EN, modo alto contraste, tests E2E con Playwright
+  (home → QR → destino → ruta), Lighthouse ≥ 90 mobile, guía de usuario final, y
+  verificación offline real en modo avión.
+- **Backend de contenido:** solo la analítica vive en Supabase. Eventos, anuncios y
+  horarios siguen en `localStorage` (ADR-011); falta el repositorio que sincronice el
+  store con Supabase (tablas `milimap_*`, RLS por rol cuando haya autenticación real).
+- **Admin — analítica de uso:** la página de estadísticas del panel sigue leyendo el
+  store local; falta que lea los eventos reales de `milimap_analytics_events`.
+- **Admin — generación de QRs:** no existe todavía el generador por lotes con CSV
+  (`gen:qr` del plan; `public/qrs/` ya está en `.gitignore`).
+- **Autenticación:** los roles siguen simulados (ADR-012); hace falta login
+  institucional y traducir la matriz de permisos a RLS.
+- **Fase 9 — lanzamiento:** deploy (Vercel u otro), dominio institucional, plan de
+  instalación de QRs, capacitación, dashboard de métricas en marcha, reporte de
+  problemas dentro de la app, mantenimiento del catálogo por semestre.
+- **Acciones manuales en GitHub:** el PR #1 de Release Please
+  (`chore(main): release milimap 0.1.1`) sigue esperando aprobación de CI en la UI de
+  Actions; falta definir branch protection en `main`.
+
+**Próximos pasos sugeridos:**
+
+1. Cuando los planos reales estén: Fase 3 (editor) y Fase 4 (MapLibre) sobre datos
+   reales — el resto de la app ya está listo para recibirlos.
+2. Cerrar los restos pequeños de Fase 5/6/8 (overlay de escaneo, OG metadata, a11y).
+3. Repositorio de contenido en Supabase detrás del store + página de analítica real
+   en el admin.
+
+---
 
 ### 2026-11-05 — v1.4 — Fase 2 completada (panel de administración)
 
