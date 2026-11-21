@@ -343,9 +343,121 @@ export function RouteDemoScreen({
         </section>
       ) : null}
 
-      {route ? (
-        <section className="card" ref={routeRef}>
-          <div className="summary">
+      {/* Verification Card with "Estoy en" and "Quiero ir a" clearly visible above the map */}
+      <section
+        className="card"
+        style={{
+          borderLeft: '4px solid var(--color-brand)',
+          padding: '14px 16px',
+        }}
+      >
+        <p className="card__eyebrow" style={{ marginBottom: '8px' }}>
+          Puntos de navegación seleccionados
+        </p>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '10px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              background: 'var(--color-surface-sunken)',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-ink-100)',
+            }}
+          >
+            <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>📍</span>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: 'var(--color-ink-500)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Estoy en
+              </div>
+              <strong
+                style={{
+                  display: 'block',
+                  fontSize: '0.94rem',
+                  color: 'var(--color-ink-900)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={
+                  qrPoints.find((candidate) => candidate.nodeId === activeOriginId)
+                    ? `${qrPoints.find((candidate) => candidate.nodeId === activeOriginId)!.floorLabel} · ${qrPoints.find((candidate) => candidate.nodeId === activeOriginId)!.label}`
+                    : activeOriginId
+                }
+              >
+                {qrPoints.find((candidate) => candidate.nodeId === activeOriginId)
+                  ? `${qrPoints.find((candidate) => candidate.nodeId === activeOriginId)!.floorLabel} · ${qrPoints.find((candidate) => candidate.nodeId === activeOriginId)!.label}`
+                  : activeOriginId}
+              </strong>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              background: 'var(--color-surface-sunken)',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--color-ink-100)',
+            }}
+          >
+            <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🎯</span>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: 'var(--color-ink-500)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Quiero ir a
+              </div>
+              <strong
+                style={{
+                  display: 'block',
+                  fontSize: '0.94rem',
+                  color: destinationSpace ? 'var(--color-brand)' : 'var(--color-ink-500)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={
+                  destinationSpace
+                    ? `${floors.find((f) => f.spaces.some((s) => s.id === destinationSpace.id))?.levelShort ?? ''} · ${destinationSpace.name} (${destinationSpace.id})`
+                    : 'Ningún destino seleccionado'
+                }
+              >
+                {destinationSpace
+                  ? `${floors.find((f) => f.spaces.some((s) => s.id === destinationSpace.id))?.levelShort ?? ''} · ${destinationSpace.name} (${destinationSpace.id})`
+                  : 'Ningún destino seleccionado (buscá arriba o tocá un ejemplo)'}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card" ref={routeRef}>
+        {route ? (
+          <div className="summary" style={{ marginBottom: '16px' }}>
             <div className="summary__item">
               <span className="summary__value">{Math.round(route.totalMeters)} m</span>
               <span className="summary__label">distancia</span>
@@ -365,45 +477,71 @@ export function RouteDemoScreen({
               <span className="summary__label">desnivel</span>
             </div>
           </div>
-
-          <div className="floor-chips" role="tablist" aria-label="Seleccionar piso">
-            {floors.map((floor) => {
-              const inRoute = route.levelsVisited.includes(floor.level)
-              return (
-                <button
-                  key={floor.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={floor.level === level}
-                  className={`chip${floor.level === level ? ' chip--active' : ''}${
-                    inRoute ? '' : ' chip--muted'
-                  }`}
-                  onClick={() => setLevel(floor.level)}
-                >
-                  {floor.levelShort}
-                  {inRoute ? <span className="chip__dot" aria-hidden="true" /> : null}
-                </button>
-              )
-            })}
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '12px',
+              flexWrap: 'wrap',
+              gap: '8px',
+            }}
+          >
+            <div>
+              <p className="card__eyebrow" style={{ margin: 0 }}>
+                Explorador de Mapa
+              </p>
+              <h2 className="card__title" style={{ fontSize: '1.1rem', margin: 0 }}>
+                {currentFloor ? currentFloor.levelLabel : 'Plano del edificio'}
+              </h2>
+            </div>
+            <span className="pill pill--brand">
+              {currentFloor ? `${currentFloor.spaces.length} espacios` : ''}
+            </span>
           </div>
+        )}
 
-          {currentFloor ? (
-            <FloorPlanSvg
-              floor={currentFloor}
-              route={route}
-              origin={originPoint}
-              destination={destinationAnchor}
-              highlightSpaceId={destinationSpace?.id ?? null}
-              description={`Plano del ${currentFloor.levelLabel} con la ruta calculada`}
-            />
-          ) : null}
+        <div className="floor-chips" role="tablist" aria-label="Seleccionar piso">
+          {floors.map((floor) => {
+            const inRoute = route ? route.levelsVisited.includes(floor.level) : false
+            return (
+              <button
+                key={floor.id}
+                type="button"
+                role="tab"
+                aria-selected={floor.level === level}
+                className={`chip${floor.level === level ? ' chip--active' : ''}${
+                  route && !inRoute ? ' chip--muted' : ''
+                }`}
+                onClick={() => setLevel(floor.level)}
+              >
+                {floor.levelShort}
+                {inRoute ? <span className="chip__dot" aria-hidden="true" /> : null}
+              </button>
+            )
+          })}
+        </div>
 
-          {!route.levelsVisited.includes(level) ? (
-            <p className="muted">
-              La ruta no pasa por el {currentFloor?.levelLabel}. Usá los pisos marcados con punto.
-            </p>
-          ) : null}
+        {currentFloor ? (
+          <FloorPlanSvg
+            key={currentFloor.id}
+            floor={currentFloor}
+            route={route}
+            origin={originPoint}
+            destination={destinationAnchor}
+            highlightSpaceId={destinationSpace?.id ?? null}
+            description={`Plano del ${currentFloor.levelLabel}${route ? ' con la ruta calculada' : ''}`}
+          />
+        ) : null}
 
+        {route && !route.levelsVisited.includes(level) ? (
+          <p className="muted" style={{ marginTop: '8px' }}>
+            La ruta no pasa por el {currentFloor?.levelLabel}. Usá los pisos marcados con punto.
+          </p>
+        ) : null}
+
+        {route ? (
           <ol className="step-list">
             {route.steps.map((step) => {
               const isCurrentFloor = step.level === level
@@ -432,8 +570,8 @@ export function RouteDemoScreen({
               )
             })}
           </ol>
-        </section>
-      ) : null}
+        ) : null}
+      </section>
     </>
   )
 }
