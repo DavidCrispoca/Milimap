@@ -10,8 +10,8 @@
  * Exit codes: 0 = no errors, 1 = at least one error. CI depends on this.
  */
 
-import { demoCampus } from '../src/data/index'
-import { buildGraphIndex } from '../src/domain/routing'
+import { calle100Campus, demoCampus } from '../src/data/index'
+import { buildGraphIndex, type Campus } from '../src/domain/routing'
 import { summarize, validateCampus, type ValidationIssue } from '../src/domain/validate'
 
 const SEVERITY_LABEL: Record<ValidationIssue['severity'], string> = {
@@ -59,14 +59,14 @@ interface Stats {
   transitions: number
 }
 
-function collectStats(): Stats {
+function collectStats(campus: Campus): Stats {
   let spaces = 0
   let walkways = 0
   let nodes = 0
   let edges = 0
   let transitions = 0
 
-  for (const floor of demoCampus.floors) {
+  for (const floor of campus.floors) {
     spaces += floor.spaces.length
     walkways += floor.walkways.length
     nodes += floor.nodes.length
@@ -74,26 +74,32 @@ function collectStats(): Stats {
     transitions += floor.transitions.length
   }
 
-  return { floors: demoCampus.floors.length, spaces, walkways, nodes, edges, transitions }
+  return { floors: campus.floors.length, spaces, walkways, nodes, edges, transitions }
 }
 
-function main(): void {
-  const issues = validateCampus(demoCampus)
-  const stats = collectStats()
+function validateSingleCampus(campus: Campus): boolean {
+  const issues = validateCampus(campus)
+  const stats = collectStats(campus)
 
-  printReport(`${demoCampus.building.name} (${demoCampus.building.id})`, issues, stats)
+  printReport(`${campus.building.name} (${campus.building.id})`, issues, stats)
 
-  // Sanity check: the graph must produce a working index.
-  const index = buildGraphIndex(demoCampus)
+  const index = buildGraphIndex(campus)
   console.log(`  Índice de ruteo: ${index.nodes.size} nodos alcanzables por el motor.\n`)
 
   const summary = summarize(issues)
-  if (!summary.ok) {
+  return summary.ok
+}
+
+function main(): void {
+  const okDemo = validateSingleCampus(demoCampus)
+  const okCalle100 = validateSingleCampus(calle100Campus)
+
+  if (!okDemo || !okCalle100) {
     console.error('Validación fallida: corregí los errores antes de publicar.\n')
     process.exit(1)
   }
 
-  console.log('Validación OK.\n')
+  console.log('Validación OK para todos los campus.\n')
 }
 
 main()

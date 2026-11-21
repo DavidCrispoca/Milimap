@@ -9,17 +9,23 @@
  * use. Nothing is hard-coded per screen.
  */
 
-import { useRef, useState } from 'react'
-import { demoBuilding, demoCampus, demoCatalog, findSpace, sortedFloors } from '@/data'
+import { useMemo, useRef, useState } from 'react'
+import {
+  calle100Building,
+  calle100Campus,
+  calle100Catalog,
+  demoBuilding,
+  demoCampus,
+  demoCatalog,
+  findSpace,
+  sortedFloors,
+} from '@/data'
 import { buildGraphIndex, computeRoute } from '@/domain/routing'
 import { searchDestinations } from '@/domain/search'
 import type { Floor, LocalPoint, NodeId, Route, SpaceId } from '@/domain/types'
 import { FloorPlanSvg } from '@/ui/FloorPlanSvg'
 import { useContentStore } from '@/content/store'
 import { mergedCatalog } from '@/content/catalog'
-
-const graphIndex = buildGraphIndex(demoCampus)
-const floors = sortedFloors(demoCampus)
 
 interface QrPoint {
   nodeId: NodeId
@@ -28,8 +34,7 @@ interface QrPoint {
   level: number
 }
 
-/** QR stickers only live on nodes that carry a stable `qrKey`. */
-function buildQrPoints(): QrPoint[] {
+function buildQrPoints(floors: Floor[]): QrPoint[] {
   const points: QrPoint[] = []
 
   for (const floor of floors) {
@@ -57,15 +62,13 @@ function describeNode(floor: Floor, nodeId: NodeId): string {
   const node = floor.nodes.find((candidate) => candidate.id === nodeId)
   if (!node) return 'Punto'
 
-  if (node.kind === 'entrance') return 'Entrada principal'
-  if (node.kind === 'stair') return `Escalera ${floor.levelShort}`
-  if (node.kind === 'elevator') return `Ascensor ${floor.levelShort}`
+  if (node.kind === 'entrance') return `Entrada (${node.qrKey ?? 'Acceso'})`
+  if (node.kind === 'stair') return `Escalera ${node.qrKey ?? floor.levelShort}`
+  if (node.kind === 'elevator') return `Ascensor ${node.qrKey ?? floor.levelShort}`
 
   const space = floor.spaces.find((candidate) => candidate.anchorNodeId === node.id)
-  return space ? space.name : `Puerta ${floor.levelShort}`
+  return space ? space.name : `Punto ${node.qrKey ?? floor.levelShort}`
 }
-
-const QR_POINTS = buildQrPoints()
 
 interface Preset {
   label: string
@@ -73,7 +76,20 @@ interface Preset {
   destination: SpaceId
 }
 
-const PRESETS: Preset[] = [
+const CALLE100_PRESETS: Preset[] = [
+  { label: 'Entrada D → Aula E 101 (P1)', origin: 'c100-p1.ent-d', destination: 'AULA-E101' },
+  { label: 'Entrada D → Aula D 202 (P2)', origin: 'c100-p1.ent-d', destination: 'D202' },
+  { label: 'Entrada C → Aula C 308 (P3)', origin: 'c100-p1.ent-c', destination: 'C308' },
+  { label: 'Entrada E → Aula E 407 (P4)', origin: 'c100-p1.ent-e', destination: 'E407' },
+  { label: 'Entrada E → Lab Multimedia (P5)', origin: 'c100-p1.ent-e', destination: 'LAB3-MULTI' },
+  {
+    label: 'Entrada E → Gimnasio (S1)',
+    origin: 'c100-p1.ent-e',
+    destination: 'GIMNASIO-AULA-MAXIMA',
+  },
+]
+
+const DEMO_PRESETS: Preset[] = [
   { label: 'Entrada → Aula 104', origin: 'p1.ent', destination: 'A104' },
   { label: 'Entrada → Lab. Física', origin: 'p1.ent', destination: 'LABFIS' },
   { label: 'Aula 101 → Cafetería', origin: 'p1.door-A101', destination: 'CAFE' },
@@ -83,15 +99,6 @@ const PRESETS: Preset[] = [
 function formatDuration(seconds: number): string {
   if (seconds < 60) return `${Math.round(seconds)} s`
   return `${Math.round(seconds / 60)} min`
-}
-
-/** Resolve a node id to its floor level and point. Returns null if unknown. */
-function findPointForNode(nodeId: NodeId): { level: number; point: LocalPoint } | null {
-  for (const floor of floors) {
-    const node = floor.nodes.find((candidate) => candidate.id === nodeId)
-    if (node) return { level: floor.level, point: node.point }
-  }
-  return null
 }
 
 export function RouteDemoScreen({
@@ -105,23 +112,46 @@ export function RouteDemoScreen({
   onOriginChange: (nodeId: NodeId) => void
   onDestinationChange: (spaceId: SpaceId | null) => void
 }) {
+  const [campusChoice, setCampusChoice] = useState<'calle100' | 'demo'>('calle100')
   const [query, setQuery] = useState('')
   const [level, setLevel] = useState<number>(1)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
   const routeRef = useRef<HTMLElement | null>(null)
 
-  // These are cheap, pure computations over a 16-space catalog, so they run on
-  // every render instead of being memoized. Simpler and no stale-closure risk.
-  // Search the catalog with admin edits applied: a renamed or hidden room must
-  // behave the same here as in the admin panel.
-  const hits = searchDestinations(mergedCatalog(demoCatalog, spaceEdits), query, {
-    buildingId: demoBuilding.id,
-    limit: 6,
-  })
+  const activeCampus = campusChoice === 'calle100' ? calle100Campus : demoCampus
+  const activeCatalog = campusChoice === 'calle100' ? calle100Catalog : demoCatalog
+  const activeBuilding = campusChoice === 'calle100' ? calle100Building : demoBuilding
 
-  const destinationSpace = destinationSpaceId ? findSpace(destinationSpaceId) : null
+  const graphIndex = useMemo(() => buildGraphIndex(activeCampus), [activeCampus])
+  const floors = useMemo(() => sortedFloors(activeCampus), [activeCampus])
+  const qrPoints = useMemo(() => buildQrPoints(floors), [floors])
+  const presets = campusChoice === 'calle100' ? CALLE100_PRESETS : DEMO_PRESETS
 
-  const originPoint = findPointForNode(originNodeId)
+  const activeOriginId = useMemo(() => {
+    if (graphIndex.nodes.has(originNodeId)) return originNodeId
+    return campusChoice === 'calle100' ? 'c100-p1.ent-d' : 'p1.ent'
+  }, [graphIndex, originNodeId, campusChoice])
+
+  const hits = searchDestinations(
+    mergedCatalog(activeCatalog, campusChoice === 'demo' ? spaceEdits : {}),
+    query,
+    {
+      buildingId: activeBuilding.id,
+      limit: 6,
+    },
+  )
+
+  const destinationSpace = destinationSpaceId ? findSpace(destinationSpaceId, activeCampus) : null
+
+  const findPointForNode = (nodeId: NodeId): { level: number; point: LocalPoint } | null => {
+    for (const floor of floors) {
+      const node = floor.nodes.find((candidate) => candidate.id === nodeId)
+      if (node) return { level: floor.level, point: node.point }
+    }
+    return null
+  }
+
+  const originPoint = findPointForNode(activeOriginId)
 
   const destinationAnchor = destinationSpace
     ? findPointForNode(destinationSpace.anchorNodeId)
@@ -130,7 +160,7 @@ export function RouteDemoScreen({
   const result = destinationSpace
     ? computeRoute(
         graphIndex,
-        { originNodeId, destinationNodeId: destinationSpace.anchorNodeId },
+        { originNodeId: activeOriginId, destinationNodeId: destinationSpace.anchorNodeId },
         { destinationName: destinationSpace.name },
       )
     : null
@@ -139,8 +169,6 @@ export function RouteDemoScreen({
 
   const currentFloor = floors.find((floor) => floor.level === level) ?? floors[0]
 
-  // Bring the result into view after choosing a destination. Without this the
-  // plan sits below the fold on a phone and the interaction feels dead.
   const revealRoute = (): void => {
     requestAnimationFrame(() => {
       routeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -151,7 +179,7 @@ export function RouteDemoScreen({
     onOriginChange(preset.origin)
     onDestinationChange(preset.destination)
     setQuery('')
-    const origin = QR_POINTS.find((point) => point.nodeId === preset.origin)
+    const origin = qrPoints.find((point) => point.nodeId === preset.origin)
     if (origin) setLevel(origin.level)
     revealRoute()
   }
@@ -159,7 +187,6 @@ export function RouteDemoScreen({
   const chooseDestination = (spaceId: SpaceId, spaceLevel: number): void => {
     onDestinationChange(spaceId)
     setQuery('')
-    // Follow the route: show the floor where the destination lives.
     setLevel(spaceLevel)
     revealRoute()
   }
@@ -167,23 +194,72 @@ export function RouteDemoScreen({
   return (
     <>
       <section className="card card--brand">
-        <p className="card__eyebrow">Fase 1 · Motor de ruteo</p>
-        <h1 className="card__title">Probá la navegación</h1>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '8px',
+            marginBottom: '8px',
+          }}
+        >
+          <p className="card__eyebrow" style={{ margin: 0 }}>
+            {campusChoice === 'calle100' ? 'Mapa Real · UMNG Calle 100' : 'Fase 1 · Motor de ruteo'}
+          </p>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              type="button"
+              className={`chip ${campusChoice === 'calle100' ? 'chip--active' : 'chip--muted'}`}
+              style={{ fontSize: '0.78rem', padding: '3px 8px' }}
+              onClick={() => {
+                setCampusChoice('calle100')
+                onOriginChange('c100-p1.ent-d')
+                onDestinationChange('AULA-E101')
+                setLevel(1)
+              }}
+            >
+              UMNG Piso 1 (Real)
+            </button>
+            <button
+              type="button"
+              className={`chip ${campusChoice === 'demo' ? 'chip--active' : 'chip--muted'}`}
+              style={{ fontSize: '0.78rem', padding: '3px 8px' }}
+              onClick={() => {
+                setCampusChoice('demo')
+                onOriginChange('p1.ent')
+                onDestinationChange('A104')
+                setLevel(1)
+              }}
+            >
+              Demo Multipiso
+            </button>
+          </div>
+        </div>
+
+        <h1 className="card__title">
+          {campusChoice === 'calle100' ? 'Navegación Piso 1 Real' : 'Probá la navegación'}
+        </h1>
         <p className="card__body">
-          Edificio de demostración con medidas genéricas (40 × 24 m). Elegí dónde estás y a dónde
-          vas. Las distancias y los pasos los calcula el mismo motor que va a usar el campus real.
+          {campusChoice === 'calle100'
+            ? 'Primer piso de la UMNG digitalizado según planos: Bloques A, B, C, D y Bloque E unificados. 50 espacios navegables y 5 accesos principales.'
+            : 'Edificio de demostración con medidas genéricas (40 × 24 m). Elegí dónde estás y a dónde vas.'}
         </p>
         <div className="pill-row">
-          <span className="pill pill--brand">Dijkstra multipiso</span>
-          <span className="pill pill--brand">85 tests</span>
+          <span className="pill pill--brand">
+            Dijkstra {campusChoice === 'calle100' ? 'Piso 1' : 'multipiso'}
+          </span>
+          <span className="pill pill--brand">{activeCampus.floors[0]?.spaces.length} espacios</span>
           <span className="pill pill--brand">{graphIndex.nodes.size} nodos</span>
         </div>
       </section>
 
       <section className="card">
-        <p className="card__eyebrow">Rutas de ejemplo</p>
+        <p className="card__eyebrow">
+          Rutas de ejemplo ({campusChoice === 'calle100' ? 'Piso 1 Real' : 'Demo'})
+        </p>
         <div className="preset-row">
-          {PRESETS.map((preset) => (
+          {presets.map((preset) => (
             <button
               key={preset.label}
               type="button"
@@ -201,15 +277,15 @@ export function RouteDemoScreen({
           <span className="field__label">Estoy en</span>
           <select
             className="field__input"
-            value={originNodeId}
+            value={activeOriginId}
             onChange={(event) => {
               const nextId = event.target.value
               onOriginChange(nextId)
-              const point = QR_POINTS.find((candidate) => candidate.nodeId === nextId)
+              const point = qrPoints.find((candidate) => candidate.nodeId === nextId)
               if (point) setLevel(point.level)
             }}
           >
-            {QR_POINTS.map((point) => (
+            {qrPoints.map((point) => (
               <option key={point.nodeId} value={point.nodeId}>
                 {point.floorLabel} · {point.label}
               </option>
