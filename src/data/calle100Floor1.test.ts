@@ -140,10 +140,13 @@ describe('calle100 campus dataset', () => {
     expect(aula.maxY).toBeLessThanOrEqual(Math.min(...roadYs))
     expect(cervantes.maxY).toBeLessThanOrEqual(Math.min(...roadYs))
 
-    // Parqueadero a la derecha de la plazoleta, en su misma franja vertical.
+    // Parqueadero a la derecha de la plazoleta: conserva su ancho (x 126–180)
+    // y crece hacia arriba hasta el borde superior de Editorial Neogranadina.
     expect(parking.minX).toBeGreaterThan(plaza.maxX)
+    expect(parking.minX).toBe(126)
+    expect(parking.maxX).toBe(180)
     expect(parking.minY).toBeLessThanOrEqual(plaza.maxY)
-    expect(parking.maxY).toBeGreaterThanOrEqual(plaza.minY)
+    expect(parking.maxY).toBe(editorial.maxY)
 
     // Restaurante MUY en diagonal abajo-derecha de la plazoleta.
     expect(muy.minX).toBeGreaterThan(plaza.maxX)

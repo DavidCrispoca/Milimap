@@ -700,8 +700,9 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'PARQUEADERO-PPAL',
     name: 'Parqueadero Principal',
     kind: 'service' as SpaceKind,
-    // A la derecha de Plazoleta de Artes, en su misma franja vertical.
-    polygon: rect(126, 74, 180, 90),
+    // A la derecha de Plazoleta de Artes; se extiende hacia arriba hasta quedar
+    // a la altura de Editorial Neogranadina, sin cambiar su ancho (x 126–180).
+    polygon: rect(126, 74, 180, 128),
     door: { x: 126, y: 82 },
     corridorNodeId: 'ext-east.parking',
     aliases: ['Parqueadero', 'Parqueadero Principal'],
