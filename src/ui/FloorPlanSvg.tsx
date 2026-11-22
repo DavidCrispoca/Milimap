@@ -3,13 +3,34 @@
  *
  * Provides fluid pan (drag to navigate) and zoom (buttons, wheel, pinch)
  * so users can inspect details rather than being stuck on a global overview.
+ * Panning is clamped to the visible content (plus a small slack) so the floor
+ * plan can never be dragged out of view; the "Centrar" control restores the
+ * initial centred view at 100% zoom.
  */
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Floor, LocalPoint, Route, SpaceKind } from '@/domain/types'
 import { routePolylineForLevel, shortLabel, spaceCentre } from './floorPlanGeometry'
 
 const PADDING = 1
+
+/** Pan slack as a fraction of the viewport, even when no zoom overflow exists. */
+const PAN_SLACK = 0.12
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
+function computePanLimits(viewport: HTMLElement, content: HTMLElement, zoom: number) {
+  const vw = viewport.clientWidth
+  const vh = viewport.clientHeight
+  const cw = content.offsetWidth
+  const ch = content.offsetHeight
+  return {
+    x: Math.max(0, (cw * zoom - vw) / 2) + vw * PAN_SLACK,
+    y: Math.max(0, (ch * zoom - vh) / 2) + vh * PAN_SLACK,
+  }
+}
 
 /** Fill colour per space kind. Values come from design tokens. */
 const SPACE_FILL: Record<SpaceKind, string> = {
@@ -50,8 +71,19 @@ export function FloorPlanSvg({
 }: FloorPlanSvgProps) {
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [panLimits, setPanLimits] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const zoomRef = useRef(1)
+
+  // Derived so shrinking limits (zoom out / floor change) never leave the plan
+  // stranded off-screen, without an extra state update in an effect.
+  const visiblePan = {
+    x: clamp(pan.x, -panLimits.x, panLimits.x),
+    y: clamp(pan.y, -panLimits.y, panLimits.y),
+  }
 
   const [minX, minY, maxX, maxY] = floor.bounds
   const width = maxX - minX + PADDING * 2
@@ -75,21 +107,39 @@ export function FloorPlanSvg({
   const routePath = routePoints.map((point) => toSvg(point))
   const routeString = routePath.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
 
+  // Allow dragging only as far as the scaled content overflows the viewport,
+  // plus a little slack so the map still feels draggable at 100% zoom.
+  useEffect(() => {
+    const viewport = viewportRef.current
+    const content = contentRef.current
+    if (!viewport || !content) return
+
+    const recompute = (): void => {
+      setPanLimits(computePanLimits(viewport, content, zoom))
+    }
+
+    recompute()
+    const observer = new ResizeObserver(recompute)
+    observer.observe(viewport)
+    observer.observe(content)
+    return () => observer.disconnect()
+  }, [zoom, floor.id])
+
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>): void => {
     if (e.button !== 0) return
     e.currentTarget.setPointerCapture(e.pointerId)
     setIsDragging(true)
     dragStartRef.current = {
-      x: e.clientX - pan.x,
-      y: e.clientY - pan.y,
+      x: e.clientX - visiblePan.x,
+      y: e.clientY - visiblePan.y,
     }
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>): void => {
     if (!isDragging || !dragStartRef.current) return
     setPan({
-      x: e.clientX - dragStartRef.current.x,
-      y: e.clientY - dragStartRef.current.y,
+      x: clamp(e.clientX - dragStartRef.current.x, -panLimits.x, panLimits.x),
+      y: clamp(e.clientY - dragStartRef.current.y, -panLimits.y, panLimits.y),
     })
   }
 
@@ -101,27 +151,42 @@ export function FloorPlanSvg({
     dragStartRef.current = null
   }
 
+  /** Zoom from an interaction, clamping the stored pan to the new limits. */
+  const applyZoom = (nextZoom: number): void => {
+    const next = clamp(Number(nextZoom.toFixed(2)), 0.7, 5)
+    zoomRef.current = next
+    setZoom(next)
+
+    const viewport = viewportRef.current
+    const content = contentRef.current
+    if (!viewport || !content) return
+    const limits = computePanLimits(viewport, content, next)
+    setPan((current) => ({
+      x: clamp(current.x, -limits.x, limits.x),
+      y: clamp(current.y, -limits.y, limits.y),
+    }))
+  }
+
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>): void => {
     e.preventDefault()
-    const factor = e.deltaY < 0 ? 1.15 : 0.87
-    setZoom((prev) => Math.min(Math.max(Number((prev * factor).toFixed(2)), 0.7), 5))
+    applyZoom(zoomRef.current * (e.deltaY < 0 ? 1.15 : 0.87))
   }
 
-  const handleZoomIn = (): void => {
-    setZoom((prev) => Math.min(Number((prev * 1.3).toFixed(2)), 5))
-  }
+  const handleZoomIn = (): void => applyZoom(zoomRef.current * 1.3)
 
-  const handleZoomOut = (): void => {
-    setZoom((prev) => Math.max(Number((prev / 1.3).toFixed(2)), 0.7))
-  }
+  const handleZoomOut = (): void => applyZoom(zoomRef.current / 1.3)
 
   const handleReset = (): void => {
+    setIsDragging(false)
+    dragStartRef.current = null
+    zoomRef.current = 1
     setZoom(1)
     setPan({ x: 0, y: 0 })
   }
 
   return (
     <div
+      ref={viewportRef}
       className="floor-plan-viewport"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -156,6 +221,7 @@ export function FloorPlanSvg({
             zIndex: 10,
             display: 'flex',
             flexDirection: 'column',
+            alignItems: 'center',
             gap: '4px',
             background: 'rgba(255, 255, 255, 0.94)',
             backdropFilter: 'blur(4px)',
@@ -222,26 +288,28 @@ export function FloorPlanSvg({
           >
             −
           </button>
+          <div style={{ width: 24, height: 1, background: 'var(--color-ink-200)' }} />
           <button
             type="button"
             onClick={handleReset}
-            title="Restablecer vista centrada"
-            aria-label="Restablecer vista"
+            title="Volver al centro del mapa"
+            aria-label="Volver al centro del mapa"
             style={{
-              width: '32px',
-              height: '32px',
+              width: '44px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '15px',
+              gap: '1px',
+              padding: '4px 0',
               background: 'transparent',
               border: 'none',
               cursor: 'pointer',
               borderRadius: 'var(--radius-sm)',
-              color: 'var(--color-ink-900)',
+              color: 'var(--color-brand)',
             }}
           >
-            ↺
+            <span style={{ fontSize: '16px', lineHeight: 1 }}>⌖</span>
+            <span style={{ fontSize: '9px', fontWeight: 700, lineHeight: 1 }}>Centrar</span>
           </button>
         </div>
       )}
@@ -262,12 +330,13 @@ export function FloorPlanSvg({
           pointerEvents: 'none',
         }}
       >
-        Arrastrá para navegar · Rueda o botones para zoom
+        Arrastrá para navegar · Rueda para zoom · ⌖ para centrar
       </div>
 
       <div
+        ref={contentRef}
         style={{
-          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transform: `translate(${visiblePan.x}px, ${visiblePan.y}px) scale(${zoom})`,
           transformOrigin: 'center center',
           transition: isDragging ? 'none' : 'transform 0.12s ease-out',
           width: '100%',

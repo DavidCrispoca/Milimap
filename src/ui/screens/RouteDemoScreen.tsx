@@ -83,9 +83,9 @@ const CALLE100_PRESETS: Preset[] = [
   { label: 'Entrada E → Aula E 407 (P4)', origin: 'c100-p1.ent-e', destination: 'E407' },
   { label: 'Entrada E → Lab Multimedia (P5)', origin: 'c100-p1.ent-e', destination: 'LAB3-MULTI' },
   {
-    label: 'Entrada E → Gimnasio (S1)',
+    label: 'Entrada E → Aula Máxima (exterior P1)',
     origin: 'c100-p1.ent-e',
-    destination: 'GIMNASIO-AULA-MAXIMA',
+    destination: 'AULA-MAXIMA-EXT',
   },
 ]
 

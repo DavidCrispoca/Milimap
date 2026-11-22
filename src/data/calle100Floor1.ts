@@ -505,17 +505,20 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'BANO-E-OESTE',
     name: 'Baños Bloque E Oeste',
     kind: 'bathroom',
-    polygon: rect(10, 62, 16, 70),
-    door: { x: 13, y: 70 },
-    corridorNodeId: 'wingE.13',
-    aliases: ['Banos E Oeste'],
-    keywords: ['wc', 'bano'],
+    // Junto a la Decanatura de Ingeniería (x 2–10, y 62–70). Movido al oeste para
+    // dejar libre x=10–18 para el conector hacia el pasillo del Bloque E.
+    polygon: rect(2, 62, 10, 70),
+    door: { x: 10, y: 66 },
+    corridorNodeId: 'wingE.10',
+    aliases: ['Banos E Oeste', 'Banos Decanatura Ingenieria'],
+    keywords: ['wc', 'bano', 'decanatura'],
   },
   {
     id: 'DIRECCION-ASSO',
     name: 'Dirección Programa A.S.S.O.',
     kind: 'office',
-    polygon: rect(16, 62, 26, 70),
+    // Corrido hacia el este para no invadir el conector (x 14–18).
+    polygon: rect(18, 62, 26, 70),
     door: { x: 21, y: 70 },
     corridorNodeId: 'wingE.21',
     aliases: ['ASSO', 'Programa ASSO'],
@@ -580,6 +583,240 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     corridorNodeId: 'wingE.68',
     aliases: ['Seguridad Personas'],
     keywords: ['seguridad', 'vigilancia'],
+  },
+
+  // --- External Campus Areas ---
+  {
+    id: 'RECEPCION-PPAL',
+    name: 'Recepción Principal',
+    kind: 'service' as SpaceKind,
+    polygon: rect(45, -30, 55, -20),
+    door: { x: 50, y: -20 },
+    corridorNodeId: 'ext-south.50',
+    aliases: ['Recepcion', 'Recepcion Principal'],
+    keywords: ['recepcion', 'entrada', 'acceso', 'informacion'],
+  },
+  {
+    id: 'CARNETIZACION',
+    name: 'Carnetización',
+    kind: 'service' as SpaceKind,
+    polygon: rect(55, -30, 65, -20),
+    door: { x: 60, y: -20 },
+    corridorNodeId: 'ext-south.60',
+    aliases: ['Carnetizacion', 'Carnets'],
+    keywords: ['carnet', 'identificacion', 'estudiante'],
+  },
+  {
+    id: 'PLAZA-CERVANTES',
+    name: 'Plaza Cervantes',
+    kind: 'common' as SpaceKind,
+    polygon: rect(35, -20, 80, -4),
+    door: { x: 54, y: -4 },
+    corridorNodeId: 'ext-south.55',
+    aliases: ['Plaza Cervantes', 'Plazoleta Cervantes'],
+    keywords: ['plaza', 'exterior', 'encuentro', 'cervantes'],
+  },
+  {
+    id: 'OBJETOS-PERDIDOS',
+    name: 'Objetos Perdidos',
+    kind: 'service' as SpaceKind,
+    polygon: rect(2, -30, 10, -20),
+    door: { x: 10, y: -25 },
+    corridorNodeId: 'ext-south.10',
+    aliases: ['Objetos Perdidos'],
+    keywords: ['perdidos', 'objetos', 'recuperar'],
+  },
+  {
+    id: 'PARQUEADERO-CICLAS',
+    name: 'Parqueadero de Ciclas',
+    kind: 'service' as SpaceKind,
+    polygon: rect(10, -32, 28, -22),
+    door: { x: 20, y: -22 },
+    corridorNodeId: 'ext-south.20',
+    aliases: ['Parqueadero Ciclas', 'Ciclas', 'Bicicletas'],
+    keywords: ['parqueadero', 'ciclas', 'bicicleta'],
+  },
+  {
+    id: 'AULA-MAXIMA-EXT',
+    name: 'Aula Máxima',
+    kind: 'auditorium' as SpaceKind,
+    polygon: rect(12, -20, 32, -4),
+    door: { x: 21, y: -4 },
+    corridorNodeId: 'ext-south.22',
+    aliases: ['Aula Maxima', 'Auditorio Principal'],
+    keywords: ['aula maxima', 'auditorio', 'eventos', 'conferencias'],
+    capacity: 500,
+  },
+  {
+    id: 'CANCHAS-DEPORTIVAS',
+    name: 'Canchas Deportivas',
+    kind: 'gym' as SpaceKind,
+    polygon: rect(80, -28, 115, -4),
+    door: { x: 89, y: -4 },
+    corridorNodeId: 'ext-south.90',
+    aliases: ['Canchas', 'Polideportivo'],
+    keywords: ['canchas', 'deporte', 'futbol', 'baloncesto'],
+  },
+  {
+    id: 'BOSQUE-COFFEE',
+    name: 'Bosque Coffee',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(115, -30, 145, -4),
+    door: { x: 124, y: -4 },
+    corridorNodeId: 'ext-south.125',
+    aliases: ['Bosque Coffee', 'Cafeteria Exterior'],
+    keywords: ['cafe', 'cafeteria', 'comida', 'exterior'],
+  },
+  // --- East exterior strip (todo a la derecha del edificio principal, x > 122) ---
+  {
+    id: 'RESTAURANTE-MUY',
+    name: 'Restaurante MUY',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(135, 26, 155, 38),
+    door: { x: 135, y: 32 },
+    corridorNodeId: 'ext-east.food',
+    aliases: ['Restaurante MUY', 'MUY'],
+    keywords: ['restaurante', 'comida', 'almuerzo'],
+  },
+  {
+    id: 'PLAZOLETA-COMIDA',
+    name: 'Plazoleta de Comidas',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(135, 6, 155, 26),
+    door: { x: 135, y: 16 },
+    corridorNodeId: 'ext-east.food',
+    aliases: ['Plazoleta Comidas', 'Food Court'],
+    keywords: ['comida', 'plazoleta', 'restaurante'],
+  },
+  {
+    id: 'BLOQUE-A',
+    name: 'Bloque A',
+    kind: 'office' as SpaceKind,
+    polygon: rect(155, 10, 185, 40),
+    door: { x: 155, y: 25 },
+    corridorNodeId: 'ext-east.bloque-a',
+    aliases: ['Bloque A'],
+    keywords: ['bloque a', 'clases', 'facultad'],
+  },
+  {
+    id: 'PARQUEADERO-PPAL',
+    name: 'Parqueadero Principal',
+    kind: 'service' as SpaceKind,
+    polygon: rect(138, 42, 185, 72),
+    door: { x: 138, y: 55 },
+    corridorNodeId: 'ext-east.parking',
+    aliases: ['Parqueadero', 'Parqueadero Principal'],
+    keywords: ['parqueadero', 'carros', 'vehiculos'],
+  },
+  {
+    id: 'CAFE-LEGENDA',
+    name: 'Café Legenda',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(128, 76, 138, 88),
+    door: { x: 128, y: 82 },
+    corridorNodeId: 'ext-east.cafe',
+    aliases: ['Cafe Legenda', 'Legenda'],
+    keywords: ['cafe', 'cafeteria', 'bebidas'],
+  },
+  {
+    id: 'EDITORIAL-NEOGRANADINA',
+    name: 'Editorial Neogranadina',
+    kind: 'office' as SpaceKind,
+    polygon: rect(138, 76, 152, 88),
+    door: { x: 145, y: 76 },
+    corridorNodeId: 'ext-east.editorial',
+    aliases: ['Editorial Neogranadina', 'Editorial'],
+    keywords: ['editorial', 'publicaciones', 'libros'],
+  },
+  {
+    id: 'CARPA-BURGER',
+    name: 'Carpa Burger',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(190, 70, 208, 85),
+    door: { x: 190, y: 77 },
+    corridorNodeId: 'ext-east.carpas',
+    aliases: ['Carpa Burger', 'Hamburguesas'],
+    keywords: ['hamburguesa', 'comida', 'carpa'],
+  },
+  {
+    id: 'CARPA-DELIRIO',
+    name: 'Carpa Delirio',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(190, 55, 208, 70),
+    door: { x: 190, y: 62 },
+    corridorNodeId: 'ext-east.carpas',
+    aliases: ['Carpa Delirio', 'Delirio'],
+    keywords: ['comida', 'carpa', 'delirio'],
+  },
+  {
+    id: 'CARPA-TACOS',
+    name: 'Carpa Tacos',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(190, 40, 208, 55),
+    door: { x: 190, y: 47 },
+    corridorNodeId: 'ext-east.carpas',
+    aliases: ['Carpa Tacos', 'Tacos'],
+    keywords: ['tacos', 'comida', 'carpa'],
+  },
+  {
+    id: 'CARPA-NATIVOS',
+    name: 'Carpa Nativos',
+    kind: 'kitchen' as SpaceKind,
+    polygon: rect(190, 20, 208, 40),
+    door: { x: 190, y: 30 },
+    corridorNodeId: 'ext-east.carpas',
+    aliases: ['Carpa Nativos', 'Nativos'],
+    keywords: ['comida', 'carpa', 'nativos'],
+  },
+  {
+    id: 'POSTGRADOS-FAC',
+    name: 'Escuela de Postgrados FAC',
+    kind: 'office' as SpaceKind,
+    polygon: rect(2, 88, 20, 115),
+    door: { x: 20, y: 95 },
+    corridorNodeId: 'ext-north.20',
+    aliases: ['Postgrados FAC', 'Escuela Postgrados'],
+    keywords: ['postgrados', 'fac', 'maestria', 'especializacion'],
+  },
+  {
+    id: 'HUB-CREACION',
+    name: 'Hub de Creación',
+    kind: 'office' as SpaceKind,
+    polygon: rect(28, 92, 45, 110),
+    door: { x: 36, y: 93 },
+    corridorNodeId: 'ext-north.36',
+    aliases: ['Hub Creacion', 'Hub de Innovacion Creacion'],
+    keywords: ['hub', 'innovacion', 'creacion', 'emprendimiento'],
+  },
+  {
+    id: 'HUB-DESARROLLO',
+    name: 'Hub de Desarrollo',
+    kind: 'office' as SpaceKind,
+    polygon: rect(45, 92, 60, 110),
+    door: { x: 52, y: 93 },
+    corridorNodeId: 'ext-north.52',
+    aliases: ['Hub Desarrollo', 'Hub de Innovacion Desarrollo'],
+    keywords: ['hub', 'innovacion', 'desarrollo', 'software'],
+  },
+  {
+    id: 'HUB-COLABORATIVO',
+    name: 'Hub Colaborativo',
+    kind: 'office' as SpaceKind,
+    polygon: rect(60, 92, 75, 110),
+    door: { x: 67, y: 93 },
+    corridorNodeId: 'ext-north.67',
+    aliases: ['Hub Colaborativo', 'Hub de Innovacion Colaborativo'],
+    keywords: ['hub', 'innovacion', 'colaboracion', 'trabajo'],
+  },
+  {
+    id: 'BLOQUE-F',
+    name: 'Bloque F',
+    kind: 'office' as SpaceKind,
+    polygon: rect(40, 116, 100, 132),
+    door: { x: 70, y: 117 },
+    corridorNodeId: 'ext-north-f.70',
+    aliases: ['Bloque F'],
+    keywords: ['bloque f', 'clases', 'facultad'],
   },
 ]
 
@@ -656,7 +893,7 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
 
   // E. Wing E horizontal corridor spine (y = 72, x: 10 -> 115)
   const wingEXCoords = [
-    10, 13, 14, 21, 28, 29, 37, 42, 47, 57, 62, 68, 72, 77, 88, 98, 104, 110, 115,
+    10, 13, 14, 16, 21, 28, 29, 37, 42, 47, 57, 62, 68, 72, 77, 88, 98, 104, 110, 115,
   ]
   const wingENodes = wingEXCoords.map((x) => addNode(`wingE.${x}`, { x, y: 72 }, 'hallway'))
   for (let i = 1; i < wingENodes.length; i += 1) {
@@ -666,6 +903,12 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
   // Connect Vertical Corridors to Wing E Spine
   connect(wingCNodes[wingCNodes.length - 1]!, `c100-p1.wingE.42`)
   connect(wingBNodes[wingBNodes.length - 1]!, `c100-p1.wingE.77`)
+
+  // F. North-west connector: links the library/Decanatura corridor (Wing D)
+  // with the Wing E corridor without closing the passage next to the bathrooms.
+  const connWingDE = addNode('conn-wingd-e', { x: 16, y: 66 }, 'junction')
+  connect(`c100-p1.wingD.58`, connWingDE)
+  connect(connWingDE, `c100-p1.wingE.16`)
 
   // --- 2. ENTRANCES & VERTICAL CORES ---
   // Entrada D (South-West)
@@ -712,6 +955,64 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
   const connBloqueA = addNode('conn-bloque-a', { x: 106, y: 6 }, 'junction', 'CON-A')
   connect(connBloqueA, `c100-p1.south.104`, 'walkway')
 
+  // --- EXTERNAL CAMPUS AREAS ---
+
+  // Pedestrian and vehicle entrances (south, Calle 100)
+  const entU = addNode('ent-u', { x: 55, y: -34 }, 'entrance', 'ENT-U')
+  const entAutos = addNode('ent-autos', { x: 5, y: -34 }, 'entrance', 'ENT-AUTOS')
+
+  // South exterior spine (y = -4, east–west)
+  const extSouthXs = [5, 10, 20, 22, 50, 55, 60, 90, 125]
+  const extSouthNodes = extSouthXs.map((x) => addNode(`ext-south.${x}`, { x, y: -4 }, 'hallway'))
+  for (let i = 1; i < extSouthNodes.length; i += 1) {
+    connect(extSouthNodes[i - 1]!, extSouthNodes[i]!)
+  }
+
+  // Reception / Carnetización intermediate points (at y=-20)
+  const recNode = addNode('ext-south-rec.50', { x: 50, y: -20 }, 'junction')
+  const carnNode = addNode('ext-south-carn.60', { x: 60, y: -20 }, 'junction')
+  connect(`c100-p1.ext-south.50`, recNode)
+  connect(`c100-p1.ext-south.60`, carnNode)
+
+  // Connect south spine to entrances
+  connect(entU, `c100-p1.ext-south.55`, 'walkway')
+  connect(entAutos, `c100-p1.ext-south.5`, 'walkway')
+
+  // Connect south exterior to main building entry nodes
+  connect(`c100-p1.ext-south.10`, entD, 'walkway')
+  connect(`c100-p1.ext-south.55`, entC, 'walkway')
+  connect(`c100-p1.ext-south.90`, entB, 'walkway')
+
+  // East exterior nodes (all beyond the main building's east edge, x > 122)
+  addNode('ext-east.food', { x: 132, y: 16 }, 'junction') // Plazoleta Comidas / Rest. MUY
+  addNode('ext-east.bloque-a', { x: 152, y: 25 }, 'junction') // Bloque A entry
+  addNode('ext-east.parking', { x: 144, y: 55 }, 'junction') // Parqueadero Principal
+  addNode('ext-east.editorial', { x: 145, y: 74 }, 'junction') // Editorial Neogranadina
+  addNode('ext-east.cafe', { x: 126, y: 82 }, 'junction') // Café Legenda
+  addNode('ext-east.carpas', { x: 188, y: 55 }, 'junction') // Carpa food strip
+
+  // Connect east nodes to building (via conn-bloque-a connector)
+  connect(`c100-p1.conn-bloque-a`, `c100-p1.ext-east.food`, 'walkway')
+  connect(`c100-p1.ext-east.food`, `c100-p1.ext-east.bloque-a`, 'walkway')
+  connect(`c100-p1.ext-east.food`, `c100-p1.ext-east.parking`, 'walkway')
+  connect(`c100-p1.ext-east.parking`, `c100-p1.ext-east.editorial`, 'walkway')
+  connect(`c100-p1.ext-east.editorial`, `c100-p1.ext-east.cafe`, 'walkway')
+  connect(`c100-p1.ext-east.parking`, `c100-p1.ext-east.carpas`, 'walkway')
+
+  // North exterior spine (y = 92)
+  const extNorthXs = [20, 36, 52, 67, 70]
+  const extNorthNodes = extNorthXs.map((x) => addNode(`ext-north.${x}`, { x, y: 92 }, 'hallway'))
+  for (let i = 1; i < extNorthNodes.length; i += 1) {
+    connect(extNorthNodes[i - 1]!, extNorthNodes[i]!)
+  }
+
+  // Connect north spine to Entrada E
+  connect(entE, `c100-p1.ext-north.36`, 'walkway')
+
+  // Bloque F deeper north spur
+  const bloqueFNode = addNode('ext-north-f.70', { x: 70, y: 116 }, 'junction')
+  connect(`c100-p1.ext-north.70`, bloqueFNode, 'walkway')
+
   // --- 3. ROOMS & SPACES ---
   let qrCounter = 200
   for (const room of ROOM_DEFINITIONS) {
@@ -751,7 +1052,7 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
     levelLabel: 'Piso 1',
     levelShort: 'P1',
     order: 1,
-    bounds: [0, 0, 126, 92],
+    bounds: [0, -36, 214, 134],
     spaces,
     walkways: [
       { id: 'w-south', polygon: rect(6, 4, 106, 8) },
@@ -759,6 +1060,10 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
       { id: 'w-wingC', polygon: rect(40, 6, 44, 74) },
       { id: 'w-wingB', polygon: rect(75, 6, 79, 74) },
       { id: 'w-wingE', polygon: rect(8, 70, 118, 74) },
+      { id: 'w-conn-wingd-e', polygon: rect(10, 62, 18, 70) },
+      { id: 'w-ext-south', polygon: rect(0, -36, 170, -2) },
+      { id: 'w-ext-east', polygon: rect(124, 2, 210, 90) },
+      { id: 'w-ext-north', polygon: rect(0, 88, 110, 134) },
     ],
     nodes,
     edges,

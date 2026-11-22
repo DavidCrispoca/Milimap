@@ -2,8 +2,8 @@
  * Complete Real Campus Data for Universidad Militar Nueva Granada, Sede Calle 100 (Bogota).
  *
  * Digitized from hand-drawn plans:
- * - Sótano (Aula Máxima, Gimnasio, Salón de Espejos)
- * - Piso 1 (Bloques A, B, C, D y E unificados)
+ * - Piso 1 (Bloques B, C, D y E unificados, más zonas exteriores:
+ *   Aula Máxima, canchas, parqueadero, Café Legenda, carpas, etc.)
  * - Piso 2 (Bloques B, C, D y E con departamentos, salas de sistemas, auditorios)
  * - Piso 3 (Bloques B, C, D y E con aulas 300, talleres, decanaturas)
  * - Piso 4 (Bloque E con aulas 400, IEEE, asuntos disciplinarios)
@@ -24,7 +24,7 @@ import type {
 } from '@/domain/types'
 import { CALLE100_BUILDING_ID } from './calle100Floor1'
 
-export const CALLE100_LEVELS = [-1, 1, 2, 3, 4, 5] as const
+export const CALLE100_LEVELS = [1, 2, 3, 4, 5] as const
 
 function rect(x1: number, y1: number, x2: number, y2: number): LocalPoint[] {
   return [
@@ -1567,33 +1567,6 @@ const P5_ROOMS: RoomDef[] = [
   },
 ]
 
-// -------------------------------------------------------------
-// SÓTANO (Level -1) ROOMS
-// -------------------------------------------------------------
-const S1_ROOMS: RoomDef[] = [
-  {
-    id: 'SALON-ESPEJOS',
-    name: 'Salón de Espejos',
-    kind: 'gym',
-    polygon: rect(16, 62, 36, 85),
-    door: { x: 26, y: 74 },
-    corridorNodeKey: 'sotano.26',
-    aliases: ['Salon Espejos', 'Danza'],
-    keywords: ['danza', 'gimnasio', 'deportes', 'espejos'],
-  },
-  {
-    id: 'GIMNASIO-AULA-MAXIMA',
-    name: 'Gimnasio UMNG / Aula Máxima',
-    kind: 'gym',
-    polygon: rect(36, 62, 100, 85),
-    door: { x: 50, y: 74 },
-    corridorNodeKey: 'sotano.50',
-    aliases: ['Gimnasio', 'Aula Maxima'],
-    keywords: ['gimnasio', 'pesas', 'aula maxima', 'eventos'],
-    capacity: 300,
-  },
-]
-
 /**
  * Build Floor 2 or 3 (which share the general Bloques B, C, D, E layout).
  */
@@ -1687,6 +1660,11 @@ function buildIntermediateFloor(
   connect(wingCNodes[wingCNodes.length - 1]!, `${pfx}.wingE.42`)
   connect(wingBNodes[wingBNodes.length - 1]!, `${pfx}.wingE.77`)
 
+  // North-west connector: Wing D top → Wing E (mirrors Floor 1 layout)
+  const connWingDE = addNode('conn-wingd-e', { x: 16, y: 66 }, 'junction')
+  connect(`${pfx}.wingD.55`, connWingDE)
+  connect(connWingDE, `${pfx}.wingE.13`)
+
   // 2. Vertical Cores
   const escD = addNode('esc-d', { x: 3, y: 6 }, 'stair', `ESC-D-P${level}`)
   connect(escD, `${pfx}.south.6`, 'stair')
@@ -1754,6 +1732,7 @@ function buildIntermediateFloor(
       { id: `w-wingC-p${level}`, polygon: rect(40, 6, 44, 74) },
       { id: `w-wingB-p${level}`, polygon: rect(75, 6, 79, 74) },
       { id: `w-wingE-p${level}`, polygon: rect(8, 70, 120, 74) },
+      { id: `w-conn-wingd-e-p${level}`, polygon: rect(10, 62, 18, 70) },
     ],
     nodes,
     edges,
@@ -1876,108 +1855,6 @@ function buildUpperWingEFloor(
   return { floor, catalog }
 }
 
-/**
- * Build Sótano (Level -1, Aula Máxima & Gimnasio).
- */
-function buildSotanoFloor(): { floor: Floor; catalog: CatalogEntry[] } {
-  const floorId = `umng-calle100-s1`
-  const pfx = `c100-ps1`
-  const nodes: GraphNode[] = []
-  const edges: GraphEdge[] = []
-  const spaces: Space[] = []
-  const catalog: CatalogEntry[] = []
-  const nodeIndex = new Map<string, GraphNode>()
-
-  const addNode = (
-    idSuffix: string,
-    point: LocalPoint,
-    kind: GraphNode['kind'],
-    qrKey?: string,
-  ): string => {
-    const id = `${pfx}.${idSuffix}`
-    const node: GraphNode = { id, point, kind, ...(qrKey ? { qrKey } : {}) }
-    nodes.push(node)
-    nodeIndex.set(id, node)
-    return id
-  }
-
-  const connect = (
-    fromId: string,
-    toId: string,
-    kind: GraphEdge['kind'] = 'walkway',
-    accessible = true,
-  ): void => {
-    const a = nodeIndex.get(fromId)
-    const b = nodeIndex.get(toId)
-    if (!a || !b) return
-    const distance = Math.hypot(b.point.x - a.point.x, b.point.y - a.point.y)
-    edges.push({
-      from: fromId,
-      to: toId,
-      kind,
-      accessible,
-      distance: Number(distance.toFixed(2)),
-    })
-  }
-
-  const spineXs = [10, 14, 26, 50, 70]
-  const spineNodes = spineXs.map((x) => addNode(`sotano.${x}`, { x, y: 72 }, 'hallway'))
-  for (let i = 1; i < spineNodes.length; i += 1) {
-    connect(spineNodes[i - 1]!, spineNodes[i]!)
-  }
-
-  const escEOeste = addNode('esc-e-oeste', { x: 10, y: 74 }, 'stair', 'ESC-E1-S1')
-  connect(escEOeste, `${pfx}.sotano.10`, 'stair')
-  const ascE = addNode('asc-e', { x: 14, y: 74 }, 'elevator', 'ASC-E-S1')
-  connect(ascE, `${pfx}.sotano.14`, 'elevator')
-
-  for (const room of S1_ROOMS) {
-    const doorNodeId = addNode(`door-${room.id}`, room.door, 'door', `N-S1-${room.id}`)
-    connect(doorNodeId, `${pfx}.${room.corridorNodeKey}`, 'door')
-
-    spaces.push({
-      id: room.id,
-      name: room.name,
-      aliases: room.aliases,
-      kind: room.kind,
-      anchorNodeId: doorNodeId,
-      polygon: room.polygon,
-      ...(room.capacity ? { capacity: room.capacity } : {}),
-      ...(room.restricted ? { restricted: room.restricted } : {}),
-    })
-
-    catalog.push({
-      id: room.id,
-      name: room.name,
-      aliases: room.aliases,
-      keywords: room.keywords,
-      buildingId: CALLE100_BUILDING_ID,
-      floorId,
-      level: -1,
-      kind: room.kind,
-      active: true,
-      ...(room.restricted ? { restricted: room.restricted } : {}),
-    })
-  }
-
-  const floor: Floor = {
-    id: floorId,
-    buildingId: CALLE100_BUILDING_ID,
-    level: -1,
-    levelLabel: 'Sótano',
-    levelShort: 'S1',
-    order: -1,
-    bounds: [8, 60, 105, 88],
-    spaces,
-    walkways: [{ id: 'w-sotano', polygon: rect(8, 70, 75, 74) }],
-    nodes,
-    edges,
-    transitions: [],
-  }
-
-  return { floor, catalog }
-}
-
 // -------------------------------------------------------------
 // WHOLE CAMPUS BUILDER & TRANSITIONS
 // -------------------------------------------------------------
@@ -1995,17 +1872,9 @@ export function buildCalle100FullCampus(): BuiltCampus {
   const p3 = buildIntermediateFloor(3, P3_ROOMS)
   const p4 = buildUpperWingEFloor(4, P4_ROOMS)
   const p5 = buildUpperWingEFloor(5, P5_ROOMS)
-  const s1 = buildSotanoFloor()
 
-  const floors = [s1.floor, p1.floor, p2.floor, p3.floor, p4.floor, p5.floor]
-  const catalog = [
-    ...s1.catalog,
-    ...p1.catalog,
-    ...p2.catalog,
-    ...p3.catalog,
-    ...p4.catalog,
-    ...p5.catalog,
-  ]
+  const floors = [p1.floor, p2.floor, p3.floor, p4.floor, p5.floor]
+  const catalog = [...p1.catalog, ...p2.catalog, ...p3.catalog, ...p4.catalog, ...p5.catalog]
 
   // Vertical transitions link connecting vertical cores
   interface TransitionLink {
@@ -2020,8 +1889,8 @@ export function buildCalle100FullCampus(): BuiltCampus {
     { coreId: 'ASC-D', levels: [1, 2, 3], nodeSuffix: 'asc-d', type: 'elevator' },
     { coreId: 'ESC-C', levels: [1, 2, 3], nodeSuffix: 'esc-c', type: 'stairs' },
     { coreId: 'ESC-B', levels: [1, 2, 3], nodeSuffix: 'esc-b', type: 'stairs' },
-    { coreId: 'ESC-E1', levels: [-1, 1, 2, 3, 4, 5], nodeSuffix: 'esc-e-oeste', type: 'stairs' },
-    { coreId: 'ASC-E', levels: [-1, 1, 2, 3, 4, 5], nodeSuffix: 'asc-e', type: 'elevator' },
+    { coreId: 'ESC-E1', levels: [1, 2, 3, 4, 5], nodeSuffix: 'esc-e-oeste', type: 'stairs' },
+    { coreId: 'ASC-E', levels: [1, 2, 3, 4, 5], nodeSuffix: 'asc-e', type: 'elevator' },
     { coreId: 'ESC-E2', levels: [1, 2, 3, 4, 5], nodeSuffix: 'esc-e-centro', type: 'stairs' },
   ]
 
@@ -2037,8 +1906,8 @@ export function buildCalle100FullCampus(): BuiltCampus {
       const fTo = floorMap.get(toLvl)
       if (!fFrom || !fTo) continue
 
-      const pfxFrom = fromLvl === -1 ? 'c100-ps1' : `c100-p${fromLvl}`
-      const pfxTo = toLvl === -1 ? 'c100-ps1' : `c100-p${toLvl}`
+      const pfxFrom = `c100-p${fromLvl}`
+      const pfxTo = `c100-p${toLvl}`
 
       const nodeFrom = `${pfxFrom}.${link.nodeSuffix}`
       const nodeTo = `${pfxTo}.${link.nodeSuffix}`

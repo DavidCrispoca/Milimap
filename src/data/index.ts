@@ -25,7 +25,7 @@ export {
   CALLE100_FLOOR1_ID,
 }
 
-/** Calle 100 real campus (Complete: Sótano, Piso 1, 2, 3, 4, 5). */
+/** Calle 100 real campus (Pisos 1–5 y zonas exteriores incluidas en Piso 1). */
 export const calle100Campus: Campus = {
   building: calle100BuildingFull,
   floors: calle100FloorsFull,
