@@ -84,6 +84,8 @@ export interface Space {
 export interface Walkway {
   id: string
   polygon: LocalPoint[]
+  /** Pedestrian corridors are the default; roads get a different surface. */
+  kind?: 'pedestrian' | 'vehicular'
 }
 
 /** A routed point on the floor graph. */

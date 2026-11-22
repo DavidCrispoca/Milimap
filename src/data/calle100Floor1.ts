@@ -610,8 +610,9 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'PLAZA-CERVANTES',
     name: 'Plaza Cervantes',
     kind: 'common' as SpaceKind,
-    polygon: rect(35, -20, 80, -4),
-    door: { x: 54, y: -4 },
+    // Al sur de la calle vehicular, en la misma franja que Aula Máxima.
+    polygon: rect(35, -26, 80, -10),
+    door: { x: 54, y: -10 },
     corridorNodeId: 'ext-south.55',
     aliases: ['Plaza Cervantes', 'Plazoleta Cervantes'],
     keywords: ['plaza', 'exterior', 'encuentro', 'cervantes'],
@@ -640,8 +641,10 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'AULA-MAXIMA-EXT',
     name: 'Aula Máxima',
     kind: 'auditorium' as SpaceKind,
-    polygon: rect(12, -20, 32, -4),
-    door: { x: 21, y: -4 },
+    // Bajada hasta el borde sur de la calle vehicular; el alto se ajusta para
+    // no invadir el parqueadero de ciclas (y = -22).
+    polygon: rect(12, -22, 32, -10),
+    door: { x: 21, y: -10 },
     corridorNodeId: 'ext-south.22',
     aliases: ['Aula Maxima', 'Auditorio Principal'],
     keywords: ['aula maxima', 'auditorio', 'eventos', 'conferencias'],
@@ -651,8 +654,9 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'CANCHAS-DEPORTIVAS',
     name: 'Canchas Deportivas',
     kind: 'gym' as SpaceKind,
-    polygon: rect(80, -28, 115, -4),
-    door: { x: 89, y: -4 },
+    // Se extiende hasta la mitad de Restaurante MUY (x = 136).
+    polygon: rect(80, -32, 136, -10),
+    door: { x: 89, y: -10 },
     corridorNodeId: 'ext-south.90',
     aliases: ['Canchas', 'Polideportivo'],
     keywords: ['canchas', 'deporte', 'futbol', 'baloncesto'],
@@ -661,9 +665,10 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'BOSQUE-COFFEE',
     name: 'Bosque Coffee',
     kind: 'kitchen' as SpaceKind,
-    polygon: rect(115, -30, 145, -4),
-    door: { x: 124, y: -4 },
-    corridorNodeId: 'ext-south.125',
+    // Arranca justo al lado de Canchas y termina alineado con Carpa Nativos.
+    polygon: rect(136, -30, 208, -4),
+    door: { x: 195, y: -4 },
+    corridorNodeId: 'ext-south.199',
     aliases: ['Bosque Coffee', 'Cafeteria Exterior'],
     keywords: ['cafe', 'cafeteria', 'comida', 'exterior'],
   },
@@ -672,9 +677,10 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'RESTAURANTE-MUY',
     name: 'Restaurante MUY',
     kind: 'kitchen' as SpaceKind,
-    polygon: rect(135, 26, 155, 38),
-    door: { x: 135, y: 32 },
-    corridorNodeId: 'ext-east.food',
+    // Diagonal abajo-derecha de Plazoleta de Artes (x 104–122, y 74–90).
+    polygon: rect(126, 52, 146, 68),
+    door: { x: 126, y: 60 },
+    corridorNodeId: 'ext-east.muy',
     aliases: ['Restaurante MUY', 'MUY'],
     keywords: ['restaurante', 'comida', 'almuerzo'],
   },
@@ -682,28 +688,21 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'PLAZOLETA-COMIDA',
     name: 'Plazoleta de Comidas',
     kind: 'kitchen' as SpaceKind,
-    polygon: rect(135, 6, 155, 26),
-    door: { x: 135, y: 16 },
-    corridorNodeId: 'ext-east.food',
+    // Arriba de Canchas Deportivas, justo antes del borde sur del edificio y
+    // casi tan ancha como ellas.
+    polygon: rect(80, -8, 115, 0),
+    door: { x: 97, y: 0 },
+    corridorNodeId: 'ext-south.90',
     aliases: ['Plazoleta Comidas', 'Food Court'],
     keywords: ['comida', 'plazoleta', 'restaurante'],
-  },
-  {
-    id: 'BLOQUE-A',
-    name: 'Bloque A',
-    kind: 'office' as SpaceKind,
-    polygon: rect(155, 10, 185, 40),
-    door: { x: 155, y: 25 },
-    corridorNodeId: 'ext-east.bloque-a',
-    aliases: ['Bloque A'],
-    keywords: ['bloque a', 'clases', 'facultad'],
   },
   {
     id: 'PARQUEADERO-PPAL',
     name: 'Parqueadero Principal',
     kind: 'service' as SpaceKind,
-    polygon: rect(138, 42, 185, 72),
-    door: { x: 138, y: 55 },
+    // A la derecha de Plazoleta de Artes, en su misma franja vertical.
+    polygon: rect(126, 74, 180, 90),
+    door: { x: 126, y: 82 },
     corridorNodeId: 'ext-east.parking',
     aliases: ['Parqueadero', 'Parqueadero Principal'],
     keywords: ['parqueadero', 'carros', 'vehiculos'],
@@ -712,9 +711,10 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'CAFE-LEGENDA',
     name: 'Café Legenda',
     kind: 'kitchen' as SpaceKind,
-    polygon: rect(128, 76, 138, 88),
-    door: { x: 128, y: 82 },
-    corridorNodeId: 'ext-east.cafe',
+    // Arriba de Plazoleta de Artes y en la misma franja que el Hub Colaborativo.
+    polygon: rect(104, 92, 122, 110),
+    door: { x: 113, y: 93 },
+    corridorNodeId: 'ext-north.113',
     aliases: ['Cafe Legenda', 'Legenda'],
     keywords: ['cafe', 'cafeteria', 'bebidas'],
   },
@@ -722,9 +722,10 @@ const ROOM_DEFINITIONS: RoomDefinition[] = [
     id: 'EDITORIAL-NEOGRANADINA',
     name: 'Editorial Neogranadina',
     kind: 'office' as SpaceKind,
-    polygon: rect(138, 76, 152, 88),
-    door: { x: 145, y: 76 },
-    corridorNodeId: 'ext-east.editorial',
+    // Directamente arriba de Café Legenda, en la misma columna.
+    polygon: rect(104, 112, 122, 128),
+    door: { x: 113, y: 112 },
+    corridorNodeId: 'ext-north-editorial',
     aliases: ['Editorial Neogranadina', 'Editorial'],
     keywords: ['editorial', 'publicaciones', 'libros'],
   },
@@ -962,7 +963,7 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
   const entAutos = addNode('ent-autos', { x: 5, y: -34 }, 'entrance', 'ENT-AUTOS')
 
   // South exterior spine (y = -4, east–west)
-  const extSouthXs = [5, 10, 20, 22, 50, 55, 60, 90, 125]
+  const extSouthXs = [5, 10, 20, 22, 50, 55, 60, 90, 125, 199]
   const extSouthNodes = extSouthXs.map((x) => addNode(`ext-south.${x}`, { x, y: -4 }, 'hallway'))
   for (let i = 1; i < extSouthNodes.length; i += 1) {
     connect(extSouthNodes[i - 1]!, extSouthNodes[i]!)
@@ -983,24 +984,20 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
   connect(`c100-p1.ext-south.55`, entC, 'walkway')
   connect(`c100-p1.ext-south.90`, entB, 'walkway')
 
-  // East exterior nodes (all beyond the main building's east edge, x > 122)
-  addNode('ext-east.food', { x: 132, y: 16 }, 'junction') // Plazoleta Comidas / Rest. MUY
-  addNode('ext-east.bloque-a', { x: 152, y: 25 }, 'junction') // Bloque A entry
-  addNode('ext-east.parking', { x: 144, y: 55 }, 'junction') // Parqueadero Principal
-  addNode('ext-east.editorial', { x: 145, y: 74 }, 'junction') // Editorial Neogranadina
-  addNode('ext-east.cafe', { x: 126, y: 82 }, 'junction') // Café Legenda
+  // East exterior nodes (Bloque A no longer exists in the drawn layout)
+  addNode('ext-east.food', { x: 132, y: 16 }, 'junction') // Acceso este a la franja de comidas
+  addNode('ext-east.muy', { x: 132, y: 60 }, 'junction') // Restaurante MUY
+  addNode('ext-east.parking', { x: 140, y: 82 }, 'junction') // Parqueadero Principal
   addNode('ext-east.carpas', { x: 188, y: 55 }, 'junction') // Carpa food strip
 
   // Connect east nodes to building (via conn-bloque-a connector)
   connect(`c100-p1.conn-bloque-a`, `c100-p1.ext-east.food`, 'walkway')
-  connect(`c100-p1.ext-east.food`, `c100-p1.ext-east.bloque-a`, 'walkway')
-  connect(`c100-p1.ext-east.food`, `c100-p1.ext-east.parking`, 'walkway')
-  connect(`c100-p1.ext-east.parking`, `c100-p1.ext-east.editorial`, 'walkway')
-  connect(`c100-p1.ext-east.editorial`, `c100-p1.ext-east.cafe`, 'walkway')
+  connect(`c100-p1.ext-east.food`, `c100-p1.ext-east.muy`, 'walkway')
+  connect(`c100-p1.ext-east.muy`, `c100-p1.ext-east.parking`, 'walkway')
   connect(`c100-p1.ext-east.parking`, `c100-p1.ext-east.carpas`, 'walkway')
 
   // North exterior spine (y = 92)
-  const extNorthXs = [20, 36, 52, 67, 70]
+  const extNorthXs = [20, 36, 52, 67, 70, 113]
   const extNorthNodes = extNorthXs.map((x) => addNode(`ext-north.${x}`, { x, y: 92 }, 'hallway'))
   for (let i = 1; i < extNorthNodes.length; i += 1) {
     connect(extNorthNodes[i - 1]!, extNorthNodes[i]!)
@@ -1008,6 +1005,11 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
 
   // Connect north spine to Entrada E
   connect(entE, `c100-p1.ext-north.36`, 'walkway')
+
+  // Editorial Neogranadina sits directly above Café Legenda; route around the
+  // café instead of through it.
+  const extNorthEditorial = addNode('ext-north-editorial', { x: 124, y: 112 }, 'junction')
+  connect(`c100-p1.ext-north.113`, extNorthEditorial, 'walkway')
 
   // Bloque F deeper north spur
   const bloqueFNode = addNode('ext-north-f.70', { x: 70, y: 116 }, 'junction')
@@ -1061,9 +1063,12 @@ export function buildCalle100Floor1(): { floor: Floor; catalog: CatalogEntry[] }
       { id: 'w-wingB', polygon: rect(75, 6, 79, 74) },
       { id: 'w-wingE', polygon: rect(8, 70, 118, 74) },
       { id: 'w-conn-wingd-e', polygon: rect(10, 62, 18, 70) },
-      { id: 'w-ext-south', polygon: rect(0, -36, 170, -2) },
+      { id: 'w-ext-south', polygon: rect(0, -36, 210, -2) },
+      // Calle vehicular horizontal que cruza todo el campus entre Canchas
+      // Deportivas y Plazoleta de Comidas; se dibuja sobre la superficie sur.
+      { id: 'w-ext-south-road', kind: 'vehicular' as const, polygon: rect(0, -10, 214, -8) },
       { id: 'w-ext-east', polygon: rect(124, 2, 210, 90) },
-      { id: 'w-ext-north', polygon: rect(0, 88, 110, 134) },
+      { id: 'w-ext-north', polygon: rect(0, 88, 124, 134) },
     ],
     nodes,
     edges,

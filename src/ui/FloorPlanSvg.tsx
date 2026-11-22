@@ -9,13 +9,33 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import type { Floor, LocalPoint, Route, SpaceKind } from '@/domain/types'
-import { routePolylineForLevel, shortLabel, spaceCentre } from './floorPlanGeometry'
+import type { Floor, LocalPoint, Route, Space, SpaceKind } from '@/domain/types'
+import {
+  LABEL_LINE_HEIGHT,
+  routePolylineForLevel,
+  spaceCentre,
+  spaceLabelLayout,
+} from './floorPlanGeometry'
 
 const PADDING = 1
 
 /** Pan slack as a fraction of the viewport, even when no zoom overflow exists. */
 const PAN_SLACK = 0.12
+
+/** Distance in px before a pointer gesture counts as a pan rather than a tap. */
+const TAP_TOLERANCE = 5
+
+const KIND_LABEL: Record<SpaceKind, string> = {
+  classroom: 'Aula',
+  laboratory: 'Laboratorio',
+  office: 'Oficina',
+  bathroom: 'Baño',
+  common: 'Zona común',
+  auditorium: 'Auditorio',
+  gym: 'Deporte',
+  kitchen: 'Comida',
+  service: 'Servicio',
+}
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -73,10 +93,16 @@ export function FloorPlanSvg({
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [panLimits, setPanLimits] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
+  const [selected, setSelected] = useState<{ floorId: string; space: Space } | null>(null)
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
+  const dragMovedRef = useRef(false)
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const contentRef = useRef<HTMLDivElement | null>(null)
   const zoomRef = useRef(1)
+
+  // Derived from the displayed floor so a floor change clears the detail card
+  // without an extra render pass.
+  const selectedSpace = selected?.floorId === floor.id ? selected.space : null
 
   // Derived so shrinking limits (zoom out / floor change) never leave the plan
   // stranded off-screen, without an extra state update in an effect.
@@ -129,6 +155,7 @@ export function FloorPlanSvg({
     if (e.button !== 0) return
     e.currentTarget.setPointerCapture(e.pointerId)
     setIsDragging(true)
+    dragMovedRef.current = false
     dragStartRef.current = {
       x: e.clientX - visiblePan.x,
       y: e.clientY - visiblePan.y,
@@ -137,9 +164,14 @@ export function FloorPlanSvg({
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>): void => {
     if (!isDragging || !dragStartRef.current) return
+    const nextX = e.clientX - dragStartRef.current.x
+    const nextY = e.clientY - dragStartRef.current.y
+    if (Math.abs(nextX) > TAP_TOLERANCE || Math.abs(nextY) > TAP_TOLERANCE) {
+      dragMovedRef.current = true
+    }
     setPan({
-      x: clamp(e.clientX - dragStartRef.current.x, -panLimits.x, panLimits.x),
-      y: clamp(e.clientY - dragStartRef.current.y, -panLimits.y, panLimits.y),
+      x: clamp(nextX, -panLimits.x, panLimits.x),
+      y: clamp(nextY, -panLimits.y, panLimits.y),
     })
   }
 
@@ -330,11 +362,39 @@ export function FloorPlanSvg({
           pointerEvents: 'none',
         }}
       >
-        Arrastrá para navegar · Rueda para zoom · ⌖ para centrar
+        Arrastrá para navegar · Tocá una sala para ver su nombre
       </div>
+
+      {selectedSpace ? (
+        <div
+          className="floor-plan-detail"
+          style={{
+            position: 'absolute',
+            bottom: '38px',
+            left: '10px',
+            right: '10px',
+            zIndex: 9,
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span className="floor-plan-detail__kind">{KIND_LABEL[selectedSpace.kind]}</span>
+            <strong className="floor-plan-detail__name">{selectedSpace.name}</strong>
+          </div>
+          <button
+            type="button"
+            className="floor-plan-detail__close"
+            onClick={() => setSelected(null)}
+            aria-label="Cerrar detalle de la sala"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
 
       <div
         ref={contentRef}
+        className="floor-plan-content"
         style={{
           transform: `translate(${visiblePan.x}px, ${visiblePan.y}px) scale(${zoom})`,
           transformOrigin: 'center center',
@@ -355,21 +415,50 @@ export function FloorPlanSvg({
           style={{ width: '100%', height: 'auto', display: 'block' }}
         >
           {/* Walkable surface */}
-          {floor.walkways.map((walkway) => (
-            <polygon
-              key={walkway.id}
-              points={polygonPoints(walkway.polygon)}
-              fill="var(--map-walkway)"
-              stroke="var(--color-ink-300)"
-              strokeWidth={0.08}
-            />
-          ))}
+          {floor.walkways.map((walkway) => {
+            const isRoad = walkway.kind === 'vehicular'
+            const points = walkway.polygon.map(toSvg)
+            const xs = points.map((point) => point.x)
+            const ys = points.map((point) => point.y)
+            const centreY = (Math.min(...ys) + Math.max(...ys)) / 2
+
+            return (
+              <g key={walkway.id}>
+                <polygon
+                  points={polygonPoints(walkway.polygon)}
+                  fill={isRoad ? 'var(--map-road)' : 'var(--map-walkway)'}
+                  stroke="var(--color-ink-300)"
+                  strokeWidth={isRoad ? 0.12 : 0.08}
+                />
+                {isRoad && (
+                  <line
+                    x1={Math.min(...xs)}
+                    y1={centreY}
+                    x2={Math.max(...xs)}
+                    y2={centreY}
+                    stroke="var(--map-road-line)"
+                    strokeWidth={0.14}
+                    strokeDasharray="1.4 1"
+                  />
+                )}
+              </g>
+            )
+          })}
 
           {/* Rooms and facilities */}
           {floor.spaces.map((space) => {
             const isTarget = space.id === highlightSpaceId
+            const centre = toSvg(spaceCentre(space.polygon))
+            const lines = spaceLabelLayout(space.name, space.polygon)
             return (
-              <g key={space.id}>
+              <g
+                key={space.id}
+                className="floor-plan__space"
+                data-space-id={space.id}
+                onClick={() => {
+                  if (!dragMovedRef.current) setSelected({ floorId: floor.id, space })
+                }}
+              >
                 <polygon
                   points={polygonPoints(space.polygon)}
                   fill={SPACE_FILL[space.kind]}
@@ -377,13 +466,28 @@ export function FloorPlanSvg({
                   strokeWidth={isTarget ? 0.22 : 0.08}
                 />
                 <text
-                  x={toSvg(spaceCentre(space.polygon)).x}
-                  y={toSvg(spaceCentre(space.polygon)).y}
+                  x={centre.x}
+                  y={centre.y}
                   className="floor-plan__label"
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
-                  {shortLabel(space.name)}
+                  <title>{space.name}</title>
+                  {lines.map((line, index) => (
+                    <tspan
+                      key={`${space.id}-label-${index}`}
+                      x={centre.x}
+                      y={
+                        centre.y +
+                        (index - (lines.length - 1) / 2) * line.fontSize * LABEL_LINE_HEIGHT
+                      }
+                      fontSize={line.fontSize}
+                      textLength={line.textLength}
+                      lengthAdjust={line.textLength ? 'spacingAndGlyphs' : undefined}
+                    >
+                      {line.text}
+                    </tspan>
+                  ))}
                 </text>
               </g>
             )

@@ -31,7 +31,7 @@ describe('calle100 campus dataset', () => {
     expect(calle100Building.id).toBe(CALLE100_BUILDING_ID)
     expect(calle100Floor1.id).toBe(CALLE100_FLOOR1_ID)
     expect(calle100Campus.floors.length).toBe(5)
-    expect(calle100Catalog.length).toBe(216)
+    expect(calle100Catalog.length).toBe(215)
   })
 
   it('every space in the campus is reachable from Entrada D on Piso 1', () => {
@@ -80,46 +80,85 @@ describe('calle100 campus dataset', () => {
     }
   })
 
-  it('places the external east facilities to the right of the main building', () => {
+  it('places the exterior facilities around Plazoleta de Artes as drawn', () => {
     const p1 = calle100Campus.floors.find((f) => f.level === 1)!
-    const eastIds = [
-      'RESTAURANTE-MUY',
-      'PLAZOLETA-COMIDA',
-      'BLOQUE-A',
-      'PARQUEADERO-PPAL',
-      'CAFE-LEGENDA',
-      'EDITORIAL-NEOGRANADINA',
-      'CARPA-BURGER',
-      'CARPA-DELIRIO',
-      'CARPA-TACOS',
-      'CARPA-NATIVOS',
-    ]
-    const eastSpaces = p1.spaces.filter((space) => eastIds.includes(space.id))
-    expect(eastSpaces).toHaveLength(eastIds.length)
-
-    const mainSpaces = p1.spaces.filter((space) => {
-      const minY = Math.min(...space.polygon.map((p) => p.y))
-      const maxY = Math.max(...space.polygon.map((p) => p.y))
-      return !eastIds.includes(space.id) && minY >= 0 && maxY <= 92
-    })
-    const mainMaxX = Math.max(...mainSpaces.flatMap((space) => space.polygon.map((p) => p.x)))
-
-    for (const space of eastSpaces) {
-      const minX = Math.min(...space.polygon.map((p) => p.x))
-      expect(minX, space.name).toBeGreaterThan(mainMaxX)
+    const boundsOf = (id: string) => {
+      const space = p1.spaces.find((candidate) => candidate.id === id)!
+      return {
+        minX: Math.min(...space.polygon.map((p) => p.x)),
+        maxX: Math.max(...space.polygon.map((p) => p.x)),
+        minY: Math.min(...space.polygon.map((p) => p.y)),
+        maxY: Math.max(...space.polygon.map((p) => p.y)),
+      }
     }
 
-    const cafe = eastSpaces.find((space) => space.id === 'CAFE-LEGENDA')!
-    const parking = eastSpaces.find((space) => space.id === 'PARQUEADERO-PPAL')!
-    const editorial = eastSpaces.find((space) => space.id === 'EDITORIAL-NEOGRANADINA')!
-    expect(Math.max(...cafe.polygon.map((p) => p.x))).toBeLessThanOrEqual(
-      Math.min(...parking.polygon.map((p) => p.x)),
-    )
-    expect(Math.min(...editorial.polygon.map((p) => p.y))).toBeGreaterThanOrEqual(
-      Math.max(...parking.polygon.map((p) => p.y)),
-    )
+    const plaza = boundsOf('PLAZOLETA-ARTES')
+    const cafe = boundsOf('CAFE-LEGENDA')
+    const editorial = boundsOf('EDITORIAL-NEOGRANADINA')
+    const hub = boundsOf('HUB-COLABORATIVO')
+    const parking = boundsOf('PARQUEADERO-PPAL')
+    const muy = boundsOf('RESTAURANTE-MUY')
+    const comidas = boundsOf('PLAZOLETA-COMIDA')
+    const canchas = boundsOf('CANCHAS-DEPORTIVAS')
+    const aula = boundsOf('AULA-MAXIMA-EXT')
+    const cervantes = boundsOf('PLAZA-CERVANTES')
+    const coffee = boundsOf('BOSQUE-COFFEE')
+    const tacos = boundsOf('CARPA-TACOS')
+    const nativos = boundsOf('CARPA-NATIVOS')
+
+    // El cuadro rosado de Bloque A ya no aparece en el plano ni en el catálogo.
+    expect(p1.spaces.some((space) => space.id === 'BLOQUE-A')).toBe(false)
+    expect(calle100Catalog.some((entry) => entry.id === 'BLOQUE-A')).toBe(false)
+
+    // Café Legenda arriba de la plazoleta y en la misma franja que el Hub Colaborativo.
+    expect(cafe.minY).toBeGreaterThanOrEqual(plaza.maxY)
+    expect(cafe.minY).toBe(hub.minY)
+    expect(cafe.maxY).toBe(hub.maxY)
+
+    // Editorial Neogranadina directamente arriba de Café Legenda.
+    expect(editorial.minY).toBeGreaterThanOrEqual(cafe.maxY)
+    expect(editorial.minX).toBe(cafe.minX)
+    expect(editorial.maxX).toBe(cafe.maxX)
+
+    // Plazoleta de Comidas arriba de Canchas, antes del edificio y casi tan ancha.
+    expect(comidas.minY).toBeGreaterThan(canchas.maxY)
+    expect(comidas.maxY).toBeLessThanOrEqual(0)
+    expect(comidas.minX).toBe(canchas.minX)
+    expect(comidas.maxX).toBeLessThanOrEqual(canchas.maxX)
+
+    // Calle vehicular horizontal entre Canchas y Plazoleta de Comidas.
+    const road = p1.walkways.find((walkway) => walkway.id === 'w-ext-south-road')!
+    const roadXs = road.polygon.map((point) => point.x)
+    const roadYs = road.polygon.map((point) => point.y)
+    expect(road.kind).toBe('vehicular')
+    expect(Math.min(...roadXs)).toBeLessThanOrEqual(p1.bounds[0])
+    expect(Math.max(...roadXs)).toBeGreaterThanOrEqual(p1.bounds[2])
+    expect(Math.min(...roadYs)).toBeGreaterThanOrEqual(canchas.maxY)
+    expect(Math.max(...roadYs)).toBeLessThanOrEqual(comidas.minY)
+
+    // Aula Máxima y Plaza Cervantes quedan al sur de la calle, sin ser cruzadas.
+    expect(aula.maxY).toBeLessThanOrEqual(Math.min(...roadYs))
+    expect(cervantes.maxY).toBeLessThanOrEqual(Math.min(...roadYs))
+
+    // Parqueadero a la derecha de la plazoleta, en su misma franja vertical.
+    expect(parking.minX).toBeGreaterThan(plaza.maxX)
+    expect(parking.minY).toBeLessThanOrEqual(plaza.maxY)
+    expect(parking.maxY).toBeGreaterThanOrEqual(plaza.minY)
+
+    // Restaurante MUY en diagonal abajo-derecha de la plazoleta.
+    expect(muy.minX).toBeGreaterThan(plaza.maxX)
+    expect(muy.maxY).toBeLessThan(plaza.minY)
+
+    // Canchas llega hasta la mitad de Restaurante MUY; Bosque Coffee la sigue
+    // de inmediato y termina alineado con Carpa Nativos.
+    expect(canchas.maxX).toBe((muy.minX + muy.maxX) / 2)
+    expect(coffee.minX).toBe(canchas.maxX)
+    expect(coffee.maxX).toBe(nativos.maxX)
+    expect(coffee.maxX).toBe(tacos.maxX)
+    expect(coffee.maxY).toBeLessThanOrEqual(nativos.minY)
+
     expect(p1.bounds[2]).toBeGreaterThanOrEqual(
-      Math.max(...eastSpaces.flatMap((space) => space.polygon.map((p) => p.x))),
+      Math.max(...p1.spaces.flatMap((space) => space.polygon.map((p) => p.x))),
     )
   })
 
