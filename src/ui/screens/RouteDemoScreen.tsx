@@ -26,6 +26,8 @@ import type { Floor, LocalPoint, NodeId, Route, SpaceId } from '@/domain/types'
 import { FloorPlanSvg } from '@/ui/FloorPlanSvg'
 import { useContentStore } from '@/content/store'
 import { mergedCatalog } from '@/content/catalog'
+import { applyMapEdits } from '@/content/map-edits'
+import { usePreferences } from '@/ui/preferences'
 
 interface QrPoint {
   nodeId: NodeId
@@ -116,9 +118,19 @@ export function RouteDemoScreen({
   const [query, setQuery] = useState('')
   const [level, setLevel] = useState<number>(1)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
+  const mapEdits = useContentStore((state) => state.mapEdits)
+  const { prefs } = usePreferences()
   const routeRef = useRef<HTMLElement | null>(null)
 
-  const activeCampus = campusChoice === 'calle100' ? calle100Campus : demoCampus
+  // Phase 3: the map editor's overlay is part of the campus from here down, so
+  // the router, the drawn plan and the QR selector all agree on the same data.
+  const activeCampus = useMemo(
+    () =>
+      campusChoice === 'calle100'
+        ? applyMapEdits(calle100Campus, mapEdits)
+        : applyMapEdits(demoCampus, mapEdits),
+    [campusChoice, mapEdits],
+  )
   const activeCatalog = campusChoice === 'calle100' ? calle100Catalog : demoCatalog
   const activeBuilding = campusChoice === 'calle100' ? calle100Building : demoBuilding
 
@@ -457,7 +469,7 @@ export function RouteDemoScreen({
 
       <section className="card" ref={routeRef}>
         {route ? (
-          <div className="summary" style={{ marginBottom: '16px' }}>
+          <div className="summary" style={{ marginBottom: '16px' }} aria-live="polite">
             <div className="summary__item">
               <span className="summary__value">{Math.round(route.totalMeters)} m</span>
               <span className="summary__label">distancia</span>
@@ -559,7 +571,9 @@ export function RouteDemoScreen({
                       {iconForStep(step.kind)}
                     </span>
                     <span className="step__body">
-                      <span className="step__text">{step.instruction}</span>
+                      <span className="step__text">
+                        {prefs.locale === 'en' ? step.instructionEn : step.instruction}
+                      </span>
                       <span className="step__meta">
                         {step.levelLabel}
                         {step.distanceMeters > 0 ? ` · ${Math.round(step.distanceMeters)} m` : ''}

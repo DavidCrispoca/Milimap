@@ -13,10 +13,11 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { SpaceId } from '@/domain/types'
+import type { FloorId, SpaceId } from '@/domain/types'
 import { can, type Action } from './permissions'
 import { announcementInputSchema, eventInputSchema } from './validation'
 import type { Announcement, CampusEvent, Role, ScheduleClass, SpaceEdit, Term } from './types'
+import type { FloorGeometry, MapEdits } from './map-edits'
 
 /** Stable id generator; crypto.randomUUID is missing in some older browsers. */
 function newId(prefix: string): string {
@@ -114,6 +115,8 @@ export interface ContentState {
   classes: ScheduleClass[]
   terms: Term[]
   spaceEdits: Record<SpaceId, SpaceEdit>
+  /** Geometry overlay per floor, written by the map editor (Phase 3). */
+  mapEdits: MapEdits
 
   setRole: (role: Role | null) => void
 
@@ -133,6 +136,11 @@ export interface ContentState {
   setSpaceEdit: (spaceId: SpaceId, patch: SpaceEdit) => boolean
   clearSpaceEdit: (spaceId: SpaceId) => boolean
 
+  /** Replace a floor's editable geometry (polygons + graph) as one transaction. */
+  saveFloorGeometry: (floorId: FloorId, geometry: FloorGeometry) => boolean
+  /** Drop the overlay and fall back to the digitized data. */
+  resetFloorGeometry: (floorId: FloorId) => boolean
+
   resetContent: () => boolean
 }
 
@@ -148,6 +156,7 @@ export const useContentStore = create<ContentState>()(
         classes: [],
         terms: [DEFAULT_TERM],
         spaceEdits: {},
+        mapEdits: {},
 
         setRole: (role) => set({ role }),
 
@@ -274,6 +283,20 @@ export const useContentStore = create<ContentState>()(
           return true
         },
 
+        saveFloorGeometry: (floorId, geometry) => {
+          if (!allowed('edit_space')) return false
+          set({ mapEdits: { ...get().mapEdits, [floorId]: geometry } })
+          return true
+        },
+
+        resetFloorGeometry: (floorId) => {
+          if (!allowed('edit_space')) return false
+          const next = { ...get().mapEdits }
+          delete next[floorId]
+          set({ mapEdits: next })
+          return true
+        },
+
         resetContent: () => {
           if (!allowed('reset_content')) return false
           set({
@@ -281,6 +304,7 @@ export const useContentStore = create<ContentState>()(
             announcements: seedAnnouncements(),
             classes: [],
             spaceEdits: {},
+            mapEdits: {},
           })
           return true
         },
@@ -296,6 +320,7 @@ export const useContentStore = create<ContentState>()(
         classes: state.classes,
         terms: state.terms,
         spaceEdits: state.spaceEdits,
+        mapEdits: state.mapEdits,
       }),
     },
   ),

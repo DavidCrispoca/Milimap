@@ -13,11 +13,12 @@ import { DashboardPage } from './pages/DashboardPage'
 import { EventsPage } from './pages/EventsPage'
 import { AnnouncementsPage } from './pages/AnnouncementsPage'
 import { SpacesPage } from './pages/SpacesPage'
+import { MapEditorPage } from './pages/MapEditorPage'
 import { SchedulePage } from './pages/SchedulePage'
 import { AnalyticsPage } from './pages/AnalyticsPage'
 import './styles/admin.css'
 
-type PageId = 'dashboard' | 'events' | 'announcements' | 'spaces' | 'schedule' | 'analytics'
+type PageId = 'dashboard' | 'events' | 'announcements' | 'spaces' | 'map' | 'schedule' | 'analytics'
 
 interface PageDef {
   id: PageId
@@ -62,6 +63,14 @@ const PAGES: PageDef[] = [
     heading: 'Espacios',
   },
   {
+    id: 'map',
+    label: 'Mapa',
+    icon: '⌖',
+    group: 'Mapa',
+    eyebrow: 'Mapa',
+    heading: 'Editor de mapa',
+  },
+  {
     id: 'schedule',
     label: 'Horarios',
     icon: '▤',
@@ -84,6 +93,7 @@ const PAGE_COMPONENTS: Record<PageId, () => React.JSX.Element> = {
   events: EventsPage,
   announcements: AnnouncementsPage,
   spaces: SpacesPage,
+  map: MapEditorPage,
   schedule: SchedulePage,
   analytics: AnalyticsPage,
 }

@@ -79,7 +79,7 @@ export function SpacesPage() {
 
       <Panel
         title="Catálogo de espacios"
-        subtitle="Nombres, alias y estado. La geometría se edita con el editor de mapa (Fase 3)."
+        subtitle="Nombres, alias y estado. La geometría se edita en la sección Mapa."
         actions={
           <input
             className="input"
