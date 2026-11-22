@@ -398,7 +398,7 @@ a {
   color: var(--color-success-600);
 }
 
-.status-list__dot--next {
+.status-list__dot--partial {
   background: var(--color-warning-100);
   color: var(--color-warning-600);
 }
@@ -1311,4 +1311,205 @@ a {
 .step__meta {
   font-size: var(--text-xs);
   color: var(--color-ink-500);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accessibility, offline banners and user preferences (Phase 8)        */
+/* ------------------------------------------------------------------ */
+
+.skip-link {
+  position: absolute;
+  top: -80px;
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-brand-900);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--color-brand-900);
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.app__main:focus {
+  outline: none;
+}
+
+.settings-list {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-ink-100);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink-700);
+  cursor: pointer;
+}
+
+.settings-row input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-brand-600);
+  flex: 0 0 auto;
+}
+
+.settings-row--select .select {
+  min-width: 120px;
+  padding: 6px var(--space-2);
+  border: 1px solid var(--color-ink-200);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  color: var(--color-ink-900);
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.settings-actions__note {
+  font-size: var(--text-xs);
+  color: var(--color-ink-500);
+}
+
+.pwa-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-ink-200);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.pwa-status > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pwa-status strong {
+  font-size: var(--text-sm);
+  color: var(--color-ink-900);
+}
+
+.pwa-status span:not(.pwa-status__icon) {
+  font-size: var(--text-xs);
+  color: var(--color-ink-700);
+}
+
+.pwa-status__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  font-weight: 800;
+}
+
+.pwa-status--offline {
+  border-left-color: var(--color-warning-600);
+  background: var(--color-warning-100);
+}
+
+.pwa-status--offline .pwa-status__icon {
+  background: var(--color-warning-600);
+  color: #fff;
+}
+
+.pwa-status--online {
+  border-left-color: var(--color-success-600);
+  background: var(--color-success-100);
+}
+
+.pwa-status--online .pwa-status__icon {
+  background: var(--color-success-600);
+  color: #fff;
+}
+
+.pwa-status--update {
+  border-left-color: var(--color-brand-600);
+  background: var(--color-brand-50);
+}
+
+.pwa-status--update .pwa-status__icon {
+  background: var(--color-brand-600);
+  color: #fff;
+}
+
+/* High contrast: remove low-contrast greys, thicken boundaries and focus. */
+html[data-contrast='high'] {
+  --color-ink-700: #1c2434;
+  --color-ink-500: #2d3648;
+  --color-ink-300: #4c566a;
+  --color-ink-200: #5a6478;
+  --color-ink-100: #98a2b3;
+  --color-surface-sunken: #ffffff;
+  --color-accent-500: #e0aa00;
+  --shadow-card: none;
+  --shadow-card-hover: none;
+}
+
+html[data-contrast='high'] .card,
+html[data-contrast='high'] .panel,
+html[data-contrast='high'] .pwa-status,
+html[data-contrast='high'] .install-banner {
+  border-width: 2px;
+}
+
+html[data-contrast='high'] :focus-visible {
+  outline: 3px solid var(--color-brand-900);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+html[data-contrast='high'] .step--other-floor {
+  opacity: 1;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-ink-500: #2d3648;
+    --color-ink-200: #5a6478;
+  }
+}
+
+/* Text scale: grow the root, then let every rem-based token follow. */
+html[data-text='large'] {
+  font-size: 118%;
+}
+
+html[data-text='large'] .app {
+  --app-max-width: 680px;
+}
+
+/* Explicit setting mirrors the OS preference for people who override it. */
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }

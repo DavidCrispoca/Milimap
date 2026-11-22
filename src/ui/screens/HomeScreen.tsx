@@ -8,6 +8,8 @@
 
 import { useContentStore } from '@/content/store'
 import { useNow } from '@/ui/useNow'
+import { usePreferences } from '@/ui/preferences'
+import { useT } from '@/i18n'
 import { mergedCatalog } from '@/content/catalog'
 import { activeAnnouncements, sortForCarousel, upcomingEvents } from '@/content/selectors'
 import { EVENT_CATEGORY_LABEL, ANNOUNCEMENT_KIND_LABEL } from '@/content/types'
@@ -21,16 +23,19 @@ import type { SpaceId } from '@/domain/types'
 const PHASE_STEPS = [
   { label: 'Fase 0 · Cimientos y tooling', state: 'done' as const },
   { label: 'Fase 1 · Motor de ruteo', state: 'done' as const },
-  { label: 'Fase 2 · Panel de administración', state: 'done' as const },
+  { label: 'Fase 2 · Panel de administración (contenido)', state: 'done' as const },
+  { label: 'Fase 3 · Editor de mapa en el panel', state: 'done' as const },
+  { label: 'Fase 4 · Mapa y navegación', state: 'done' as const },
   { label: 'Fase 5 · Escáner QR', state: 'done' as const },
-  { label: 'Fase 6 · Mi horario', state: 'done' as const },
-  { label: 'Fase 8 · PWA y offline', state: 'next' as const },
-  { label: 'Fases 3-4-7 · Mapa y digitalización', state: 'todo' as const },
+  { label: 'Fase 6 · Horario y eventos', state: 'done' as const },
+  { label: 'Fase 7 · Digitalización de planos', state: 'partial' as const },
+  { label: 'Fase 8 · PWA y offline', state: 'partial' as const },
+  { label: 'Fase 9 · Lanzamiento y operación', state: 'todo' as const },
 ]
 
-const DOT: Record<'done' | 'next' | 'todo', { className: string; glyph: string }> = {
+const DOT: Record<'done' | 'partial' | 'todo', { className: string; glyph: string }> = {
   done: { className: 'status-list__dot status-list__dot--done', glyph: '✓' },
-  next: { className: 'status-list__dot status-list__dot--next', glyph: '→' },
+  partial: { className: 'status-list__dot status-list__dot--partial', glyph: '◐' },
   todo: { className: 'status-list__dot status-list__dot--todo', glyph: '·' },
 }
 
@@ -57,6 +62,8 @@ export function HomeScreen({
   onOpenScanner: () => void
   onOpenSchedule: () => void
 }) {
+  const { prefs, set: setPreference, reset: resetPreferences } = usePreferences()
+  const t = useT()
   const events = useContentStore((state) => state.events)
   const announcements = useContentStore((state) => state.announcements)
   const spaceEdits = useContentStore((state) => state.spaceEdits)
@@ -248,10 +255,58 @@ export function HomeScreen({
       </section>
 
       <section className="card card--muted">
+        <h2 className="card__title">{t('a11y.title')}</h2>
+        <p className="card__body">{t('a11y.subtitle')}</p>
+        <div className="settings-list">
+          <label className="settings-row">
+            <span>{t('a11y.contrast')}</span>
+            <input
+              type="checkbox"
+              checked={prefs.highContrast}
+              onChange={(event) => setPreference('highContrast', event.target.checked)}
+            />
+          </label>
+          <label className="settings-row">
+            <span>{t('a11y.text')}</span>
+            <input
+              type="checkbox"
+              checked={prefs.largeText}
+              onChange={(event) => setPreference('largeText', event.target.checked)}
+            />
+          </label>
+          <label className="settings-row">
+            <span>{t('a11y.motion')}</span>
+            <input
+              type="checkbox"
+              checked={prefs.reduceMotion}
+              onChange={(event) => setPreference('reduceMotion', event.target.checked)}
+            />
+          </label>
+          <label className="settings-row settings-row--select">
+            <span>{t('a11y.language')}</span>
+            <select
+              className="select"
+              value={prefs.locale}
+              onChange={(event) => setPreference('locale', event.target.value as 'es' | 'en')}
+            >
+              <option value="es">Español</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+        </div>
+        <div className="settings-actions">
+          <button type="button" className="link-btn" onClick={resetPreferences}>
+            {t('a11y.reset')}
+          </button>
+          <span className="settings-actions__note">{t('a11y.note')}</span>
+        </div>
+      </section>
+
+      <section className="card card--muted">
         <h2 className="card__title">Estado del proyecto</h2>
         <p className="card__body">
-          MVP académico. El objetivo es demostrar la navegación y las herramientas de
-          administración, no una producción a escala.
+          MVP académico. Los cinco pisos, el ruteo, el escáner QR, el horario, el editor de mapa y
+          la PWA offline ya funcionan. Falta la fase de lanzamiento y la verificación en sitio.
         </p>
         <ul className="status-list">
           {PHASE_STEPS.map((step) => {

@@ -7,29 +7,29 @@
  * destination.
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useT } from '@/i18n'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
 import { ScannerScreen } from './ui/screens/ScannerScreen'
 import { ScheduleScreen } from './ui/screens/ScheduleScreen'
 import { InstallBanner } from './ui/InstallBanner'
+import { PwaStatus } from './ui/PwaStatus'
 import { hashFor, parseHash, type AppRoute } from './router'
 import type { NodeId, SpaceId } from './domain/types'
 
 type View = 'home' | 'map' | 'scan' | 'schedule'
 
-interface NavItem {
+const NAV_ITEMS: Array<{
   id: View
   route: AppRoute
-  label: string
+  labelKey: 'nav.home' | 'nav.map' | 'nav.scan' | 'nav.schedule'
   icon: string
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: 'home', route: { name: 'home' }, label: 'Inicio', icon: '🏠' },
-  { id: 'map', route: { name: 'map' }, label: 'Mapa', icon: '🗺️' },
-  { id: 'scan', route: { name: 'scan' }, label: 'Escanear', icon: '📷' },
-  { id: 'schedule', route: { name: 'schedule' }, label: 'Horario', icon: '🗓️' },
+}> = [
+  { id: 'home', route: { name: 'home' }, labelKey: 'nav.home', icon: '🏠' },
+  { id: 'map', route: { name: 'map' }, labelKey: 'nav.map', icon: '🗺️' },
+  { id: 'scan', route: { name: 'scan' }, labelKey: 'nav.scan', icon: '📷' },
+  { id: 'schedule', route: { name: 'schedule' }, labelKey: 'nav.schedule', icon: '🗓️' },
 ]
 
 /** The route the app booted on (deep link, QR URL, or plain root). */
@@ -46,6 +46,9 @@ function initialDestination(route: AppRoute): SpaceId | null {
 }
 
 export function App() {
+  const t = useT()
+  const mainRef = useRef<HTMLElement | null>(null)
+  const firstView = useRef(true)
   const [view, setView] = useState<View>(() => {
     if (INITIAL_ROUTE.name === 'map') return 'map'
     if (INITIAL_ROUTE.name === 'scan' || INITIAL_ROUTE.name === 'qr') return 'scan'
@@ -101,6 +104,18 @@ export function App() {
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [applyRoute])
 
+  // Screen-reader users get an announcement and a stable focus target on every
+  // tab change, but focus is not stolen on the initial load.
+  useEffect(() => {
+    const label = t(NAV_ITEMS.find((item) => item.id === view)?.labelKey ?? 'nav.home')
+    document.title = `${label} · Milimap`
+    if (firstView.current) {
+      firstView.current = false
+      return
+    }
+    mainRef.current?.focus()
+  }, [view, t])
+
   // Navigate: update the URL (so it is shareable and back-button friendly) and
   // apply the state immediately.
   const navigate = (route: AppRoute): void => {
@@ -118,18 +133,22 @@ export function App() {
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">
+        {t('nav.skip')}
+      </a>
       <header className="app__header">
         <div className="app__logo" aria-hidden="true">
           MM
         </div>
         <div className="app__brand">
           <span className="app__brand-name">Milimap</span>
-          <span className="app__brand-sub">UMNG · Sede Calle 100</span>
+          <span className="app__brand-sub">{t('shell.subtitle')}</span>
         </div>
-        <span className="app__phase">Fase 6</span>
+        <span className="app__phase">Fase 8</span>
       </header>
 
-      <main className="app__main">
+      <main className="app__main" id="main-content" ref={mainRef} tabIndex={-1}>
+        <PwaStatus />
         <InstallBanner />
         {view === 'home' ? (
           <HomeScreen
@@ -151,6 +170,10 @@ export function App() {
         ) : null}
       </main>
 
+      <div className="sr-only" role="status" aria-live="polite">
+        {t(NAV_ITEMS.find((item) => item.id === view)?.labelKey ?? 'nav.home')}
+      </div>
+
       <nav className="bottom-nav" aria-label="Navegación principal">
         {NAV_ITEMS.map((item) => {
           const isActive = item.id === view
@@ -160,12 +183,13 @@ export function App() {
               type="button"
               className="bottom-nav__item"
               aria-current={isActive ? 'page' : undefined}
+              aria-label={t(item.labelKey)}
               onClick={() => navigate(item.route)}
             >
               <span className="bottom-nav__icon" aria-hidden="true">
                 {item.icon}
               </span>
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </button>
           )
         })}

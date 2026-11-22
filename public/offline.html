@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#112358" />
+    <title>Milimap · Sin conexión</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: #eef2f9;
+        color: #101521;
+      }
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      main {
+        max-width: 420px;
+        background: #fff;
+        border: 2px solid #112358;
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(7, 15, 46, 0.12);
+      }
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #fcc400;
+        color: #070f2e;
+        font-weight: 800;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 18px 0 8px;
+      }
+      p {
+        line-height: 1.55;
+        margin: 0 0 20px;
+      }
+      button {
+        border: 0;
+        border-radius: 8px;
+        background: #112358;
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        padding: 12px 18px;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 3px solid #a67c00;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">MM</div>
+      <h1>Milimap no tiene una copia lista de esta página</h1>
+      <p>
+        El mapa de los cinco pisos y las rutas se descargan cuando abrís la app con conexión. Volvé
+        a abrirla una vez en línea y probá de nuevo sin red.
+      </p>
+      <button type="button" onclick="location.href = '/'">Reintentar</button>
+    </main>
+  </body>
+</html>
