@@ -1478,45 +1478,38 @@ Sigue dentro del objetivo de 200 kB del plan; se revisa en la Fase 8.
 
 ---
 
-### Fase 3 — Panel de administración: editor de mapa
+### Fase 3 — Panel de administración: editor de mapa — ✅ IMPLEMENTADO (2026-11-22, alcance SVG)
 
 **Objetivo:** el admin puede dibujar y editar el mapa sin tocar código.
 
+**Decisiones de alcance:** el mapa real es SVG (no MapLibre), así que el editor trabaja
+directamente sobre la geometría que consume el ruteo. Se descartó Geoman, el underlay
+escaneado y el flujo GitOps: el guardado es local (ADR-011) y el JSON exportado es la
+entrada para congelar la versión en `src/data` mediante un PR manual.
+
 **Tareas:**
 
-- [ ] MapLibre Geoman: integración base (draw, edit, trash)
-- [ ] Vista de edición por edificio/piso
-- [ ] Draw de espacios (polígono) → crea `space` con formulario
-- [ ] Draw de pasillos (polígono) → crea `walkway`
-- [ ] Draw de nodos (punto) y aristas (línea) con snap
-- [ ] Herramienta "generar grafo automático" desde espacios + pasillos
-- [ ] Validación en vivo con resaltado de errores en el mapa
-- [ ] Capas de referencia: imagen del plano escaneado como underlay con opacidad
-- [ ] Importar/Exportar GeoJSON ↔ JSON del piso
-- [ ] Número automático de aulas
-- [ ] Renombrado en bloque
-- [ ] Publicación vía PR (GitOps): commit + PR + estado
-- [ ] Comparación de versiones de un piso (diff visual)
+- [x] Editor SVG por piso con selector P1–P5 y zoom
+- [x] Draw de espacios (rectángulo) → crea `space` anclado al nodo más cercano
+- [x] Draw de pasillos (rectángulo) → crea `walkway`
+- [x] Draw de nodos (punto) y aristas (línea) con snap de 0,25 m
+- [x] Arrastre de nodos y vértices; recálculo de distancias de aristas
+- [x] Inspector de propiedades (tipo, ancla, QR, accesibilidad)
+- [x] Validación en vivo con `validateCampus` y navegación al elemento
+- [x] Deshacer, descartar, guardar/restaurar por piso y exportar JSON
+- [x] Persistencia en `localStorage` con permiso `edit_space`
+- [x] El mapa público aplica el mismo overlay (`applyMapEdits`)
+- [ ] Generar grafo automático desde espacios + pasillos (fuera de alcance)
+- [ ] Underlay de plano escaneado con opacidad (fuera de alcance)
+- [ ] Importar GeoJSON y renombrado/renumeración en bloque (fuera de alcance)
+- [ ] Publicación vía PR automático y diff visual (depende de backend/GitOps)
 
 **Criterios de aceptación:**
 
-- [ ] Un admin puede crear un aula nueva dibujándola, en menos de 2 minutos
-- [ ] "Generar grafo automático" produce una red conectada y válida
-- [ ] El validador en vivo marca un aula inaccesible en menos de 1 segundo tras editarla
-- [ ] Guardar genera un PR con el JSON actualizado y el CI lo valida
-- [ ] Un plano escaneado puede superponerse con opacidad ajustable
-
-**Commits:**
-
-```
-feat(admin): integrate maplibre geoman for geometry editing
-feat(admin): add floor editor with building and level navigation
-feat(admin): add space and walkway drawing tools
-feat(admin): add automatic graph generation from spaces and walkways
-feat(admin): add live graph validation with error highlighting
-feat(admin): add scanned plan underlay overlay for digitization
-feat(admin): add gitops publish flow generating pull requests
-```
+- [x] Un admin crea un aula dibujándola y la ve en el mapa público sin recargar
+- [x] El validador marca errores del grafo en vivo (misma regla que el CI)
+- [x] Guardar persiste la geometría y restaurar vuelve al plano digitalizado
+- [ ] Publicación automática vía PR — pendiente de backend (Fase 9)
 
 ---
 
@@ -1672,30 +1665,35 @@ fix(data): connect aula 205 to east corridor after field verification
 
 ---
 
-### Fase 8 — PWA, offline y calidad final — 🔶 PARCIAL (2026-11-10: manifest, íconos, service worker y banner de instalación listos; a11y, i18n, E2E y Lighthouse pendientes)
+### Fase 8 — PWA, offline y calidad final — 🔶 PARCIAL (2026-11-22: offline, a11y, alto contraste, i18n base y avisos PWA implementados; E2E, Lighthouse y verificación en teléfono real pendientes)
 
-**Objetivo:**app instalable y robusta.
+**Objetivo:** app instalable y robusta.
 
 **Tareas:**
 
 - [x] `manifest.json` + íconos (maskable, 192, 512, apple-touch) — generados con `npm run gen:icons`
-- [x] Service worker: cache de app shell (navegación network-first + fallback offline)
-- [ ] Offline: la app abre y navega dentro del campus sin red (verificar en modo avión en un teléfono real)
-- [x] Banner de "instalar app" (`beforeinstallprompt` capturado)
-- [ ] Accesibilidad: contraste AA, navegación por teclado, `aria-live` en la ruta, fuente grande
-- [ ] i18n: ES/EN completo
-- [ ] Modo de alto contraste
-- [ ] E2E tests con Playwright (recorrido crítico: home → QR → destino → ruta)
+- [x] Service worker v6: precache del shell y assets, navegación network-first + fallback offline, fonts en caché
+- [x] Página `/offline.html` y avisos de offline / reconexión / nueva versión
+- [x] Actualización controlada por el usuario (`SKIP_WAITING`)
+- [x] Banner de "instalar app" con manejo iOS y descarte recordado
+- [x] Accesibilidad: skip link, foco al cambiar vista, título, `aria-live` en ruta y navegación
+- [x] Preferencias persistentes: alto contraste, texto grande, menos movimiento e idioma
+- [x] i18n base ES/EN (shell, PWA, ajustes e instrucciones de ruta); contenido editorial en español
+- [ ] Offline verificado en modo avión en un teléfono real (falta dispositivo)
+- [ ] i18n completo de todo el contenido (bajo demanda; no prioridad del MVP)
+- [ ] E2E tests con Playwright (no hay dependencia instalada)
 - [ ] Lighthouse audit (target: 90+ en mobile)
 - [ ] Documentación de usuario final (guía en el sitio de la universidad)
 
 **Criterios de aceptación:**
 
-- [ ] La app se instala desde iOS y Android
-- [ ] En modo avión, la navegación indoor funciona
+- [x] La app se instala desde el navegador (`beforeinstallprompt`; iOS con instrucción manual)
+- [x] Con el SW activo, el shell y los assets quedan en caché y la navegación cae al shell
+- [x] Sin errores de consola en el flujo principal (verificado en navegador online y offline)
+- [x] Con el SW activo, la app recarga offline en navegador (banner "Sin conexión" y Tipografía), y el plano/rutas siguen funcionando (verificado en `vite preview`)
+- [ ] En modo avión, la navegación indoor funciona en un teléfono real (falta dispositivo)
 - [ ] Lighthouse Performance ≥ 90 en emulación móvil
 - [ ] Todo el flujo crítico pasa los tests E2E
-- [ ] Sin errores de consola en el flujo principal
 
 **Commits:**
 
@@ -1857,7 +1855,7 @@ GitHub releases, cache en `~/.local/bin`).
 - **Fase 8 restante:** auditoría de accesibilidad (contraste AA, teclado, `aria-live`
   en la ruta, fuente grande), i18n ES/EN, modo alto contraste, tests E2E con Playwright
   (home → QR → destino → ruta), Lighthouse ≥ 90 mobile, guía de usuario final, y
-  verificación offline real en modo avión.
+  verificación offline real en modo avión en un teléfono real.
 - **Backend de contenido:** solo la analítica vive en Supabase. Eventos, anuncios y
   horarios siguen en `localStorage` (ADR-011); falta el repositorio que sincronice el
   store con Supabase (tablas `milimap_*`, RLS por rol cuando haya autenticación real).

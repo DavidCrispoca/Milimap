@@ -1,8 +1,7 @@
 # Manual del panel de administración
 
-> **Estado: Fase 2 implementada** (contenido: eventos, anuncios, espacios, horarios,
-> analítica básica). El editor de mapa llega en la **Fase 3**. Para abrirlo:
-> `npm run dev` y entrar a `http://localhost:5173/admin`.
+> **Estado: Fases 2 y 3 implementadas** (contenido y editor de mapa), con PWA/offline
+> de la Fase 8. Para abrirlo: `npm run dev` y entrar a `http://localhost:5173/admin`.
 >
 > **Limitaciones actuales:** el acceso es simulado por rol (sin contraseña) y los datos
 > se guardan en el navegador donde se trabaja. La autenticación institucional y la base
@@ -17,10 +16,10 @@ donde una persona de la universidad puede:
 
 | #   | Qué se hace                                        | Estado                                                                        |
 | --- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| 1   | Editar el mapa: dibujar aulas, pasillos, escaleras | Pendiente — Fase 3                                                            |
+| 1   | Editar el mapa: dibujar aulas, pasillos, escaleras | **Implementado** — Fase 3 (editor SVG; sin GitOps)                            |
 | 2   | Generar e imprimir los códigos QR                  | Pendiente — la app ya escanea QRs (Fase 5); falta el generador por lotes      |
 | 3   | Cargar eventos y anuncios                          | **Implementado** — Fase 2                                                     |
-| 4   | Administrar el catálogo de espacios                | **Parcial** — Fase 2 (nombre, alias y estado); geometría en Fase 3            |
+| 4   | Administrar el catálogo de espacios                | **Implementado** — Fase 2 (nombre/alias/estado) y Fase 3 (geometría en Mapa)  |
 | 5   | Importar los horarios del semestre                 | **Implementado** — CSV (Fase 2); selección del estudiante en la app (Fase 6)  |
 | 6   | Ver estadísticas de uso                            | **Parcial** — eventos reales en Supabase (Fases 5–6); el panel aún no los lee |
 
@@ -48,50 +47,52 @@ Se entra con **correo institucional**. No hay registro abierto: las cuentas las 
 
 ## 1. Editor de mapa (Fase 3)
 
+Se abre en **Mapa** dentro del panel. Trabaja sobre la misma geometría que usa el
+ruteo: polígonos de espacios, pasillos y el grafo de nodos/aristas. El plano
+digitalizado original no se modifica: los cambios se guardan como una capa por piso y
+el mapa público la aplica de inmediato.
+
 ### Flujo para agregar un aula
 
-1. Elegir edificio y piso en el selector superior.
-2. Cargar el plano escaneado como imagen de fondo (opacidad ajustable) para usarlo de guía.
-3. Seleccionar la herramienta **Espacio** y dibujar el contorno sobre la imagen.
-4. Completar el formulario que aparece: código, nombre, tipo, capacidad, alias.
-5. El panel valida en el momento: si el aula no toca ningún pasillo, aparece en rojo.
-6. **Publicar** → se crea un commit y un PR. El CI valida. Al mergear, la app se actualiza.
+1. Elegir el piso (P1–P5) en el selector superior. El punto naranja indica que ese
+   piso ya tiene una edición guardada.
+2. Seleccionar la herramienta **Espacio** y arrastrar un rectángulo sobre el plano.
+3. El espacio nuevo queda anclado al nodo más cercano; si no hay ninguno, se crea un
+   nodo de ancla que hay que conectar con **Conexión**.
+4. En el inspector se cambia el tipo de espacio y el nodo de llegada. El **nombre y
+   los alias** se editan en la sección **Espacios** (el catálogo de búsqueda es
+   independiente de la geometría).
+5. El panel de **Validación** muestra errores y avisos en vivo; el botón **Ir**
+   selecciona el elemento implicado.
+6. **Guardar cambios** persiste la geometría en este navegador y el mapa del usuario
+   la usa al instante. **Exportar JSON** saca el piso para congelarlo en `src/data`.
 
-### Generación automática del grafo
+### Herramientas
 
-No se colocan nodos a mano. El panel los deriva:
+| Herramienta | Para qué                                                              |
+| ----------- | --------------------------------------------------------------------- |
+| Seleccionar | Elegir y arrastrar nodos; arrastrar vértices del espacio seleccionado |
+| Espacio     | Dibujar un salón (rectángulo)                                         |
+| Pasillo     | Dibujar una zona de circulación                                       |
+| Nodo        | Agregar un punto del grafo (clic)                                     |
+| Conexión    | Unir dos nodos (clic en cada uno)                                     |
 
-- Un nodo en el punto medio del lado compartido entre cada aula y el pasillo.
-- Una malla de nodos a lo largo del eje de cada pasillo.
-- Nodos en cada escalera, ascensor y rampa, unidos por código entre pisos.
+Atajos: **Supr/Borrar** elimina la selección; **Ctrl+Z** deshace. El zoom y la opción
+**Nombres** ayudan a trabajar en pisos densos como P1.
 
-El editor permite **ajustar** lo generado (mover un nodo, borrar una conexión), pero el
-trabajo pesado lo hace solo.
+### Guardado y restauración
 
-### Validación en vivo
+- **Descartar** vuelve al último estado guardado de la sesión.
+- **Restaurar original** borra la capa guardada y vuelve al plano digitalizado.
+- **Exportar JSON** genera `<floorId>-geometria.json` con bounds, espacios, pasillos,
+  nodos y aristas. Ese archivo es la entrada para un PR que reemplace el módulo del piso.
 
-Después de cada edición, el panel corre el mismo validador que usa el CI:
+### Alcance actual (limitaciones)
 
-```
-ERROR   Espacio "A205" sin nodo de anclaje
-ERROR   Nodo "n-orphan-1" no tiene ninguna arista
-WARNING El grafo del piso "P2" tiene 2 componentes separadas
-INFO    32 espacios · 8 pasillos · 156 nodos · 190 aristas · 3 transiciones
-```
-
-Un piso con errores **no se puede publicar**.
-
-### Otras herramientas del editor
-
-| Herramienta           | Para qué                               |
-| --------------------- | -------------------------------------- |
-| Mover / redimensionar | Corregir un aula que quedó corrida     |
-| Dividir espacio       | Un aula se partió en dos               |
-| Unir espacios         | Dos aulas se fusionaron                |
-| Renumerar en bloque   | Cambió la numeración de un piso entero |
-| Comparar versiones    | Ver qué cambió entre dos publicaciones |
-| Importar GeoJSON      | Subir el trabajo hecho en QGIS         |
-| Exportar GeoJSON      | Sacar el piso para editarlo afuera     |
+No hay underlay de plano escaneado, generación automática del grafo, importación
+GeoJSON, renumeración en bloque, comparación de versiones ni publicación por PR: el
+guardado es local (ADR-011) y la exportación JSON es el paso manual hacia el GitOps de
+la Fase 9.
 
 ---
 
@@ -241,23 +242,26 @@ Editar → Validar → Publicar → PR automático → CI valida → Merge → D
 
 ## 8. Preguntas frecuentes
 
-Las respuestas sobre mapa, Git y QGIS describen el panel completo (Fases 2 y 3). Hoy solo
-está implementada la parte de contenido; el editor de mapa llega en la Fase 3.
+Las respuestas describen el panel tal como está hoy (Fases 2, 3 y 8 parcial).
 
 **¿Los cambios que hago hoy se comparten con el resto?**
-No. En la Fase 2 el contenido se guarda en el navegador donde trabajás. Otra persona, en
-otro equipo, no ve tus eventos ni tus anuncios. Mientras no haya backend, el contenido que
-deba ver todo el mundo se carga en el equipo que se use para la demostración.
+No. Contenido y geometría se guardan en el navegador donde trabajás. Otra persona, en
+otro equipo, no ve tus eventos, anuncios ni ediciones del mapa. Mientras no haya backend,
+lo que debe ver todo el mundo se carga en el equipo usado para la demostración, o se
+congela en `src/data` desde el JSON exportado.
 
 **¿Puedo editar desde el celular?**
 El panel está diseñado para PC. Dibujar polígonos con el dedo es impracticable.
 
 **¿Qué pasa si dos personas editan el mismo piso?**
-Git detecta el conflicto. La segunda persona tiene que integrar los cambios. Para
-evitarlo, coordinen quién edita qué piso.
+Cada navegador tiene su propia capa: no hay conflictos de Git porque todavía no hay
+backend compartido. Coordinen quién edita qué piso para no perder trabajo al cambiar de
+equipo.
 
 **¿Necesito saber git?**
-No. El panel genera los commits por vos. Pero si querés ver el historial, es público.
+No para editar. Solo si querés congelar un piso en `src/data`: exportás el JSON desde
+el editor y se abre un PR con ese cambio.
 
 **¿Puedo subir el trabajo hecho en QGIS?**
-Sí. El editor acepta GeoJSON. Ver `docs/PLAN-DATA.md`.
+Hoy no: la importación GeoJSON quedó fuera del alcance del editor SVG. El formato de
+entrada es el JSON del piso. Ver `docs/PLAN-DATA.md`.
