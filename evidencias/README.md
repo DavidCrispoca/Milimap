@@ -27,77 +27,76 @@ Fecha de captura: 22 de noviembre de 2026. Navegador Chromium (Playwright).
 | `03-inicio-eventos.png`         | Sección de eventos especiales con fecha, lugar y acceso "Cómo llegar".                                       |
 | `04-inicio-horario.png`         | Tarjeta "Mi horario" con el acceso para configurar el semestre.                                              |
 | `05-inicio-acciones.png`        | Acciones rápidas: escanear QR y buscar un lugar ("Probar ruta").                                             |
-| `06-inicio-estado.png`          | Estado del proyecto y alcance del MVP.                                                                       |
-| `07-inicio-accesibilidad.png`   | Ajustes de alto contraste, texto grande, menos animación e idioma.                                           |
-| `08-inicio-pagina-completa.png` | Página de inicio completa en una sola imagen (móvil).                                                        |
+| `06-inicio-accesibilidad.png`   | Ajustes de alto contraste, texto grande, menos animación e idioma.                                           |
+| `07-inicio-pagina-completa.png` | Página de inicio completa en una sola imagen (móvil).                                                        |
 
 ### Mapa y rutas
 
 | Archivo                       | Qué muestra                                                                                    |
 | ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `09-mapa-general.png`         | Pantalla de mapa con el selector de campus/piso, rutas de ejemplo y buscador.                  |
-| `10-ruta-resumen.png`         | Ruta calculada Entrada D → Aula E 101 con distancia y cantidad de pasos (sin tiempo estimado). |
-| `11-ruta-plano.png`           | Plano interactivo con el recorrido dibujado y los chips de piso.                               |
-| `12-ruta-pasos.png`           | Indicaciones paso a paso, sin tiempos estimados de llegada.                                    |
-| `13-ruta-origen-destino.png`  | Tarjeta de origen y destino seleccionados.                                                     |
-| `14-busqueda-destinos.png`    | Búsqueda de destinos (consulta "lab").                                                         |
-| `15-ruta-multipiso.png`       | Ruta entre pisos (Aula 205 → Biblioteca) con cambio de nivel.                                  |
-| `16-ruta-multipiso-pasos.png` | Pasos de la ruta multipiso, incluidos ascensor/escaleras.                                      |
+| `08-mapa-general.png`         | Pantalla de mapa con el selector de campus/piso, rutas de ejemplo y buscador.                  |
+| `09-ruta-resumen.png`         | Ruta calculada Entrada D → Aula E 101 con distancia y cantidad de pasos (sin tiempo estimado). |
+| `10-ruta-plano.png`           | Plano interactivo con el recorrido dibujado y los chips de piso.                               |
+| `11-ruta-pasos.png`           | Indicaciones paso a paso, sin tiempos estimados de llegada.                                    |
+| `12-ruta-origen-destino.png`  | Tarjeta de origen y destino seleccionados.                                                     |
+| `13-busqueda-destinos.png`    | Búsqueda de destinos (consulta "lab").                                                         |
+| `14-ruta-multipiso.png`       | Ruta entre pisos (Aula 205 → Biblioteca) con cambio de nivel.                                  |
+| `15-ruta-multipiso-pasos.png` | Pasos de la ruta multipiso, incluidos ascensor/escaleras.                                      |
 
 ### Escáner QR
 
 | Archivo                               | Qué muestra                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------- |
-| `17-escaner-inicio.png`               | Pantalla del escáner con cámara y entrada manual, más el código de ejemplo. |
-| `18-escaner-codigo-manual.png`        | Entrada manual del código `MILIMAP:v1:umng-calle100:P1:QRD`.                |
-| `19-escaner-ubicacion-confirmada.png` | Resultado confirmado: "Estás en: Entrada QRD", piso y nodo.                 |
-| `20-escaner-codigo-invalido.png`      | Manejo de un código que no corresponde a un punto del campus.               |
-| `21-mapa-origen-por-qr.png`           | El mapa con el origen tomado del QR ("Estoy en: P1 · Entrada (QRD)").       |
+| `16-escaner-inicio.png`               | Pantalla del escáner con cámara y entrada manual, más el código de ejemplo. |
+| `17-escaner-codigo-manual.png`        | Entrada manual del código `MILIMAP:v1:umng-calle100:P1:QRD`.                |
+| `18-escaner-ubicacion-confirmada.png` | Resultado confirmado: "Estás en: Entrada QRD", piso y nodo.                 |
+| `19-escaner-codigo-invalido.png`      | Manejo de un código que no corresponde a un punto del campus.               |
+| `20-mapa-origen-por-qr.png`           | El mapa con el origen tomado del QR ("Estoy en: P1 · Entrada (QRD)").       |
 
 ### Horario
 
 | Archivo                     | Qué muestra                                                         |
 | --------------------------- | ------------------------------------------------------------------- |
-| `22-horario-configurar.png` | Selector de programa y grupo para crear el horario.                 |
-| `23-horario-semana.png`     | Horario guardado con la clase actual/próxima y el acceso a la ruta. |
-| `24-horario-completo.png`   | Vista completa del horario semanal.                                 |
+| `21-horario-configurar.png` | Selector de programa y grupo para crear el horario.                 |
+| `22-horario-semana.png`     | Horario guardado con la clase actual/próxima y el acceso a la ruta. |
+| `23-horario-completo.png`   | Vista completa del horario semanal.                                 |
 
 ### Panel de administración (escritorio)
 
 | Archivo                    | Qué muestra                                                |
 | -------------------------- | ---------------------------------------------------------- |
-| `25-admin-login.png`       | Acceso simulado por rol: Administrador, Editor y Consulta. |
-| `26-admin-resumen.png`     | Resumen general del panel.                                 |
-| `27-admin-eventos.png`     | Gestión de eventos.                                        |
-| `28-admin-anuncios.png`    | Gestión de anuncios.                                       |
-| `29-admin-espacios.png`    | Gestión de espacios del campus.                            |
-| `30-admin-editor-mapa.png` | Editor de mapa.                                            |
-| `31-admin-horarios.png`    | Horarios del semestre.                                     |
-| `32-admin-analitica.png`   | Analítica de uso.                                          |
+| `24-admin-login.png`       | Acceso simulado por rol: Administrador, Editor y Consulta. |
+| `25-admin-resumen.png`     | Resumen general del panel.                                 |
+| `26-admin-eventos.png`     | Gestión de eventos.                                        |
+| `27-admin-anuncios.png`    | Gestión de anuncios.                                       |
+| `28-admin-espacios.png`    | Gestión de espacios del campus.                            |
+| `29-admin-editor-mapa.png` | Editor de mapa.                                            |
+| `30-admin-horarios.png`    | Horarios del semestre.                                     |
+| `31-admin-analitica.png`   | Analítica de uso.                                          |
 
 ### Códigos QR de prueba
 
 | Archivo                       | Qué muestra                                                                |
 | ----------------------------- | -------------------------------------------------------------------------- |
-| `33-qrs-galeria.png`          | Galería pública de códigos QR generados para la sede.                      |
-| `34-qrs-galeria-completa.png` | Los 45 QR en una sola imagen (página completa).                            |
-| `35-qrs-detalle.png`          | Detalle de una tarjeta: piso, nombre, enlace profundo y "Abrir en la app". |
+| `32-qrs-galeria.png`          | Galería pública de códigos QR generados para la sede.                      |
+| `33-qrs-galeria-completa.png` | Los 45 QR en una sola imagen (página completa).                            |
+| `34-qrs-detalle.png`          | Detalle de una tarjeta: piso, nombre, enlace profundo y "Abrir en la app". |
 
 ### PWA y sin conexión
 
 | Archivo                 | Qué muestra                                                                |
 | ----------------------- | -------------------------------------------------------------------------- |
-| `36-offline-inicio.png` | Inicio sin conexión, con el aviso "Sin conexión" y los datos ya guardados. |
-| `37-offline-mapa.png`   | Mapa y rutas funcionando sin red gracias al service worker.                |
+| `35-offline-inicio.png` | Inicio sin conexión, con el aviso "Sin conexión" y los datos ya guardados. |
+| `36-offline-mapa.png`   | Mapa y rutas funcionando sin red gracias al service worker.                |
 
 ### Escritorio
 
 | Archivo                          | Qué muestra                                                     |
 | -------------------------------- | --------------------------------------------------------------- |
-| `38-desktop-inicio.png`          | Inicio en escritorio (1440 × 900).                              |
-| `39-desktop-inicio-completa.png` | Inicio completo en escritorio.                                  |
-| `40-desktop-ruta.png`            | Ruta en escritorio con el plano y las indicaciones en paralelo. |
-| `41-desktop-admin.png`           | Panel de administración en escritorio.                          |
+| `37-desktop-inicio.png`          | Inicio en escritorio (1440 × 900).                              |
+| `38-desktop-inicio-completa.png` | Inicio completo en escritorio.                                  |
+| `39-desktop-ruta.png`            | Ruta en escritorio con el plano y las indicaciones en paralelo. |
+| `40-desktop-admin.png`           | Panel de administración en escritorio.                          |
 
 ## Nota sobre la cámara
 
