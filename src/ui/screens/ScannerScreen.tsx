@@ -230,7 +230,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
     <section className="card">
       <h1 className="card__title">Escanear código QR</h1>
       <p className="card__body">
-        Encontrá tu ubicación exacta dentro de la sede escaneando el sticker de la pared. Después
+        Encuentra tu ubicación exacta dentro de la sede escaneando el sticker de la pared. Después
         puedes pedir una ruta a cualquier salón.
       </p>
       <div className="stack" style={{ marginTop: 'var(--space-4)' }}>

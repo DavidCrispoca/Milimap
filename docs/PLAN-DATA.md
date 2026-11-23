@@ -367,7 +367,7 @@ No. Solo el contorno de los espacios, el área de los pasillos, y los puntos de 
 y ascensor.
 
 **¿Y si el plano está mal (un aula que ya no existe)?**
-Digitalizá lo que hay hoy, no lo que dice el plano. El plano es una guía, el edificio es
+Digitaliza lo que hay hoy, no lo que dice el plano. El plano es una guía, el edificio es
 la verdad.
 
 **¿Puedo digitalizar pisos en paralelo con otra persona?**

@@ -253,7 +253,7 @@ export function MapEditorPage() {
               nuevo se ancla al nodo más cercano (o crea uno).
             </li>
             <li>
-              <strong>Nodo / Conexión:</strong> agrega puntos del grafo y unilos para que el ruteo
+              <strong>Nodo / Conexión:</strong> agrega puntos del grafo y únelos para que el ruteo
               pueda caminar por ahí.
             </li>
             <li>

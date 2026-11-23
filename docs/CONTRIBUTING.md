@@ -48,7 +48,7 @@ Formato: **`tipo(scope): descripción`**
 | `revert`   | Revertir un commit anterior                    | —                |
 
 Si el commit **rompe** algo, agrega `!` antes de los dos puntos: `feat(domain)!: ...`.
-Solo el `!` no alcanza: en el pie del mensaje explicá qué se rompe y cómo migrar.
+Solo el `!` no alcanza: en el pie del mensaje explica qué se rompe y cómo migrar.
 
 ### Scopes
 
@@ -123,7 +123,7 @@ git switch -c feat/floor-editor
 
 Todo cambio entra por PR. Pasos:
 
-1. `git fetch origin && git rebase origin/main` — evitá merges innecesarios.
+1. `git fetch origin && git rebase origin/main` — evita merges innecesarios.
 2. Commits atómicos con mensajes válidos.
 3. Push de la rama.
 4. Abrir PR contra `main` usando el template.
@@ -178,7 +178,7 @@ No: `it('works')`, `it('test 1')`.
 
 ## 6. Estilo de código
 
-- **Prettier** manda. No discutas formato en el PR; corré `npm run format`.
+- **Prettier** manda. No discutas formato en el PR; corre `npm run format`.
 - **TypeScript estricto.** `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`.
   Si necesitas `any`, justificalo en un comentario.
 - **`import type`** obligatorio para tipos (`verbatimModuleSyntax` está activo).

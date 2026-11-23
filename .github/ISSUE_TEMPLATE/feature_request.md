@@ -23,7 +23,7 @@ assignees: ''
 
 ## Contexto
 
-<!-- Mockups, referencias, decisiones previas. Si toca el mapa, indicá edificio y piso. -->
+<!-- Mockups, referencias, decisiones previas. Si toca el mapa, indica edificio y piso. -->
 
 ## Fase del plan
 

@@ -104,8 +104,8 @@ sticker real.
 | Probar con el escáner       | `npm run gen:qr`                                                  |
 | Probar con la cámara nativa | `npm run gen:qr -- --base-url=https://usuario.github.io/Milimap/` |
 
-Para probar con la cámara del celular sin esperar al deploy, serví la app en la red
-local y generá los QR apuntando a esa IP:
+Para probar con la cámara del celular sin esperar al deploy, sirve la app en la red
+local y genera los QR apuntando a esa IP:
 
 ```bash
 npm run dev -- --host
