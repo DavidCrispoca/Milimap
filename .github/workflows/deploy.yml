@@ -52,6 +52,10 @@ jobs:
       - name: Resolve Pages URL
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          # First run creates the Pages site, so deployment does not depend on a
+          # manual toggle in Settings. Later runs are a no-op.
+          enablement: true
 
       - name: Build
         # The QR codes embed this URL so the phone's native camera opens the app.

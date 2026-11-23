@@ -1291,8 +1291,8 @@ repo para que quede versionado junto al código y su actualización sea parte de
       que Release Please funcione: Settings → Actions → General → Workflow permissions →
       marcar _Allow GitHub Actions to create and approve pull requests_. Sin esto, el
       workflow `Release Please` corre pero falla al abrir el PR de versión.
-- [x] Workflow de deploy a GitHub Pages (`.github/workflows/deploy.yml`).
-      Falta habilitar **Settings → Pages → Source: GitHub Actions** en el repositorio.
+- [x] Workflow de deploy a GitHub Pages (`.github/workflows/deploy.yml`), con
+      habilitación automática del sitio (`configure-pages` + `enablement: true`).
 
 > **Nota para el equipo:** los dos primeros puntos son ajustes de GitHub, no cambios de
 > código. Sin ellos el CI igual protege por convención, pero no bloquea el merge

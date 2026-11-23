@@ -114,10 +114,12 @@ necesita reglas de rewrite; el build usa `base: './'` y el service worker deriva
 todas sus rutas de `self.registration.scope`, por lo que funciona igual en la raíz
 del dominio o bajo `/<repo>/`.
 
-Pasos únicos en el repositorio:
+Pasos para publicar:
 
-1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-2. Push a `main` (o ejecutar el workflow a mano).
+1. Push a `main` (o ejecutar el workflow a mano). La primera ejecución habilita
+   Pages automáticamente (`enablement: true` en `configure-pages`).
+2. Si el repositorio restringe la creación de sitios, habilitar una vez
+   **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 3. La app queda en `https://<usuario>.github.io/Milimap/` y el panel en
    `https://<usuario>.github.io/Milimap/#/admin`.
 
