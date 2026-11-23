@@ -280,7 +280,7 @@ Si necesitas React dentro de `domain/`, el código está en la capa equivocada.
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — decisiones de diseño y por qué.
 - **[`docs/PLAN-DATA.md`](docs/PLAN-DATA.md)** — cómo convertir un plano dibujado a mano en datos que la app entiende.
 - **[`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md)** — manual del panel de administración.
-- **[`evidencias/README.md`](evidencias/README.md)** — índice de capturas del sitio en vivo (inicio, mapa, rutas, QR, panel, offline).
+- **[`evidencias/README.md`](evidencias/README.md)** — índice de capturas del sitio en vivo (acceso y cuenta, inicio, horario, mapa, rutas, QR, panel, offline).
 
 ## Privacidad
 
