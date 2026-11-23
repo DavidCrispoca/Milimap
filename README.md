@@ -100,6 +100,14 @@ sticker real.
 | Probar con el escáner       | `npm run gen:qr`                                                  |
 | Probar con la cámara nativa | `npm run gen:qr -- --base-url=https://usuario.github.io/Milimap/` |
 
+Para probar con la cámara del celular sin esperar al deploy, serví la app en la red
+local y generá los QR apuntando a esa IP:
+
+```bash
+npm run dev -- --host
+npm run gen:qr -- --base-url=http://192.168.2.18:5173/
+```
+
 Cada payload se valida contra `resolveQrNode` antes de escribir el PNG: si un
 código no resolvería dentro de la app, el script falla en vez de generar un sticker
 inservible. La carpeta se regenera en cada `npm run build` (`prebuild`).
