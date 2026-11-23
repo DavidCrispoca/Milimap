@@ -143,7 +143,7 @@ function main(): void {
     if (!KNOWN_LAYERS.includes(layer as Layer)) {
       addProblem(
         'error',
-        `La capa "${layer}" no se reconoce. Usá: espacios, pasillos o verticales.`,
+        `La capa "${layer}" no se reconoce. Usa: espacios, pasillos o verticales.`,
       )
       continue
     }
@@ -254,7 +254,7 @@ function main(): void {
       if (width > 300 || height > 300) {
         addProblem(
           'warning',
-          `La huella mide ${width.toFixed(0)} × ${height.toFixed(0)} m. Un edificio de campus rara vez pasa de 150 m: revisá la escala.`,
+          `La huella mide ${width.toFixed(0)} × ${height.toFixed(0)} m. Un edificio de campus rara vez pasa de 150 m: revisa la escala.`,
         )
       }
     } else if (units === 'WGS84') {
@@ -262,8 +262,8 @@ function main(): void {
       console.log(`  Extensión: ${width.toFixed(6)}° × ${height.toFixed(6)}°`)
     } else {
       console.log(
-        '  No se pudo determinar el sistema. Si son metros locales, usá números redondos;' +
-          ' si son grados, exportá en EPSG:4326.',
+        '  No se pudo determinar el sistema. Si son metros locales, usa números redondos;' +
+          ' si son grados, exporta en EPSG:4326.',
       )
     }
     console.log('')

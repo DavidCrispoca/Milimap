@@ -43,7 +43,7 @@ Las flechas apuntan **hacia el dominio, nunca al revés**.
 2. Un script de CI puede validar los planos sin levantar un navegador.
 3. Si mañana se hace una app nativa, `domain/` se reutiliza tal cual.
 
-Si te encontrás queriendo importar React dentro de `domain/`, el código pertenece a
+Si te encuentras queriendo importar React dentro de `domain/`, el código pertenece a
 otra capa. No rompas la regla: movelo.
 
 ---

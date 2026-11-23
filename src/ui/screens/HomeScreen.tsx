@@ -35,10 +35,12 @@ const ANNOUNCEMENT_CLASS = {
 } as const
 
 export function HomeScreen({
+  isAuthenticated,
   onOpenRoute,
   onOpenScanner,
   onOpenSchedule,
 }: {
+  isAuthenticated: boolean
   onOpenRoute: (spaceId: SpaceId) => void
   onOpenScanner: () => void
   onOpenSchedule: () => void
@@ -134,86 +136,88 @@ export function HomeScreen({
         )}
       </section>
 
-      <section className="card">
-        <h2 className="card__title">Mi horario</h2>
-        {!schedule ? (
-          <>
-            <p className="card__body">
-              Configurá tu horario del semestre y entrá con un toque al salón donde toca ahora. Se
-              guarda en tu dispositivo, sin cuenta.
-            </p>
-            <button
-              type="button"
-              className="btn-primary"
-              style={{ marginTop: 'var(--space-3)' }}
-              onClick={onOpenSchedule}
-            >
-              Configurar mi horario
-            </button>
-          </>
-        ) : currentClass ? (
-          <div className="class-card">
-            <div className="class-card__head">
-              <span className="class-card__kind">En curso</span>
-              <span className="class-card__time">
-                {currentClass.startsAt}–{currentClass.endsAt}
-              </span>
+      {isAuthenticated ? (
+        <section className="card">
+          <h2 className="card__title">Mi horario</h2>
+          {!schedule ? (
+            <>
+              <p className="card__body">
+                Configura tu horario del semestre y entra con un toque al salón donde toca ahora. Se
+                guarda en tu dispositivo.
+              </p>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ marginTop: 'var(--space-3)' }}
+                onClick={onOpenSchedule}
+              >
+                Configurar mi horario
+              </button>
+            </>
+          ) : currentClass ? (
+            <div className="class-card">
+              <div className="class-card__head">
+                <span className="class-card__kind">En curso</span>
+                <span className="class-card__time">
+                  {currentClass.startsAt}–{currentClass.endsAt}
+                </span>
+              </div>
+              <span className="class-card__subject">{currentClass.subject}</span>
+              <span className="class-card__meta">{currentClass.code}</span>
+              <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
+                <button
+                  type="button"
+                  className="btn-secondary btn--sm"
+                  onClick={() => onOpenRoute(currentClass.spaceId)}
+                >
+                  Cómo llegar
+                </button>
+                <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
+                  Ver horario
+                </button>
+              </div>
             </div>
-            <span className="class-card__subject">{currentClass.subject}</span>
-            <span className="class-card__meta">{currentClass.code}</span>
-            <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
+          ) : nextClass ? (
+            <div className="class-card">
+              <div className="class-card__head">
+                <span className="class-card__kind">Próxima</span>
+                <span className="class-card__time">
+                  {nextClass.startsAt}–{nextClass.endsAt}
+                </span>
+              </div>
+              <span className="class-card__subject">{nextClass.subject}</span>
+              <span className="class-card__meta">
+                {nextClass.code}
+                {programName ? ` · ${programName}` : ''}
+              </span>
+              <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
+                <button
+                  type="button"
+                  className="btn-secondary btn--sm"
+                  onClick={() => onOpenRoute(nextClass.spaceId)}
+                >
+                  Cómo llegar
+                </button>
+                <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
+                  Ver horario
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="card__body">No tienes clases en tu horario por ahora.</p>
               <button
                 type="button"
                 className="btn-secondary btn--sm"
-                onClick={() => onOpenRoute(currentClass.spaceId)}
+                style={{ marginTop: 'var(--space-3)' }}
+                onClick={onOpenSchedule}
               >
-                Cómo llegar
-              </button>
-              <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
                 Ver horario
               </button>
-            </div>
-          </div>
-        ) : nextClass ? (
-          <div className="class-card">
-            <div className="class-card__head">
-              <span className="class-card__kind">Próxima</span>
-              <span className="class-card__time">
-                {nextClass.startsAt}–{nextClass.endsAt}
-              </span>
-            </div>
-            <span className="class-card__subject">{nextClass.subject}</span>
-            <span className="class-card__meta">
-              {nextClass.code}
-              {programName ? ` · ${programName}` : ''}
-            </span>
-            <div className="pill-row" style={{ marginTop: 'var(--space-2)' }}>
-              <button
-                type="button"
-                className="btn-secondary btn--sm"
-                onClick={() => onOpenRoute(nextClass.spaceId)}
-              >
-                Cómo llegar
-              </button>
-              <button type="button" className="btn-secondary btn--sm" onClick={onOpenSchedule}>
-                Ver horario
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <p className="card__body">No tenés clases en tu horario por ahora.</p>
-            <button
-              type="button"
-              className="btn-secondary btn--sm"
-              style={{ marginTop: 'var(--space-3)' }}
-              onClick={onOpenSchedule}
-            >
-              Ver horario
-            </button>
-          </>
-        )}
-      </section>
+            </>
+          )}
+        </section>
+      ) : null}
 
       <section>
         <p className="card__eyebrow">Acciones rápidas</p>

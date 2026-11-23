@@ -120,7 +120,7 @@ Los QR van donde alguien se pregunta _"¿y ahora para dónde?"_.
 
 ## 2. Digitalizar (la parte técnica)
 
-Hay tres caminos. Elegí según el momento del proyecto.
+Hay tres caminos. Elige según el momento del proyecto.
 
 ### Opción A — QGIS (recomendada si el panel admin todavía no existe)
 
@@ -182,7 +182,7 @@ La mejor opción una vez construida: se sube el plano como imagen de fondo, se d
 encima con las herramientas integradas, y **valida en vivo** mientras se dibuja. Sin
 conversión de formatos, sin instalar nada.
 
-Ventaja frente a QGIS: los errores aparecen mientras trabajás, no tres horas después.
+Ventaja frente a QGIS: los errores aparecen mientras trabajas, no tres horas después.
 
 ---
 
@@ -258,7 +258,7 @@ avanzar sin frenar por la semántica.
 - **También se acepta: WGS84** (grados, como los exporta QGIS). El importador detecta
   el rango de coordenadas y convierte.
 
-Si tenés dudas, exportá en WGS84 como sale por defecto de QGIS. Se normaliza solo.
+Si tienes dudas, exporta en WGS84 como sale por defecto de QGIS. Se normaliza solo.
 
 ---
 

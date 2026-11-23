@@ -54,7 +54,7 @@ export function SchedulePage() {
     if (!file) return
     setText(await file.text())
     setReview(null)
-    setNotice(`Archivo cargado: ${file.name}. Revisalo y validalo antes de publicar.`)
+    setNotice(`Archivo cargado: ${file.name}. Revísalo y valídalo antes de publicar.`)
   }
 
   const canPublish =
@@ -156,7 +156,7 @@ export function SchedulePage() {
 
         <Panel title="Resultado de la validación">
           {!review ? (
-            <p className="text-muted">Validá el archivo para ver los errores y conflictos.</p>
+            <p className="text-muted">Valida el archivo para ver los errores y conflictos.</p>
           ) : (
             <div className="stack">
               <div className="table__actions" style={{ justifyContent: 'flex-start' }}>
@@ -188,7 +188,7 @@ export function SchedulePage() {
               {review.errors.length === 0 &&
               review.conflicts.length === 0 &&
               review.classes.length > 0 ? (
-                <Alert tone="success" title="Archivo válido. Ya podés publicar el horario." />
+                <Alert tone="success" title="Archivo válido. Ya puedes publicar el horario." />
               ) : null}
             </div>
           )}

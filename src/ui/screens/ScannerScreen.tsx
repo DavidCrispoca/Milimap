@@ -108,8 +108,8 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
         name: 'camera-error',
         message:
           error instanceof Error && error.name === 'NotAllowedError'
-            ? 'No diste permiso a la cámara. Podés escribir el código a mano.'
-            : 'No se pudo abrir la cámara en este dispositivo. Probá escribiendo el código a mano.',
+            ? 'No diste permiso a la cámara. Puedes escribir el código a mano.'
+            : 'No se pudo abrir la cámara en este dispositivo. Prueba escribiendo el código a mano.',
       })
     }
   }
@@ -141,7 +141,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
   if (phase.name === 'scanning') {
     return (
       <section className="card">
-        <h1 className="card__title">Escaneá el código QR</h1>
+        <h1 className="card__title">Escanea el código QR</h1>
         <p className="card__body">
           Apunta al sticker de Milimap en la pared. El código está en los puntos QR.
         </p>
@@ -149,7 +149,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
         <p className="muted" style={{ marginTop: 'var(--space-3)' }}>
           Sin cámara o sin suerte:{' '}
           <button type="button" className="link-btn" onClick={backToIdle}>
-            escribí el código a mano
+            escribe el código a mano
           </button>
           .
         </p>
@@ -189,7 +189,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
   if (phase.name === 'manual') {
     return (
       <section className="card">
-        <h1 className="card__title">Escribí el código</h1>
+        <h1 className="card__title">Escribe el código</h1>
         <p className="card__body">
           El código está impreso en el sticker. Tiene la forma{' '}
           <span className="mono">MILIMAP:v1:…</span>.
@@ -231,7 +231,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
       <h1 className="card__title">Escanear código QR</h1>
       <p className="card__body">
         Encontrá tu ubicación exacta dentro de la sede escaneando el sticker de la pared. Después
-        podés pedir una ruta a cualquier salón.
+        puedes pedir una ruta a cualquier salón.
       </p>
       <div className="stack" style={{ marginTop: 'var(--space-4)' }}>
         <button type="button" className="btn-primary" onClick={() => void startCamera()}>
@@ -246,7 +246,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
         </button>
       </div>
       <p className="muted" style={{ marginTop: 'var(--space-3)' }}>
-        Probá con el código de ejemplo:{' '}
+        Prueba con el código de ejemplo:{' '}
         <span className="mono">MILIMAP:v1:umng-calle100:P1:QRD</span> (Entrada D, primer piso).
       </p>
     </section>
@@ -301,11 +301,11 @@ function ScanResultCard({
 function failureMessage(status: ScanFailureReason): string {
   switch (status) {
     case 'not_milimap':
-      return 'Este código no es de Milimap. Probá con un sticker de la sede o escribí el código a mano.'
+      return 'Este código no es de Milimap. Prueba con un sticker de la sede o escribe el código a mano.'
     case 'unsupported_version':
-      return 'Este código usa una versión de Milimap que esta app todavía no entiende. Actualizá la app.'
+      return 'Este código usa una versión de Milimap que esta app todavía no entiende. Actualiza la app.'
     case 'malformed':
-      return 'El código está incompleto o dañado. Revisá que esté completo y volvé a intentar.'
+      return 'El código está incompleto o dañado. Revisa que esté completo y vuelve a intentar.'
     case 'unresolved':
       return 'El código es de Milimap pero apunta a un punto que no está en este campus (probablemente el mapa todavía no lo tiene).'
     default: {

@@ -4,7 +4,7 @@
  * First visit: pick a program and group from the catalog. Afterwards the current
  * and next class are shown with a "cómo llegar" shortcut, plus a weekly view
  * where the student can untick classes they don't take. Everything is saved
- * on-device; no account required.
+ * on-device; the student session is simulated, but it gates this screen.
  */
 
 import { useRef, useState } from 'react'
@@ -116,14 +116,14 @@ export function ScheduleScreen({ onOpenRoute }: ScheduleScreenProps) {
           />
         ) : null}
         {!current && !next ? (
-          <p className="card__body">No tenés clases en tu horario. Agregá alguna abajo.</p>
+          <p className="card__body">No tienes clases en tu horario. Agrega alguna abajo.</p>
         ) : null}
       </section>
 
       <section className="card">
         <h2 className="card__title">Horario semanal</h2>
         <p className="card__body">
-          Grupo {schedule.groupId} · desmarcá las materias que no estás cursando.
+          Grupo {schedule.groupId} · desmarca las materias que no estás cursando.
         </p>
         {[1, 2, 3, 4, 5, 6].map((weekday) => {
           const dayClasses = grouped[weekday] ?? []
@@ -222,9 +222,9 @@ function ProgramPicker({ onSave }: { onSave: (schedule: StudentSchedule) => void
 
   return (
     <section className="card">
-      <h1 className="card__title">Configurá tu horario</h1>
+      <h1 className="card__title">Configura tu horario</h1>
       <p className="card__body">
-        Elegí tu programa y grupo. El horario se guarda en tu dispositivo; podés cambiarlo cuando
+        Elige tu programa y grupo. El horario se guarda en tu dispositivo; puedes cambiarlo cuando
         quieras.
       </p>
 

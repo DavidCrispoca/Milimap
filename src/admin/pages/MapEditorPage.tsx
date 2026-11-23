@@ -71,18 +71,18 @@ const EDGE_KINDS: Array<{ value: EdgeKind; label: string }> = [
 ]
 
 const TOOLS = [
-  { id: 'select', label: 'Seleccionar', icon: '↖', hint: 'Elegí y arrastrá nodos o vértices.' },
+  { id: 'select', label: 'Seleccionar', icon: '↖', hint: 'Elige y arrastra nodos o vértices.' },
   {
     id: 'space',
     label: 'Espacio',
     icon: '▭',
-    hint: 'Arrastrá sobre el plano para dibujar un salón.',
+    hint: 'Arrastra sobre el plano para dibujar un salón.',
   },
   {
     id: 'walkway',
     label: 'Pasillo',
     icon: '▤',
-    hint: 'Arrastrá para dibujar una zona de circulación.',
+    hint: 'Arrastra para dibujar una zona de circulación.',
   },
   { id: 'node', label: 'Nodo', icon: '●', hint: 'Clic para agregar un punto del grafo.' },
   { id: 'edge', label: 'Conexión', icon: '╱', hint: 'Clic en dos nodos para unirlos.' },
@@ -234,26 +234,26 @@ export function MapEditorPage() {
           <Alert
             tone="warning"
             title="Modo lectura"
-            items={['Tu rol no permite editar la geometría. Entrá como administrador o editor.']}
+            items={['Tu rol no permite editar la geometría. Entra como administrador o editor.']}
           />
         ) : null}
         <p className="muted">
-          Los cambios se guardan en este navegador y el mapa público los usa de inmediato. Exportá
+          Los cambios se guardan en este navegador y el mapa público los usa de inmediato. Exporta
           el JSON cuando quieras congelar una versión en <span className="mono">src/data</span>.
         </p>
         <details className="map-editor__help">
           <summary>Cómo se usa el editor</summary>
           <ul>
             <li>
-              <strong>Seleccionar:</strong> hacé clic en un espacio, nodo o conexión. Arrastrá los
+              <strong>Seleccionar:</strong> haz clic en un espacio, nodo o conexión. Arrastra los
               nodos y los vértices del espacio seleccionado.
             </li>
             <li>
-              <strong>Espacio / Pasillo:</strong> arrastrá un rectángulo sobre el plano. El espacio
+              <strong>Espacio / Pasillo:</strong> arrastra un rectángulo sobre el plano. El espacio
               nuevo se ancla al nodo más cercano (o crea uno).
             </li>
             <li>
-              <strong>Nodo / Conexión:</strong> agregá puntos del grafo y unilos para que el ruteo
+              <strong>Nodo / Conexión:</strong> agrega puntos del grafo y unilos para que el ruteo
               pueda caminar por ahí.
             </li>
             <li>
@@ -534,7 +534,7 @@ function FloorEditor({ floor, saved, canEdit, onDirtyChange }: FloorEditorProps)
 
     if (!pendingNode) {
       setPendingNode(node.id)
-      setNotice(`Primer nodo: ${node.id}. Elegí el segundo.`)
+      setNotice(`Primer nodo: ${node.id}. Elige el segundo.`)
       return
     }
     if (pendingNode === node.id) {
@@ -730,7 +730,7 @@ function FloorEditor({ floor, saved, canEdit, onDirtyChange }: FloorEditorProps)
   const save = (): void => {
     if (!canEdit || !dirty) return
     if (!saveFloorGeometry(floor.id, geometry)) {
-      setNotice('No se pudo guardar: revisá el rol de acceso.')
+      setNotice('No se pudo guardar: revisa el rol de acceso.')
       return
     }
     setBaseline(cloneGeometry(geometry))
@@ -1305,7 +1305,7 @@ function FloorEditor({ floor, saved, canEdit, onDirtyChange }: FloorEditorProps)
           ) : (
             <div className="stack">
               <p className="muted">
-                Nada seleccionado. Elegí un espacio, un nodo o una conexión en el plano.
+                Nada seleccionado. Elige un espacio, un nodo o una conexión en el plano.
               </p>
               <div className="stat-grid map-editor__stats">
                 <Stat label="Espacios" value={stats.spaces} />

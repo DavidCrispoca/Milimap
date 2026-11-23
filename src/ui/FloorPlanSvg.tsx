@@ -362,7 +362,7 @@ export function FloorPlanSvg({
           pointerEvents: 'none',
         }}
       >
-        Arrastrá para navegar · Tocá una sala para ver su nombre
+        Arrastra para navegar · Toca una sala para ver su nombre
       </div>
 
       {selectedSpace ? (

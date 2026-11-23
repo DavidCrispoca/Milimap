@@ -67,7 +67,7 @@ export function SpacesPage() {
   return (
     <>
       {!canEdit ? (
-        <Alert tone="info" title="Modo consulta: no tenés permisos para editar espacios." />
+        <Alert tone="info" title="Modo consulta: no tienes permisos para editar espacios." />
       ) : null}
       {notice ? <Alert tone="success" title={notice} /> : null}
 

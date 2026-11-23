@@ -47,7 +47,7 @@ Formato: **`tipo(scope): descripción`**
 | `style`    | Formato, espacios, lint (sin cambio de lógica) | —                |
 | `revert`   | Revertir un commit anterior                    | —                |
 
-Si el commit **rompe** algo, agregá `!` antes de los dos puntos: `feat(domain)!: ...`.
+Si el commit **rompe** algo, agrega `!` antes de los dos puntos: `feat(domain)!: ...`.
 Solo el `!` no alcanza: en el pie del mensaje explicá qué se rompe y cómo migrar.
 
 ### Scopes
@@ -55,8 +55,8 @@ Solo el `!` no alcanza: en el pie del mensaje explicá qué se rompe y cómo mig
 `domain`, `map`, `scanner`, `admin`, `ui`, `data`, `schedule`, `events`, `qr`, `tools`,
 `qa`, `deps`, `docs`, `ci`, `release`
 
-Un scope que no esté en la lista **no rompe el commit** (es `warning`), pero usá uno
-existente salvo que realmente haga falta uno nuevo. Si hace falta, agregalo a
+Un scope que no esté en la lista **no rompe el commit** (es `warning`), pero usa uno
+existente salvo que realmente haga falta uno nuevo. Si hace falta, agrégalo a
 `commitlint.config.js` en el mismo PR.
 
 ### Reglas del mensaje
@@ -68,7 +68,7 @@ existente salvo que realmente haga falta uno nuevo. Si hace falta, agregalo a
 - **Sin punto final.**
 - **Máximo 100 caracteres** en la primera línea.
 - **Un commit = un cambio lógico.** Si el mensaje necesita "y", son dos commits.
-- Si necesita explicación, usá el cuerpo separado por una línea en blanco:
+- Si necesita explicación, usa el cuerpo separado por una línea en blanco:
 
 ```
 feat(domain): implement multi-level dijkstra router
@@ -90,7 +90,7 @@ Refs #12
 ✖   type may not be empty [type-empty]
 ```
 
-Eso no es un bug, es el sistema funcionando. Corregí el mensaje, no lo saltees.
+Eso no es un bug, es el sistema funcionando. Corrige el mensaje, no lo saltees.
 
 ### Prohibido
 
@@ -180,9 +180,9 @@ No: `it('works')`, `it('test 1')`.
 
 - **Prettier** manda. No discutas formato en el PR; corré `npm run format`.
 - **TypeScript estricto.** `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`.
-  Si necesitás `any`, justificalo en un comentario.
+  Si necesitas `any`, justificalo en un comentario.
 - **`import type`** obligatorio para tipos (`verbatimModuleSyntax` está activo).
-- **No enums.** `erasableSyntaxOnly` está activo; usá uniones de strings.
+- **No enums.** `erasableSyntaxOnly` está activo; usa uniones de strings.
 - **Nombres en inglés** para código, identificadores y comentarios. El texto de UI va
   en español.
 - **Comentarios: explican _por qué_, no _qué_.** El `what` ya lo dice el código.
@@ -216,5 +216,5 @@ casual. Un cambio ahí puede dejar salones inaccesibles.
 | Hooks no corren             | Husky no instalado          | `npm run prepare`         |
 | `tsc` error de `baseUrl`    | TS 7 lo eliminó             | Usar solo `paths`         |
 
-Si quedaste trabado más de 20 minutos, pedí ayuda. No inventes un workaround que
+Si quedaste trabado más de 20 minutos, pide ayuda. No inventes un workaround que
 después haya que deshacer.

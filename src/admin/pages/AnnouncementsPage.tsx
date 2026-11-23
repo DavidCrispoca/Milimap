@@ -82,7 +82,7 @@ export function AnnouncementsPage() {
   return (
     <>
       {!canEdit ? (
-        <Alert tone="info" title="Modo consulta: no tenés permisos para modificar anuncios." />
+        <Alert tone="info" title="Modo consulta: no tienes permisos para modificar anuncios." />
       ) : null}
       {notice ? <Alert tone="success" title={notice} /> : null}
 

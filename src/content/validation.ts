@@ -11,7 +11,7 @@ import { z } from 'zod'
 /** `datetime-local` format: "YYYY-MM-DDTHH:MM". Lexicographic order equals time order. */
 const localDateTime = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Ingresá una fecha y hora válidas.')
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Ingresa una fecha y hora válidas.')
 
 export const eventInputSchema = z
   .object({

@@ -249,9 +249,9 @@ function renderGallery(entries: readonly Entry[], baseUrl: string | null): strin
         Sirven para probar la herramienta antes de imprimir los stickers del campus.
       </p>
       <ol class="no-print">
-        <li>Abrí Milimap en el celular (o instalala como PWA).</li>
-        <li>Entrá a <strong>Escanear QR</strong> y apuntá la cámara al código de esta pantalla.</li>
-        <li>Confirmá la ubicación y pedí una ruta a otro salón.</li>
+        <li>Abre Milimap en el celular (o instalala como PWA).</li>
+        <li>Entra a <strong>Escanear QR</strong> y apunta la cámara al código de esta pantalla.</li>
+        <li>Confirma la ubicación y pide una ruta a otro salón.</li>
       </ol>
       <p class="meta">
         ${entries.length} códigos · ${baseUrl ? `URL base: ${escapeHtml(baseUrl)}` : 'payload directo (MILIMAP:v1:…)'} ·

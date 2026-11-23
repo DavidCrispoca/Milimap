@@ -13,6 +13,10 @@ y le muestra cómo llegar a un salón o zona de interés sobre un mapa 2D cenita
 > por fuera. Todo lo pendiente está detallado en el registro v1.5 de
 > [`plan.md`](plan.md).
 
+Al abrir la app se elige **iniciar sesión** (simulado: cualquier correo y contraseña
+sirven) o **continuar como invitado**. Los invitados usan el mapa, el escáner y las
+rutas; el horario del semestre solo se activa con sesión iniciada.
+
 |                 |                                                                               |
 | --------------- | ----------------------------------------------------------------------------- |
 | **Alcance**     | Solo Sede Calle 100. Carrera 11 # 101-80, Bogotá D.C.                         |
@@ -91,7 +95,7 @@ npm run gen:qr
 
 Eso escribe `public/qrs/` con **45 códigos** (entradas, ascensores, escaleras,
 biblioteca, aulas, laboratorios y auditorios), una hoja imprimible `index.html`, un
-`codigos.csv` y un `README.md`. Abrí esa hoja en otra pantalla y apuntá la cámara
+`codigos.csv` y un `README.md`. Abre esa hoja en otra pantalla y apunta la cámara
 del celular desde **Escanear QR**; cada código resuelve al mismo punto que un
 sticker real.
 
@@ -161,7 +165,7 @@ Está pensada para que la pueda seguir alguien que **no programa**.
 
 ### Paso 2 — Convertir a GeoJSON
 
-Hay dos caminos. Elegí uno:
+Hay dos caminos. Elige uno:
 
 | Herramienta                   | Cuándo                                                                                                                 |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -249,7 +253,7 @@ evidencias/        Capturas del sitio en vivo y su índice (ver evidencias/READM
 **`src/domain/` no importa React, MapLibre ni Supabase.**
 
 Es lo que permite testear el motor de ruteo en Node puro, en milisegundos, sin DOM.
-Si necesitás React dentro de `domain/`, el código está en la capa equivocada.
+Si necesitas React dentro de `domain/`, el código está en la capa equivocada.
 
 ## Stack
 
@@ -268,7 +272,7 @@ Si necesitás React dentro de `domain/`, el código está en la capa equivocada.
 
 ## Equipo
 
-- **[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)** — cómo commitear, cómo abrir un PR. **Empezá acá.**
+- **[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)** — cómo commitear, cómo abrir un PR. **Empieza acá.**
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — decisiones de diseño y por qué.
 - **[`docs/PLAN-DATA.md`](docs/PLAN-DATA.md)** — cómo convertir un plano dibujado a mano en datos que la app entiende.
 - **[`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md)** — manual del panel de administración.
@@ -276,6 +280,7 @@ Si necesitás React dentro de `domain/`, el código está en la capa equivocada.
 
 ## Privacidad
 
-Los datos del mapa son públicos e institucionales. **No se guardan datos personales
-de estudiantes**: el horario vive en `localStorage` del propio dispositivo y no se
-envía a ningún servidor.
+Los datos del mapa son públicos e institucionales. La sesión es simulada y vive en
+`localStorage`: se guarda el correo o usuario para mostrar tu nombre, nunca la
+contraseña. El horario también vive en `localStorage` del propio dispositivo. Nada de
+esto se envía a un servidor.

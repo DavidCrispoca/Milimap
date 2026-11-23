@@ -245,12 +245,12 @@ export function RouteDemoScreen({
         </div>
 
         <h1 className="card__title">
-          {campusChoice === 'calle100' ? 'Navegación Piso 1 Real' : 'Probá la navegación'}
+          {campusChoice === 'calle100' ? 'Navegación Piso 1 Real' : 'Prueba la navegación'}
         </h1>
         <p className="card__body">
           {campusChoice === 'calle100'
             ? 'Primer piso de la UMNG digitalizado según planos: Bloques A, B, C, D y Bloque E unificados. 50 espacios navegables y 5 accesos principales.'
-            : 'Edificio de demostración con medidas genéricas (40 × 24 m). Elegí dónde estás y a dónde vas.'}
+            : 'Edificio de demostración con medidas genéricas (40 × 24 m). Elige dónde estás y a dónde vas.'}
         </p>
         <div className="pill-row">
           <span className="pill pill--brand">
@@ -321,7 +321,7 @@ export function RouteDemoScreen({
           <ul className="result-list">
             {hits.length === 0 ? (
               <li className="result-list__empty">
-                Sin coincidencias. Probá con el código del aula.
+                Sin coincidencias. Prueba con el código del aula.
               </li>
             ) : (
               hits.map((hit) => (
@@ -455,7 +455,7 @@ export function RouteDemoScreen({
               >
                 {destinationSpace
                   ? `${floors.find((f) => f.spaces.some((s) => s.id === destinationSpace.id))?.levelShort ?? ''} · ${destinationSpace.name} (${destinationSpace.id})`
-                  : 'Ningún destino seleccionado (buscá arriba o tocá un ejemplo)'}
+                  : 'Ningún destino seleccionado (busca arriba o toca un ejemplo)'}
               </strong>
             </div>
           </div>
@@ -540,7 +540,7 @@ export function RouteDemoScreen({
 
         {route && !route.levelsVisited.includes(level) ? (
           <p className="muted" style={{ marginTop: '8px' }}>
-            La ruta no pasa por el {currentFloor?.levelLabel}. Usá los pisos marcados con punto.
+            La ruta no pasa por el {currentFloor?.levelLabel}. Usa los pisos marcados con punto.
           </p>
         ) : null}
 

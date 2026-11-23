@@ -9,6 +9,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useT } from '@/i18n'
+import { useSession } from '@/auth/session'
+import { AuthScreen } from './ui/AuthScreen'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { RouteDemoScreen } from './ui/screens/RouteDemoScreen'
 import { ScannerScreen } from './ui/screens/ScannerScreen'
@@ -47,8 +49,12 @@ function initialDestination(route: AppRoute): SpaceId | null {
 
 export function App() {
   const t = useT()
+  const { session } = useSession()
   const mainRef = useRef<HTMLElement | null>(null)
   const firstView = useRef(true)
+  const [authOpen, setAuthOpen] = useState(false)
+  const user = session?.kind === 'user' ? session : null
+  const canUseSchedule = user !== null
   const [view, setView] = useState<View>(() => {
     if (INITIAL_ROUTE.name === 'map') return 'map'
     if (INITIAL_ROUTE.name === 'scan' || INITIAL_ROUTE.name === 'qr') return 'scan'
@@ -63,6 +69,8 @@ export function App() {
   const [scanPayload, setScanPayload] = useState<string | undefined>(() =>
     INITIAL_ROUTE.name === 'qr' ? INITIAL_ROUTE.payload : undefined,
   )
+  const showAuth = !session || authOpen
+  const navItems = canUseSchedule ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.id !== 'schedule')
 
   // Route -> state, one way. The URL is an external system; this maps it onto
   // component state without extra cascades (runs on init via initializers and on
@@ -107,6 +115,10 @@ export function App() {
   // Screen-reader users get an announcement and a stable focus target on every
   // tab change, but focus is not stolen on the initial load.
   useEffect(() => {
+    if (showAuth) {
+      document.title = 'Entrar · Milimap'
+      return
+    }
     const label = t(NAV_ITEMS.find((item) => item.id === view)?.labelKey ?? 'nav.home')
     document.title = `${label} · Milimap`
     if (firstView.current) {
@@ -114,7 +126,7 @@ export function App() {
       return
     }
     mainRef.current?.focus()
-  }, [view, t])
+  }, [showAuth, view, t])
 
   // Navigate: update the URL (so it is shareable and back-button friendly) and
   // apply the state immediately.
@@ -131,6 +143,10 @@ export function App() {
     navigate({ name: 'map' })
   }
 
+  if (showAuth) {
+    return <AuthScreen canCancel={session !== null} onDone={() => setAuthOpen(false)} />
+  }
+
   return (
     <div className="app">
       <a className="skip-link" href="#main-content">
@@ -144,7 +160,17 @@ export function App() {
           <span className="app__brand-name">Milimap</span>
           <span className="app__brand-sub">{t('shell.subtitle')}</span>
         </div>
-        <span className="app__phase">Fase 8</span>
+        <button
+          type="button"
+          className="app__account"
+          onClick={() => setAuthOpen(true)}
+          aria-label={user ? `Cuenta de ${user.name}` : 'Iniciar sesión'}
+        >
+          <span className="app__account-icon" aria-hidden="true">
+            {user ? '👤' : '→'}
+          </span>
+          <span className="app__account-label">{user ? user.name : 'Iniciar sesión'}</span>
+        </button>
       </header>
 
       <main className="app__main" id="main-content" ref={mainRef} tabIndex={-1}>
@@ -152,6 +178,7 @@ export function App() {
         <InstallBanner />
         {view === 'home' ? (
           <HomeScreen
+            isAuthenticated={canUseSchedule}
             onOpenRoute={openRoute}
             onOpenScanner={() => navigate({ name: 'scan' })}
             onOpenSchedule={() => navigate({ name: 'schedule' })}
@@ -166,7 +193,30 @@ export function App() {
         ) : view === 'scan' ? (
           <ScannerScreen onUseOrigin={useScannedOrigin} initialPayload={scanPayload} />
         ) : view === 'schedule' ? (
-          <ScheduleScreen onOpenRoute={openRoute} />
+          canUseSchedule ? (
+            <ScheduleScreen onOpenRoute={openRoute} />
+          ) : (
+            <section className="card card--brand">
+              <p className="card__eyebrow">Mi horario</p>
+              <h1 className="card__title">Inicia sesión para ver tu horario</h1>
+              <p className="card__body">
+                El horario se guarda en este dispositivo y se activa al iniciar sesión. Como
+                invitado puedes seguir usando el mapa, el escáner y las rutas.
+              </p>
+              <div className="pill-row" style={{ marginTop: 'var(--space-3)' }}>
+                <button type="button" className="btn-primary" onClick={() => setAuthOpen(true)}>
+                  Iniciar sesión
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => navigate({ name: 'home' })}
+                >
+                  Volver al inicio
+                </button>
+              </div>
+            </section>
+          )
         ) : null}
       </main>
 
@@ -174,8 +224,12 @@ export function App() {
         {t(NAV_ITEMS.find((item) => item.id === view)?.labelKey ?? 'nav.home')}
       </div>
 
-      <nav className="bottom-nav" aria-label="Navegación principal">
-        {NAV_ITEMS.map((item) => {
+      <nav
+        className="bottom-nav"
+        aria-label="Navegación principal"
+        style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
+      >
+        {navItems.map((item) => {
           const isActive = item.id === view
           return (
             <button

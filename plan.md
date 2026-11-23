@@ -1138,7 +1138,7 @@ Si el flujo del panel admin ya está construido (Fase 3), **no hace falta QGIS e
 
 **Ventaja clave frente a QGIS:** no hay conversión GeoJSON → `floor.json` → grafo. Se edita el `floor.json` nativo. Menos pasos, menos puntos de falla.
 
-**Desventaja:** el panel admin es código de la Fase 3, o sea que no existe en la Fase 0. Si querés digitalizar planos _antes_ de que exista el panel, entonces QGIS o web-geojson.io es la vía.
+**Desventaja:** el panel admin es código de la Fase 3, o sea que no existe en la Fase 0. Si quieres digitalizar planos _antes_ de que exista el panel, entonces QGIS o web-geojson.io es la vía.
 
 **Recomendación final por momento del proyecto:**
 

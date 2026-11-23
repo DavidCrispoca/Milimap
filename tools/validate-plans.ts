@@ -95,7 +95,7 @@ function main(): void {
   const okCalle100 = validateSingleCampus(calle100Campus)
 
   if (!okDemo || !okCalle100) {
-    console.error('Validación fallida: corregí los errores antes de publicar.\n')
+    console.error('Validación fallida: corrige los errores antes de publicar.\n')
     process.exit(1)
   }
 

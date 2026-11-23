@@ -174,7 +174,7 @@ export function parseScheduleCsv(text: string, options: ParseOptions): CsvParseR
     if (!options.knownSpaceIds.has(room)) {
       errors.push({
         line: lineNumber,
-        message: `El salón "${room}" no existe en el catálogo. Revisá el código o cargalo antes.`,
+        message: `El salón "${room}" no existe en el catálogo. Revisa el código o cárgalo antes.`,
       })
       continue
     }
@@ -183,7 +183,7 @@ export function parseScheduleCsv(text: string, options: ParseOptions): CsvParseR
     if (weekday === null) {
       errors.push({
         line: lineNumber,
-        message: `Día inválido "${weekdayRaw}". Usá 1-6 o el nombre del día.`,
+        message: `Día inválido "${weekdayRaw}". Usa 1-6 o el nombre del día.`,
       })
       continue
     }

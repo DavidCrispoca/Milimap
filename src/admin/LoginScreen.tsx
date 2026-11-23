@@ -37,7 +37,7 @@ export function LoginScreen() {
             </div>
           </div>
 
-          <p className="login__subtitle">Elegí el nivel de acceso para esta sesión.</p>
+          <p className="login__subtitle">Elige el nivel de acceso para esta sesión.</p>
 
           <div className="login__roles" role="group" aria-label="Nivel de acceso">
             {ROLES.map((role) => (

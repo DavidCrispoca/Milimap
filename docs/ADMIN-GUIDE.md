@@ -247,7 +247,7 @@ Editar → Validar → Publicar → PR automático → CI valida → Merge → D
 Las respuestas describen el panel tal como está hoy (Fases 2, 3 y 8 parcial).
 
 **¿Los cambios que hago hoy se comparten con el resto?**
-No. Contenido y geometría se guardan en el navegador donde trabajás. Otra persona, en
+No. Contenido y geometría se guardan en el navegador donde trabajas. Otra persona, en
 otro equipo, no ve tus eventos, anuncios ni ediciones del mapa. Mientras no haya backend,
 lo que debe ver todo el mundo se carga en el equipo usado para la demostración, o se
 congela en `src/data` desde el JSON exportado.
@@ -261,7 +261,7 @@ backend compartido. Coordinen quién edita qué piso para no perder trabajo al c
 equipo.
 
 **¿Necesito saber git?**
-No para editar. Solo si querés congelar un piso en `src/data`: exportás el JSON desde
+No para editar. Solo si quieres congelar un piso en `src/data`: exportas el JSON desde
 el editor y se abre un PR con ese cambio.
 
 **¿Puedo subir el trabajo hecho en QGIS?**

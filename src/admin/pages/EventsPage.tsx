@@ -128,7 +128,7 @@ export function EventsPage() {
   return (
     <>
       {!canEdit ? (
-        <Alert tone="info" title="Modo consulta: no tenés permisos para modificar eventos." />
+        <Alert tone="info" title="Modo consulta: no tienes permisos para modificar eventos." />
       ) : null}
       {notice ? <Alert tone="success" title={notice} /> : null}
 
@@ -165,7 +165,7 @@ export function EventsPage() {
         {visible.length === 0 ? (
           <EmptyState
             title="Sin eventos"
-            body="Creá el primero con el botón superior. Los borradores quedan visibles solo para el equipo."
+            body="Crea el primero con el botón superior. Los borradores quedan visibles solo para el equipo."
           />
         ) : (
           <div className="table-wrap">

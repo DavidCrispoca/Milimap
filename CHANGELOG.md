@@ -6,13 +6,16 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y el versionado es [SemVer](https://semver.org/lang/es/).
 
 Este archivo lo mantiene **Release Please** a partir de los mensajes de commit.
-Para agregar una entrada, escribí un commit con `feat:` o `fix:`; no edites este
+Para agregar una entrada, escribe un commit con `feat:` o `fix:`; no edites este
 archivo a mano salvo en la sección `Unreleased`.
 
 ## [Unreleased]
 
 ### Added
 
+- Inicio de sesión simulado con modo invitado: cualquier correo y contraseña
+  funcionan; los invitados usan mapa, escáner y rutas, y el horario se activa al
+  iniciar sesión.
 - Panel de administración en `/admin` con roles (administrador, editor, consulta).
 - Gestión de eventos y anuncios con borrador, publicación y vigencia; validación Zod.
 - Edición de nombres, alias y estado de espacios sin tocar la geometría.
