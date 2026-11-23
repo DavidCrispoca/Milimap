@@ -179,6 +179,27 @@ a {
 /* App shell                                                           */
 /* ------------------------------------------------------------------ */
 
+/* Touch niceties: no 300 ms tap delay, no grey flash on tap, and no
+   pull-to-refresh reloading the app when it runs standalone. */
+button,
+a,
+label,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role='button'] {
+  touch-action: manipulation;
+}
+
+body {
+  overscroll-behavior-y: contain;
+}
+
 .app {
   display: flex;
   flex-direction: column;

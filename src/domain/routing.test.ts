@@ -104,7 +104,6 @@ describe('computeRoute', () => {
     expect(result.route.levelsVisited).toEqual([1, 2])
     expect(result.route.hasStairs).toBe(true)
     expect(result.route.totalMeters).toBeGreaterThan(70)
-    expect(result.route.estimatedSeconds).toBeGreaterThan(50)
 
     const transitionStep = result.route.steps.find((step) => step.kind === 'stairs')
     expect(transitionStep?.instruction).toMatch(/escaleras/i)

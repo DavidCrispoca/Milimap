@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { demoCampus } from '@/data'
+import { calle100Campus, demoCampus } from '@/data'
 import { analyzeScan, describeNodeAt } from './flow'
 
 describe('scanner/flow analyzeScan', () => {
@@ -43,6 +43,31 @@ describe('scanner/flow analyzeScan', () => {
   it('reports unresolved when the node key does not exist in the campus', () => {
     const result = analyzeScan('MILIMAP:v1:EDIFICIO-DEMO:P1:N99', demoCampus)
     expect(result.status).toBe('unresolved')
+  })
+})
+
+describe('scanner/flow with the real Calle 100 campus', () => {
+  it('resolves an entrance sticker and names which door it is', () => {
+    const result = analyzeScan('MILIMAP:v1:umng-calle100:P1:QRD', calle100Campus)
+    expect(result.status).toBe('confirmed')
+    if (result.status !== 'confirmed') return
+    expect(result.levelShort).toBe('P1')
+    expect(result.label).toBe('Entrada QRD')
+  })
+
+  it('resolves a classroom door and names the room', () => {
+    const result = analyzeScan('MILIMAP:v1:umng-calle100:P1:N237', calle100Campus)
+    expect(result.status).toBe('confirmed')
+    if (result.status !== 'confirmed') return
+    expect(result.label).toBe('Aula E 101')
+  })
+
+  it('resolves a sticker on another floor', () => {
+    const result = analyzeScan('MILIMAP:v1:umng-calle100:P5:ASC-E-P5', calle100Campus)
+    expect(result.status).toBe('confirmed')
+    if (result.status !== 'confirmed') return
+    expect(result.level).toBe(5)
+    expect(result.label).toBe('Ascensor P5')
   })
 })
 

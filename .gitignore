@@ -39,9 +39,8 @@ desktop.ini
 node_modules/.tmp
 tsconfig*.tsbuildinfo
 
-# Generated QR output (regenerate with `npm run gen:qr`)
-public/qrs/*.png
-public/qrs/*.zip
+# Generated QR output (regenerate with `npm run gen:qr`, which also runs on build)
+public/qrs/
 
 # Playwright MCP artifacts
 .playwright-mcp/

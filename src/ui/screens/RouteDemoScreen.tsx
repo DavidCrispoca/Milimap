@@ -98,11 +98,6 @@ const DEMO_PRESETS: Preset[] = [
   { label: 'Aula 205 → Biblioteca', origin: 'p2.door-A205', destination: 'BIB' },
 ]
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)} s`
-  return `${Math.round(seconds / 60)} min`
-}
-
 export function RouteDemoScreen({
   originNodeId,
   destinationSpaceId,
@@ -473,10 +468,6 @@ export function RouteDemoScreen({
             <div className="summary__item">
               <span className="summary__value">{Math.round(route.totalMeters)} m</span>
               <span className="summary__label">distancia</span>
-            </div>
-            <div className="summary__item">
-              <span className="summary__value">{formatDuration(route.estimatedSeconds)}</span>
-              <span className="summary__label">a pie</span>
             </div>
             <div className="summary__item">
               <span className="summary__value">{route.steps.length}</span>

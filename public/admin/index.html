@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Milimap · Panel de administración</title>
+    <meta name="robots" content="noindex" />
+    <!--
+      Static hosts (GitHub Pages) serve `/admin/` from this file, but the admin
+      console is a route inside the single-page app. This shim forwards to the
+      hash route, which works under any sub-path.
+    -->
+    <meta http-equiv="refresh" content="0; url=../#/admin" />
+    <script>
+      location.replace(new URL('../#/admin', location.href).href)
+    </script>
+  </head>
+  <body>
+    <p><a href="../#/admin">Abrir el panel de Milimap</a></p>
+  </body>
+</html>

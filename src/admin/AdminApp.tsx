@@ -152,7 +152,7 @@ export default function AdminApp() {
           <button type="button" className="btn btn--sm" onClick={() => setRole(null)}>
             Cambiar acceso
           </button>
-          <a className="admin__sidebar-link" href="/">
+          <a className="admin__sidebar-link" href="./">
             ← Volver a la app
           </a>
           <p className="admin__demo-note">

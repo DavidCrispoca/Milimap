@@ -155,10 +155,8 @@ export function buildRoute(
   const steps: RouteStep[] = []
   const levelsVisited = new Set<number>()
   let totalMeters = 0
-  let estimatedSeconds = 0
   let hasStairs = false
   let hasElevators = false
-  let elevatorRides = 0
 
   const lookup = (id: NodeId) => context.nodes.get(id)
   const firstNode = path.nodeIds[0] ? lookup(path.nodeIds[0]) : undefined
@@ -181,7 +179,6 @@ export function buildRoute(
       ],
       nodeIds: path.nodeIds,
       totalMeters: 0,
-      estimatedSeconds: 0,
       levelsVisited: firstNode ? [firstNode.floor.level] : [],
       hasStairs: false,
       hasElevators: false,
@@ -226,7 +223,6 @@ export function buildRoute(
       })
 
       totalMeters += leg.meters
-      estimatedSeconds += leg.meters / profile.walkSpeedMps
     })
   }
 
@@ -250,15 +246,13 @@ export function buildRoute(
       if (transitionKind === 'stairs') hasStairs = true
       else {
         hasElevators = true
-        elevatorRides += 1
       }
 
       // Vertical travel is real walking distance, so it belongs in the totals.
       // Without this a two-floor route would report the same distance as the
-      // same route on one floor, which understates time badly.
+      // same route on one floor.
       const verticalMeters = Math.abs(to.floor.level - from.floor.level) * profile.floorHeightMeters
       totalMeters += verticalMeters
-      estimatedSeconds += verticalMeters / profile.walkSpeedMps
 
       steps.push({
         index: steps.length,
@@ -286,9 +280,6 @@ export function buildRoute(
 
   flushFloorLeg(isFirstOverall)
 
-  // Time spent waiting for elevators is real, so it goes into the estimate.
-  estimatedSeconds += elevatorRides * profile.elevatorWaitSeconds
-
   const destinationName = options.destinationName
   if (destinationName) {
     const lastNode = path.nodeIds[path.nodeIds.length - 1]
@@ -309,7 +300,6 @@ export function buildRoute(
     steps,
     nodeIds: path.nodeIds,
     totalMeters,
-    estimatedSeconds: Math.round(estimatedSeconds),
     levelsVisited: [...levelsVisited].sort((a, b) => a - b),
     hasStairs,
     hasElevators,

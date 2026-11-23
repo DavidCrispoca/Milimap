@@ -16,31 +16,44 @@
  * Updates wait for the user to confirm ("Actualizar") through SKIP_WAITING.
  */
 
-const VERSION = 'v6'
+const VERSION = 'v7'
 const CACHE = `milimap-${VERSION}`
-const SHELL = '/'
-const OFFLINE = '/offline.html'
-const MANIFEST = '/manifest.webmanifest'
 
 const MATCH = { ignoreVary: true }
 
+/**
+ * Scope the worker was registered with. GitHub Pages serves project sites under
+ * `/<repo>/`, so no absolute path is safe: everything is derived from the scope.
+ */
+const BASE = new URL(self.registration.scope)
+const SHELL = BASE.href
+const OFFLINE = new URL('offline.html', BASE).href
+const MANIFEST = new URL('manifest.webmanifest', BASE).href
+const FAVICON = new URL('favicon.svg', BASE).href
+
 async function precacheAppShell() {
   const cache = await caches.open(CACHE)
-  const precache = [SHELL, OFFLINE, MANIFEST, '/favicon.svg']
+  const precache = [SHELL, OFFLINE, MANIFEST, FAVICON]
   await Promise.allSettled(precache.map((url) => cache.add(url)))
 
   // Vite hashes the asset names, so read them from the built HTML instead of
-  // keeping a build-time manifest in sync.
+  // keeping a build-time manifest in sync. URLs are resolved against the scope:
+  // with a relative `base` the build emits `./assets/…`, not `/assets/…`.
   try {
     const response = await fetch(SHELL, { cache: 'no-store' })
     if (response.ok) {
       const html = await response.text()
       const urls = new Set()
-      const pattern = /(?:src|href)="(\/[^"]+)"/g
+      const pattern = /(?:src|href)="([^"]+)"/g
       let match
       while ((match = pattern.exec(html)) !== null) {
-        const url = match[1]
-        if (url && !precache.includes(url)) urls.add(url)
+        const raw = match[1]
+        if (!raw || raw.startsWith('data:') || raw.startsWith('#') || raw.startsWith('mailto:')) {
+          continue
+        }
+        const url = new URL(raw, BASE)
+        if (url.origin !== BASE.origin) continue
+        if (!precache.includes(url.href)) urls.add(url.href)
       }
       await Promise.allSettled([...urls].map((url) => cache.add(url)))
     }
@@ -54,7 +67,9 @@ async function precacheAppShell() {
     const response = await caches.match(MANIFEST, MATCH)
     if (!response) return
     const manifest = await response.json()
-    const icons = (manifest.icons ?? []).map((icon) => icon.src).filter(Boolean)
+    const icons = (manifest.icons ?? [])
+      .map((icon) => (icon.src ? new URL(icon.src, MANIFEST).href : null))
+      .filter(Boolean)
     await Promise.allSettled(icons.map((url) => cache.add(url)))
   } catch {
     // Icons are cosmetic for offline navigation.
@@ -117,10 +132,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.mode === 'navigate') {
+    // Only the app entry replaces the cached shell. Navigations to sibling
+    // pages (the QR sheet at /qrs/, the /admin/ shim) must not overwrite it,
+    // or an offline reload would render that page instead of the app.
+    const isShell = url.pathname === BASE.pathname || url.pathname === `${BASE.pathname}index.html`
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (url.pathname === '/' || url.pathname === '') {
+          if (isShell) {
             const copy = response.clone()
             void caches.open(CACHE).then((cache) => cache.put(SHELL, copy))
           }

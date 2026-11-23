@@ -11,9 +11,11 @@
  * outcome. Every valid or invalid scan is recorded to the backend analytics.
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Html5Qrcode } from 'html5-qrcode'
-import { demoCampus } from '@/data'
+import { calle100Campus } from '@/data'
+import { applyMapEdits } from '@/content/map-edits'
+import { useContentStore } from '@/content/store'
 import type { NodeId } from '@/domain/types'
 import { recordScan } from '@/backend/analytics'
 import { analyzeScan, type ScanFailureReason, type ScanResult } from '../../scanner/flow'
@@ -35,9 +37,14 @@ interface ScannerScreenProps {
 }
 
 export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProps) {
+  // The stickers on the walls belong to the real campus, so resolution must run
+  // against it (plus the admin overlay) — not against the demo campus.
+  const mapEdits = useContentStore((state) => state.mapEdits)
+  const campus = useMemo(() => applyMapEdits(calle100Campus, mapEdits), [mapEdits])
+
   const [phase, setPhase] = useState<Phase>(() =>
     initialPayload
-      ? { name: 'result', result: analyzeScan(initialPayload, demoCampus) }
+      ? { name: 'result', result: analyzeScan(initialPayload, campus) }
       : { name: 'idle' },
   )
   const [manualCode, setManualCode] = useState(initialPayload ?? '')
@@ -46,7 +53,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
   // A deep-linked payload is a scan too: record it once on entry.
   useEffect(() => {
     if (initialPayload) {
-      const result = analyzeScan(initialPayload, demoCampus)
+      const result = analyzeScan(initialPayload, campus)
       recordScan({ ok: result.status === 'confirmed', status: result.status, source: 'deeplink' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,7 +71,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
   }
 
   const handleDecode = async (text: string): Promise<void> => {
-    const result = analyzeScan(text, demoCampus)
+    const result = analyzeScan(text, campus)
     recordScan({
       ok: result.status === 'confirmed',
       status: result.status,
@@ -108,7 +115,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
   }
 
   const submitManual = (): void => {
-    const result = analyzeScan(manualCode, demoCampus)
+    const result = analyzeScan(manualCode, campus)
     recordScan({
       ok: result.status === 'confirmed',
       status: result.status,
@@ -193,7 +200,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
             className="field__input"
             autoCapitalize="characters"
             autoComplete="off"
-            placeholder="MILIMAP:v1:EDIFICIO-DEMO:P1:N03"
+            placeholder="MILIMAP:v1:umng-calle100:P1:QRD"
             value={manualCode}
             onChange={(event) => setManualCode(event.target.value)}
           />
@@ -240,7 +247,7 @@ export function ScannerScreen({ onUseOrigin, initialPayload }: ScannerScreenProp
       </div>
       <p className="muted" style={{ marginTop: 'var(--space-3)' }}>
         Probá con el código de ejemplo:{' '}
-        <span className="mono">MILIMAP:v1:EDIFICIO-DEMO:P1:N03</span> (Entrada principal).
+        <span className="mono">MILIMAP:v1:umng-calle100:P1:QRD</span> (Entrada D, primer piso).
       </p>
     </section>
   )

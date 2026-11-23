@@ -44,7 +44,16 @@ export function describeNodeAt(campus: Campus, nodeId: NodeId): string {
     const node = floor.nodes.find((candidate) => candidate.id === nodeId)
     if (!node) continue
 
-    if (node.kind === 'entrance') return 'Entrada principal'
+    if (node.kind === 'entrance') {
+      // The building has several doors (A, B, C, D, E…), so "Entrada principal"
+      // is only accurate when the floor has a single one.
+      const space = floor.spaces.find((candidate) => candidate.anchorNodeId === node.id)
+      if (space) return space.name
+      const entrances = floor.nodes.filter((candidate) => candidate.kind === 'entrance')
+      if (entrances.length === 1) return 'Entrada principal'
+      return `Entrada ${node.qrKey ?? floor.levelShort}`
+    }
+
     if (node.kind === 'stair') return `Escalera ${floor.levelShort}`
     if (node.kind === 'elevator') return `Ascensor ${floor.levelShort}`
 

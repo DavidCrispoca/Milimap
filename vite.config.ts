@@ -5,6 +5,10 @@ import { defineConfig } from 'vitest/config'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Relative assets so one build works at the domain root, under a GitHub Pages
+  // project path (/Milimap/), or behind a proxy — the hash router never needs a
+  // rewrite rule, so the only thing that can break on a static host is asset URLs.
+  base: './',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

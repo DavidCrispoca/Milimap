@@ -61,7 +61,9 @@ export function useServiceWorker(): ServiceWorkerStatus {
     }
 
     void navigator.serviceWorker
-      .register('/sw.js')
+      // Relative on purpose: the app is also served from a GitHub Pages project
+      // path (/Milimap/), where an absolute /sw.js would 404.
+      .register(new URL('sw.js', document.baseURI).href)
       .then(watch)
       .catch(() => {
         // Offline support is an enhancement; a failed registration never blocks the app.

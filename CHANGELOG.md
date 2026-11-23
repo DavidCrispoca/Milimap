@@ -20,6 +20,12 @@ archivo a mano salvo en la sección `Unreleased`.
 - Analítica básica del contenido publicado.
 - Inicio de estudiantes con eventos y anuncios publicados; "Cómo llegar" desde un evento.
 - Paleta de marca tomada del logo oficial de la UMNG.
+- Generador de QR de prueba (`npm run gen:qr`) con 45 puntos de la Sede Calle 100,
+  hoja imprimible, CSV y validación de cada payload contra el resolver de la app.
+- Despliegue automático en GitHub Pages (`.github/workflows/deploy.yml`) con build
+  relativo apto para subrutas, precache del service worker por `scope` y panel
+  accesible por `#/admin`.
+- Entrada `/admin/` compatible con hosting estático: redirige al panel dentro del SPA.
 
 - Motor de ruteo multipiso (Dijkstra con heap binario) sobre un grafo en metros locales.
 - Generador de instrucciones paso a paso en español e inglés, con colapso de tramos
@@ -43,7 +49,20 @@ archivo a mano salvo en la sección `Unreleased`.
 - Documentación para el equipo: contribución, arquitectura, digitalización de planos
   y manual del panel de administración.
 
+### Changed
+
+- Las rutas muestran distancia, cantidad de pasos y plano por piso, pero ya no
+  estiman tiempo de llegada: el dato dependía de una velocidad supuesta y no era
+  confiable en el edificio real.
+
 ### Fixed
 
 - Dirección de los giros invertida: un giro hacia el este se anunciaba como izquierda.
   Cubierto ahora por tests con los cuatro puntos cardinales.
+- El escáner resolvía los QR contra el edificio de demostración, así que cualquier
+  sticker real daba "no reconocido". Ahora resuelve contra la Sede Calle 100 y los
+  ajustes del panel.
+- Las entradas múltiples se nombran por su código (`Entrada QRD`) en vez de llamarlas
+  todas "Entrada principal".
+- El service worker ya no reemplaza el shell cacheado cuando se navega a la hoja de
+  QR o al redirector de `/admin/`.

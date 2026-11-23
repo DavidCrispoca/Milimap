@@ -5,11 +5,12 @@ Navegación indoor para la **Universidad Militar Nueva Granada — Sede Calle 10
 El usuario escanea un código QR que está pegado en la pared, la app deduce dónde está,
 y le muestra cómo llegar a un salón o zona de interés sobre un mapa 2D cenital.
 
-> **Estado: núcleo de las fases sin mapa cerrado (2026-11-10).** Motor de ruteo
+> **Estado: núcleo de las fases sin mapa cerrado (2026-11-22).** Motor de ruteo
 > (Fase 1), panel de administración (Fase 2), escáner QR (Fase 5), horario del
 > semestre con deep links (Fase 6) y PWA instalable (Fase 8), con eventos de uso en
-> Supabase (ADR-014). Las fases de mapa (3, 4 y 7) esperan los planos reales que se
-> digitalizan por fuera. Todo lo pendiente está detallado en el registro v1.5 de
+> Supabase (ADR-014). La app se publica en GitHub Pages y genera sus propios QR de
+> prueba. Las fases de mapa (3, 4 y 7) esperan los planos reales que se digitalizan
+> por fuera. Todo lo pendiente está detallado en el registro v1.5 de
 > [`plan.md`](plan.md).
 
 |                 |                                                                               |
@@ -57,14 +58,15 @@ obligatorio**: el producto es móvil y el emulador miente sobre el tamaño del p
 | `npm run validate:plans`               | Valida que el grafo del campus sea coherente            |
 | `npm run inspect:geojson -- <archivo>` | Revisa un GeoJSON antes de entregarlo                   |
 | `npm run gen:icons`                    | Regenera los íconos PNG del manifest de la PWA          |
+| `npm run gen:qr`                       | Genera los QR de prueba en `public/qrs/` (PNG + hoja)   |
 | `npm run tunnel`                       | Demo temporal con HTTPS público de Cloudflare           |
 
 ---
 
 ## Panel de administración
 
-Se abre en `http://localhost:5173/admin`. Es una herramienta de escritorio pensada
-para pantallas de 1280 px o más.
+Se abre en `http://localhost:5173/admin` (en GitHub Pages: `<url>/#/admin`). Es una
+herramienta de escritorio pensada para pantallas de 1280 px o más.
 
 | Rol               | Qué puede hacer                                                                |
 | ----------------- | ------------------------------------------------------------------------------ |
@@ -75,6 +77,52 @@ para pantallas de 1280 px o más.
 El acceso es simulado por rol y los datos se guardan en el navegador. Ver
 [`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md) y los ADR-011 y ADR-012 de
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+---
+
+## Probar el escáner con QR reales
+
+Los stickers físicos pueden no existir todavía, así que el repo genera sus propios
+códigos de prueba a partir del grafo de la Sede Calle 100:
+
+```bash
+npm run gen:qr
+```
+
+Eso escribe `public/qrs/` con **45 códigos** (entradas, ascensores, escaleras,
+biblioteca, aulas, laboratorios y auditorios), una hoja imprimible `index.html`, un
+`codigos.csv` y un `README.md`. Abrí esa hoja en otra pantalla y apuntá la cámara
+del celular desde **Escanear QR**; cada código resuelve al mismo punto que un
+sticker real.
+
+| Caso                        | Comando                                                           |
+| --------------------------- | ----------------------------------------------------------------- |
+| Probar con el escáner       | `npm run gen:qr`                                                  |
+| Probar con la cámara nativa | `npm run gen:qr -- --base-url=https://usuario.github.io/Milimap/` |
+
+Cada payload se valida contra `resolveQrNode` antes de escribir el PNG: si un
+código no resolvería dentro de la app, el script falla en vez de generar un sticker
+inservible. La carpeta se regenera en cada `npm run build` (`prebuild`).
+
+---
+
+## Despliegue en GitHub Pages
+
+El workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) publica
+`dist/` en cada push a `main`. La app es un SPA con router de hash, así que no
+necesita reglas de rewrite; el build usa `base: './'` y el service worker deriva
+todas sus rutas de `self.registration.scope`, por lo que funciona igual en la raíz
+del dominio o bajo `/<repo>/`.
+
+Pasos únicos en el repositorio:
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. Push a `main` (o ejecutar el workflow a mano).
+3. La app queda en `https://<usuario>.github.io/Milimap/` y el panel en
+   `https://<usuario>.github.io/Milimap/#/admin`.
+
+El build de CI genera los QR con la URL de Pages como base, para que la cámara
+nativa del teléfono abra la app directamente.
 
 ---
 
@@ -176,8 +224,8 @@ src/
 ├── router.ts      Router de hash: deep links y URLs compartibles. (ADR-013)
 └── test/          Setup de Vitest.
 
-tools/             Scripts: validate-plans, inspect-geojson, gen-icons, tunnel (demo HTTPS).
-                   Pendientes: import-handdrawn (Fase 3) y gen-qr (Fase 5).
+tools/             Scripts: validate-plans, inspect-geojson, gen-icons, gen-qr, tunnel.
+                   Pendiente: import-handdrawn (Fase 3).
 docs/              Guías del equipo.
 ```
 

@@ -2,6 +2,8 @@
 
 > **Estado: Fases 2 y 3 implementadas** (contenido y editor de mapa), con PWA/offline
 > de la Fase 8. Para abrirlo: `npm run dev` y entrar a `http://localhost:5173/admin`.
+> En el despliegue de GitHub Pages se abre con `https://<usuario>.github.io/Milimap/#/admin`
+> (y `…/admin/` redirige ahí).
 >
 > **Limitaciones actuales:** el acceso es simulado por rol (sin contraseña) y los datos
 > se guardan en el navegador donde se trabaja. La autenticación institucional y la base

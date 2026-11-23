@@ -199,7 +199,7 @@ Milimap/
 │   ├── ui/                   # Componentes React
 │   └── App.tsx
 ├── tools/
-│   ├── gen-qr.ts             # Genera QRs desde el catálogo
+│   ├── generate-qrs.ts       # Genera QRs de prueba desde el catálogo
 │   ├── validate-plans.ts     # Valida coherencia de la grafo
 │   ├── import-handdrawn.ts   # Convierte planos a mano → GeoJSON
 │   └── export-catalog.ts     # Exporta catálogo de espacios
@@ -619,7 +619,6 @@ export interface Route {
   steps: RouteStep[]
   nodeIds: string[]
   totalMeters: number
-  estimatedSeconds: number
   levelsVisited: number[]
   hasStairs: boolean
   hasElevators: boolean
@@ -1292,7 +1291,8 @@ repo para que quede versionado junto al código y su actualización sea parte de
       que Release Please funcione: Settings → Actions → General → Workflow permissions →
       marcar _Allow GitHub Actions to create and approve pull requests_. Sin esto, el
       workflow `Release Please` corre pero falla al abrir el PR de versión.
-- [ ] Configurar el deploy (Vercel o GitHub Pages) — Fase 9.
+- [x] Workflow de deploy a GitHub Pages (`.github/workflows/deploy.yml`).
+      Falta habilitar **Settings → Pages → Source: GitHub Actions** en el repositorio.
 
 > **Nota para el equipo:** los dos primeros puntos son ajustes de GitHub, no cambios de
 > código. Sin ellos el CI igual protege por convención, pero no bloquea el merge
@@ -1570,6 +1570,8 @@ perf(map): reduce initial bundle size with lazy loading
 - [x] Pantalla de confirmación de ubicación ("Usted está en: …")
 - [x] QR inválido → mensaje claro + opción de buscar destino manualmente
 - [x] Deep link `#/qr/<payload>` (llega por URL y se analiza al entrar)
+- [x] Generador de QR de prueba (`npm run gen:qr`) para validar el flujo antes de
+      imprimir stickers físicos
 
 **Criterios de aceptación:**
 
@@ -1714,7 +1716,8 @@ docs: add end user guide for students
 
 **Tareas:**
 
-- [ ] Deploy a Vercel con previews por PR
+- [x] Deploy estático en GitHub Pages con workflow automático (SPA por hash, subruta)
+- [x] Generador de QR de prueba con hoja imprimible y validación de payloads
 - [ ] Dominio institucional (subdominio de la universidad)
 - [ ] Plan de instalación de QRs: inventario, distribución por zona, responsable por edificio
 - [ ] Capacitación al equipo de la universidad que administrará el contenido
@@ -1725,7 +1728,7 @@ docs: add end user guide for students
 
 **Criterios de aceptación:**
 
-- [ ] App en producción con HTTPS
+- [x] App en producción con HTTPS (GitHub Pages)
 - [ ] QRs instalados en al menos el 80% de los puntos del campus
 - [ ] El equipo de la universidad puede crear un evento sin asistencia técnica
 - [ ] Sistema de reporte de problemas funcionando
@@ -1827,6 +1830,11 @@ y próxima → "Cómo llegar"; instalar como PWA.
 - **Fase 8 — PWA:** manifest + íconos generados con script propio (PNG encoder
   mínimo, sin dependencias de imagen), service worker (navegación network-first con
   fallback offline, assets stale-while-revalidate), banner de instalación nativo.
+- **Despliegue y QR de prueba:** build con `base: './'` y workflow de GitHub Pages,
+  service worker derivado de `self.registration.scope`, panel por `#/admin` (con
+  `/admin/` como redirección estática), y generador `npm run gen:qr` con hoja
+  imprimible, CSV y validación de cada payload contra el resolver de la app. Las
+  rutas dejaron de mostrar tiempo estimado de llegada: solo distancia, pasos y plano.
 - **Estética:** tipografía Poppins/Open Sans, hero navy con diamante dorado y franja
   de acento, tarjetas con elevación y hover, animaciones de entrada escalonadas
   (`prefers-reduced-motion` respetado), botones con micro-interacciones, bloques de

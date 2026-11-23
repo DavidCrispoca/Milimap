@@ -200,7 +200,6 @@ export interface Route {
   /** Full node sequence the route traverses, for debugging and analytics. */
   nodeIds: NodeId[]
   totalMeters: number
-  estimatedSeconds: number
   /** Floors touched, in ascending level order. */
   levelsVisited: number[]
   hasStairs: boolean

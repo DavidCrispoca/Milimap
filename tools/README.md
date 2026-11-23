@@ -14,16 +14,19 @@ npx tsx tools/<script>.ts
 | `validate-plans.ts`   | 1    | Valida el grafo del campus: referencias rotas, nodos huérfanos, espacios inalcanzables, pisos sin conexión vertical. | ✅ Listo  |
 | `inspect-geojson.ts`  | 1    | Revisa un GeoJSON del equipo antes de entregarlo: capas, áreas, propiedades faltantes, unidades y escala.            | ✅ Listo  |
 | `import-handdrawn.ts` | 3    | Convierte el GeoJSON al `floor.json` interno y genera el grafo automáticamente.                                      | Pendiente |
-| `gen-qr.ts`           | 5    | Genera los PNG/SVG de los QR desde el catálogo de nodos ancla, más una plantilla A4 para imprimir.                   | Pendiente |
+| `generate-qrs.ts`     | 5    | Genera los PNG de QR de los puntos principales, una hoja HTML imprimible y un CSV, validando cada payload.           | ✅ Listo  |
 
 ## Uso
 
 ```bash
 npm run validate:plans
 npm run inspect:geojson -- src/data/inbox/edificio-a/p1.geojson
+npm run gen:qr
+npm run gen:qr -- --base-url=https://usuario.github.io/Milimap/
 ```
 
-Ambos devuelven **exit code 1** si hay errores, así el CI puede bloquear el merge.
+Los dos primeros devuelven **exit code 1** si hay errores, para que el CI bloquee el
+merge. `gen:qr` también falla si un código generado no resolvería en la app.
 
 ## Regla de convivencia con `src/`
 
