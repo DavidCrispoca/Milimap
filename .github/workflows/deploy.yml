@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 # Publishes the static build (the app is a hash-routed SPA, so no server is
 # needed). The QR test sheet is generated during `npm run build` and therefore
 # ships with the site at `/qrs/`.
+#
+# Requires GitHub Pages enabled once with "Source: GitHub Actions"
+# (Settings → Pages). Creating the site cannot be automated with GITHUB_TOKEN.
 
 on:
   push:
@@ -49,18 +52,14 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Resolve Pages URL
-        id: pages
-        uses: actions/configure-pages@v5
-        with:
-          # First run creates the Pages site, so deployment does not depend on a
-          # manual toggle in Settings. Later runs are a no-op.
-          enablement: true
-
       - name: Build
         # The QR codes embed this URL so the phone's native camera opens the app.
+        # Derived locally instead of via `configure-pages`: that action needs the
+        # Pages site to already exist, and its `enablement` option rejects
+        # GITHUB_TOKEN by design. Set the repository variable MILIMAP_SITE_URL
+        # when the site moves to a custom domain.
         env:
-          MILIMAP_QR_BASE_URL: ${{ steps.pages.outputs.base_url }}/
+          MILIMAP_QR_BASE_URL: ${{ vars.MILIMAP_SITE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
         run: npm run build
 
       - name: Upload artifact

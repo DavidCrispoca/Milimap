@@ -116,15 +116,19 @@ del dominio o bajo `/<repo>/`.
 
 Pasos para publicar:
 
-1. Push a `main` (o ejecutar el workflow a mano). La primera ejecución habilita
-   Pages automáticamente (`enablement: true` en `configure-pages`).
-2. Si el repositorio restringe la creación de sitios, habilitar una vez
-   **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+1. Habilitar Pages una sola vez: **Settings → Pages → Build and deployment →
+   Source: GitHub Actions**. Es un clic y no se puede automatizar: la API de
+   creación de sitios rechaza `GITHUB_TOKEN` (la opción `enablement` de
+   `configure-pages` exige un PAT o una GitHub App).
+2. Push a `main` (o ejecutar el workflow a mano).
 3. La app queda en `https://<usuario>.github.io/Milimap/` y el panel en
    `https://<usuario>.github.io/Milimap/#/admin`.
 
-El build de CI genera los QR con la URL de Pages como base, para que la cámara
-nativa del teléfono abra la app directamente.
+El workflow calcula la URL base solo
+(`https://<usuario>.github.io/<repo>/`) y con ella genera los QR, para que la
+cámara nativa del teléfono abra la app directamente. Si algún día el sitio usa un
+dominio propio, definir la variable de repositorio `MILIMAP_SITE_URL` con la URL
+completa y el workflow la respeta.
 
 ---
 
