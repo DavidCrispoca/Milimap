@@ -241,6 +241,7 @@ src/
 tools/             Scripts: validate-plans, inspect-geojson, gen-icons, gen-qr, tunnel.
                    Pendiente: import-handdrawn (Fase 3).
 docs/              Guías del equipo.
+evidencias/        Capturas del sitio en vivo y su índice (ver evidencias/README.md).
 ```
 
 ### La regla que no se rompe
@@ -271,6 +272,7 @@ Si necesitás React dentro de `domain/`, el código está en la capa equivocada.
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — decisiones de diseño y por qué.
 - **[`docs/PLAN-DATA.md`](docs/PLAN-DATA.md)** — cómo convertir un plano dibujado a mano en datos que la app entiende.
 - **[`docs/ADMIN-GUIDE.md`](docs/ADMIN-GUIDE.md)** — manual del panel de administración.
+- **[`evidencias/README.md`](evidencias/README.md)** — índice de capturas del sitio en vivo (inicio, mapa, rutas, QR, panel, offline).
 
 ## Privacidad
 
