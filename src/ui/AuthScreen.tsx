@@ -65,7 +65,7 @@ export function AuthScreen({ canCancel, onDone }: { canCancel: boolean; onDone: 
                 autoComplete="username"
                 autoCapitalize="none"
                 spellCheck={false}
-                placeholder="ana@umng.edu.co"
+                placeholder="est.estudiante@unimilitar.edu.co"
               />
             </label>
 

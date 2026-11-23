@@ -16,6 +16,9 @@ archivo a mano salvo en la sección `Unreleased`.
 - Inicio de sesión simulado con modo invitado: cualquier correo y contraseña
   funcionan; los invitados usan mapa, escáner y rutas, y el horario se activa al
   iniciar sesión.
+- Horario personal armado con un formulario de día, hora, materia y salón, con
+  edición, borrado y "Cómo llegar" cuando el salón existe en el mapa. Reemplaza la
+  selección por programa/grupo y la importación de JSON.
 - Panel de administración en `/admin` con roles (administrador, editor, consulta).
 - Gestión de eventos y anuncios con borrador, publicación y vigencia; validación Zod.
 - Edición de nombres, alias y estado de espacios sin tocar la geometría.

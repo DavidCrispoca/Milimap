@@ -17,6 +17,10 @@ Al abrir la app se elige **iniciar sesión** (simulado: cualquier correo y contr
 sirven) o **continuar como invitado**. Los invitados usan el mapa, el escáner y las
 rutas; el horario del semestre solo se activa con sesión iniciada.
 
+El horario se arma con un formulario de **día, hora, materia y salón**; no hay que
+editar JSON ni importar archivos. Si el salón existe en el mapa, la clase ofrece
+"Cómo llegar" directo.
+
 |                 |                                                                               |
 | --------------- | ----------------------------------------------------------------------------- |
 | **Alcance**     | Solo Sede Calle 100. Carrera 11 # 101-80, Bogotá D.C.                         |

@@ -894,10 +894,10 @@ Herramienta sugerida: **Metabase** montado sobre Supabase (gratis, self-hosted, 
 
 **Picky "Mi horario":**
 
-1. En la primera visita, se ofrece elegir **programa** (ej. "Ingeniería Civil", "Facultad de Ciencias Económicas") y **grupo**.
-2. Se precargan las clases del programa desde el catálogo público.
-3. El estudiante desmarca las que no lleva (opcionalmente).
-4. Se guarda localmente.
+1. En la primera visita, el estudiante arma su semana con un **formulario**: día, hora de inicio, hora de fin, materia y salón.
+2. El salón se escribe libremente; el campo sugiere los espacios del campus. Si coincide con uno del mapa, se habilita "Cómo llegar".
+3. Puede editar o eliminar cada clase, y borrar todo el horario.
+4. Se guarda localmente (sin cuenta en servidor, sin archivos JSON que importar).
 5. En el home, la tarjeta "Mi horario" muestra la clase actual y la próxima.
 
 **Cálculo de clase actual:**
@@ -912,7 +912,7 @@ for each class in myClasses:
   else if now is before class.startsAt → próxima clase
 ```
 
-**Consideración importante: los horarios de la UMNG pueden cambiar por semestre.** El catálogo se versiona por término (`2026-1`, `2026-2`), así que un cambio de horario es un commit nuevo, no una migración destructiva.
+**Consideración importante: los horarios de la UMNG pueden cambiar por semestre.** Como el horario del estudiante se guarda en su dispositivo, un cambio de semestre no lo borra: puede editar cada clase o rehacerlo desde el formulario.
 
 ### 6.6 Accesibilidad
 
@@ -1604,9 +1604,9 @@ feat(scanner): handle invalid and outdated qr payloads
 - [x] Home con carrusel de eventos especiales (fecha, lugar, "cómo llegar")
 - [x] Banner de anuncios urgentes
 - [x] Tarjeta "Mi horario": clase actual + próxima + botón "Cómo llegar"
-- [x] Selector de programa/grupo con precarga de clases
+- [x] Formulario de clase: día, hora de inicio y fin, materia y salón
 - [x] Persistencia en `localStorage` con versionado y migración
-- [x] Export/import del horario personal (JSON)
+- [x] Edición y borrado de clases (sin importar/exportar JSON)
 - [x] Cálculo de clase actual con zona horaria `America/Bogota`
 - [x] Vista de horario semanal completo
 - [x] Deep links: `/destino/:spaceId`, `/ruta/:origin/:dest` (hash router)
@@ -1824,10 +1824,11 @@ y próxima → "Cómo llegar"; instalar como PWA.
   de ubicación, vibración háptica, registro en analítica. El origen escaneado alimenta
   la pantalla de ruta.
 - **Fase 6 — Mi horario:** motor puro en `src/schedule/` (reloj `America/Bogota`,
-  clase actual, próxima, ETA entre días con cruce de semana), catálogo demo de
-  programas/grupos, persistencia del estudiante en `localStorage` con versión y
-  export/import JSON. Pantallas: selector de programa, semanal con desmarcado de
-  materias, tarjeta de clase actual/próxima en el inicio.
+  clase actual, próxima, ETA entre días con cruce de semana), formulario de clase
+  (día, hora de inicio y fin, materia y salón), persistencia del estudiante en
+  `localStorage` con versión y migración desde la selección por programa/grupo.
+  El salón se resuelve contra el catálogo del campus para habilitar la ruta.
+  Pantallas: horario semanal editable y tarjeta de clase actual/próxima en el inicio.
 - **Router hash (ADR-013):** reemplaza la navegación local por URLs compartibles:
   `#/mapa`, `#/escanear`, `#/horario`, `#/destino/:id`, `#/ruta/:origen/:destino`,
   `#/qr/:payload`. Sobrevive recarga y funciona en cualquier host estático.

@@ -11,7 +11,16 @@
  */
 
 import { minutesOf } from './csv'
-import type { ScheduleClass } from '@/content/types'
+
+/** The minimum shape the engine needs from anything scheduled on a weekday. */
+export interface TimedSession {
+  id: string
+  /** 1 = Monday … 6 = Saturday. */
+  weekday: number
+  /** "HH:MM" 24h. */
+  startsAt: string
+  endsAt: string
+}
 
 /** A clock reading in the campus timezone. */
 export interface BogotaClock {
@@ -55,10 +64,10 @@ export function bogotaClock(date: Date): BogotaClock {
 }
 
 /** The class happening right now in Bogotá, or null. */
-export function findCurrentClass(
-  classes: readonly ScheduleClass[],
+export function findCurrentClass<T extends TimedSession>(
+  classes: readonly T[],
   now: Date,
-): ScheduleClass | null {
+): T | null {
   const clock = bogotaClock(now)
 
   const candidates = classes.filter((item) => item.weekday === clock.weekday)
@@ -74,11 +83,11 @@ export function findCurrentClass(
  * The next class strictly after `now`, across the whole week. Returns null when
  * there is nothing ahead (empty schedule).
  */
-export function findNextClass(classes: readonly ScheduleClass[], now: Date): ScheduleClass | null {
+export function findNextClass<T extends TimedSession>(classes: readonly T[], now: Date): T | null {
   if (classes.length === 0) return null
   const clock = bogotaClock(now)
 
-  let best: ScheduleClass | null = null
+  let best: T | null = null
   let bestDelta = Infinity
 
   for (const item of classes) {
@@ -106,7 +115,7 @@ export function findNextClass(classes: readonly ScheduleClass[], now: Date): Sch
 }
 
 /** Minutes until a class starts, from `now`. 0 when it is already running. */
-export function minutesUntil(item: ScheduleClass, now: Date): number {
+export function minutesUntil(item: TimedSession, now: Date): number {
   const clock = bogotaClock(now)
   const start = minutesOf(item.startsAt)
 
