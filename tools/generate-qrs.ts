@@ -16,9 +16,12 @@
  *                                           # native camera opens the app
  *
  * Output: `public/qrs/` (generated, gitignored).
+ *
+ * The folder is rewritten on every run, except for files named `QR-*.png`: those
+ * are copies saved by hand and the only local trace of them, so they survive.
  */
 
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { toBuffer } from 'qrcode'
@@ -314,12 +317,24 @@ npm run gen:qr -- --base-url=https://usuario.github.io/milimap/
 `
 }
 
+/**
+ * Clear the previous run without touching hand-saved `QR-*.png` copies. The
+ * folder is gitignored, so deleting those would lose the only local copy.
+ */
+function cleanOutputDir(): void {
+  if (!existsSync(OUT_DIR)) return
+  for (const entry of readdirSync(OUT_DIR)) {
+    if (/^QR-/i.test(entry)) continue
+    rmSync(resolve(OUT_DIR, entry), { recursive: true, force: true })
+  }
+}
+
 async function main(): Promise<void> {
   const baseUrl = parseBaseUrl(process.argv.slice(2))
   const entries = buildEntries(baseUrl)
   if (entries.length === 0) throw new Error('No hay códigos que generar')
 
-  rmSync(OUT_DIR, { recursive: true, force: true })
+  cleanOutputDir()
   mkdirSync(OUT_DIR, { recursive: true })
 
   await Promise.all(
