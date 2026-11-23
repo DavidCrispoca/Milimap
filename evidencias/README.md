@@ -26,7 +26,7 @@ Fecha de captura: 22 de noviembre de 2026. Navegador Chromium (Playwright).
 | `02-inicio-cabecera.png`        | Cabecera de la app, aviso de mantenimiento y tarjeta del campus activo.                                      |
 | `03-inicio-eventos.png`         | Sección de eventos especiales con fecha, lugar y acceso "Cómo llegar".                                       |
 | `04-inicio-horario.png`         | Tarjeta "Mi horario" con el acceso para configurar el semestre.                                              |
-| `05-inicio-acciones.png`        | Acciones rápidas: escanear QR, abrir mapa y configurar horario.                                              |
+| `05-inicio-acciones.png`        | Acciones rápidas: escanear QR y buscar un lugar ("Probar ruta").                                             |
 | `06-inicio-estado.png`          | Estado del proyecto y alcance del MVP.                                                                       |
 | `07-inicio-accesibilidad.png`   | Ajustes de alto contraste, texto grande, menos animación e idioma.                                           |
 | `08-inicio-pagina-completa.png` | Página de inicio completa en una sola imagen (móvil).                                                        |
