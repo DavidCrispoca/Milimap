@@ -20,25 +20,6 @@ import { findCurrentClass, findNextClass } from '@/schedule/current'
 import { useState } from 'react'
 import type { SpaceId } from '@/domain/types'
 
-const PHASE_STEPS = [
-  { label: 'Fase 0 · Cimientos y tooling', state: 'done' as const },
-  { label: 'Fase 1 · Motor de ruteo', state: 'done' as const },
-  { label: 'Fase 2 · Panel de administración (contenido)', state: 'done' as const },
-  { label: 'Fase 3 · Editor de mapa en el panel', state: 'done' as const },
-  { label: 'Fase 4 · Mapa y navegación', state: 'done' as const },
-  { label: 'Fase 5 · Escáner QR', state: 'done' as const },
-  { label: 'Fase 6 · Horario y eventos', state: 'done' as const },
-  { label: 'Fase 7 · Digitalización de planos', state: 'partial' as const },
-  { label: 'Fase 8 · PWA y offline', state: 'partial' as const },
-  { label: 'Fase 9 · Lanzamiento y operación', state: 'todo' as const },
-]
-
-const DOT: Record<'done' | 'partial' | 'todo', { className: string; glyph: string }> = {
-  done: { className: 'status-list__dot status-list__dot--done', glyph: '✓' },
-  partial: { className: 'status-list__dot status-list__dot--partial', glyph: '◐' },
-  todo: { className: 'status-list__dot status-list__dot--todo', glyph: '·' },
-}
-
 const DAY_NUM = new Intl.DateTimeFormat('es-CO', { day: '2-digit' })
 const MONTH_SHORT = new Intl.DateTimeFormat('es-CO', { month: 'short' })
 const TIME_SHORT = new Intl.DateTimeFormat('es-CO', {
@@ -300,27 +281,6 @@ export function HomeScreen({
           </button>
           <span className="settings-actions__note">{t('a11y.note')}</span>
         </div>
-      </section>
-
-      <section className="card card--muted">
-        <h2 className="card__title">Estado del proyecto</h2>
-        <p className="card__body">
-          MVP académico. Los cinco pisos, el ruteo, el escáner QR, el horario, el editor de mapa y
-          la PWA offline ya funcionan. Falta la fase de lanzamiento y la verificación en sitio.
-        </p>
-        <ul className="status-list">
-          {PHASE_STEPS.map((step) => {
-            const dot = DOT[step.state]
-            return (
-              <li key={step.label} className="status-list__item">
-                <span className={dot.className} aria-hidden="true">
-                  {dot.glyph}
-                </span>
-                <span>{step.label}</span>
-              </li>
-            )
-          })}
-        </ul>
       </section>
     </>
   )
